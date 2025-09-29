@@ -20,6 +20,9 @@ export default {
         "cinza-medio": "#E2E8F0",
         "cinza-escuro": "#4A5568",
       },
+      fontFamily: {
+        advent: ["Advent Pro", "sans-serif"],
+      },
     },
   },
   plugins: [],
