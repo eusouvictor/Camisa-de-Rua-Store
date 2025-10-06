@@ -1,3 +1,3 @@
-Placeholders de configuração do servidor.
+Este diretório é para arquivos de configuração do servidor (ex.: conexão com DB, middlewares específicos, variáveis de ambiente).
 
-Adicione aqui arquivos de configuração (ex.: db.js, cors.js) conforme definirmos a stack.
+No estado atual esse projeto usa apenas variáveis de ambiente em `server/.env.example`. Se for adicionar persistência, crie `db.js` aqui e exporte o cliente/conexão.
