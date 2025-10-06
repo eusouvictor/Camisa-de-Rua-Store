@@ -47,3 +47,5 @@ desktop.ini
 pids/
 *.pid
 *.pid.lock
+
+/src/generated/prisma
