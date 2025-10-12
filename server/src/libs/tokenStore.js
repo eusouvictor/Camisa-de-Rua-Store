@@ -1,7 +1,11 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 
-const FILE = path.resolve("./server/tmp_refresh_tokens.json");
+// Resolve para o diretório `server` (duas pastas acima: src/libs -> server/src/libs)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const FILE = path.resolve(__dirname, "..", "..", "tmp_refresh_tokens.json");
 
 async function readAll() {
   try {
