@@ -3,30 +3,44 @@ Server (Express) — esqueleto para desenvolvimento
 
 Esta pasta contém um servidor Express mínimo usado apenas para desenvolvimento local e testes rápidos.
 
-Como usar:
+Resumo das mudanças realizadas:
+- Autenticação atualizada para usar bcrypt (hash de senhas) e JWT (access token). Escolha: fluxo com access token + refresh token em cookie HttpOnly (opção B).
+- Middleware `authMiddleware` adicionado para validar o access token.
+- Rotas de exemplo em `src/routes/` e controladores em `src/controllers/`.
+- Prisma scaffold criado em `server/prisma/schema.prisma` com modelos `User` e `Product`.
 
-1. Entre na pasta do servidor:
+Variáveis de ambiente necessárias:
+- `DATABASE_URL` — string de conexão MySQL para o Prisma, ex.: `mysql://user:password@localhost:3306/dbname`
+- `JWT_SECRET` — segredo para assinar tokens JWT
+- `PORT` — porta do servidor (opcional, default 4000)
 
-   cd server
-
-2. Instale dependências:
+Como configurar o banco (MySQL) e Prisma:
+1. Instale e rode um servidor MySQL local (ou use um serviço remoto).
+2. Defina `DATABASE_URL` no `.env` do `server` com a string de conexão.
+3. No diretório `server`, rode:
 
    npm install
+   npx prisma generate
+   npx prisma migrate dev --name init
 
-3. Inicie em modo dev (nodemon):
+4. O comando `migrate` criará as tabelas do schema (User, Product) no banco.
 
-   npm run dev
+Fluxo de autenticação (Opção B - recomendado para produção):
+- POST /api/auth/login -> valida credenciais, retorna access token (no body) e envia refresh token em cookie HttpOnly+Secure.
+- POST /api/auth/refresh -> usa cookie HttpOnly para trocar refresh por novo access token.
+- POST /api/auth/logout -> revoga refresh token e remove cookie.
 
-Endpoints disponíveis (exemplos):
+Observações de segurança:
+- Nunca commite `DATABASE_URL` ou `JWT_SECRET` no repositório.
+- Em produção use HTTPS e cookies `Secure` + `SameSite=Strict` (ou Lax dependendo do caso).
+- Implemente rotacionamento e revogação de refresh tokens (usar DB/Redis para armazená-los).
 
-- GET /health — retorna status do servidor
-- POST /api/auth/register — registra um usuário (desenvolvimento, em memória)
-- POST /api/auth/login — autentica um usuário (desenvolvimento, sem JWT)
-- GET /api/produtos — lista de produtos de exemplo
+Exemplo de variáveis em `.env` (servidor):
 
-Notas:
+DATABASE_URL="mysql://root:senha@localhost:3306/cdr_store"
+JWT_SECRET="um-segredo-muito-forte"
+PORT=4000
 
-- O servidor atualmente mantém usuários em memória apenas para facilitar o desenvolvimento do front-end. Para produção, substitua por persistência (SQLite/Postgres/MongoDB) e implemente autenticação (JWT ou sessions).
-- As configurações de ambiente estão em `.env.example`.
-
-Se quiser, posso implementar persistência simples com um arquivo JSON ou SQLite e adicionar autenticação JWT.
+Se quiser, eu continuo e implemento completamente o fluxo (refresh tokens com armazenamento no DB via Prisma, endpoints /refresh e /logout, proteger POST /api/produtos). Diga se quer que eu proceda com:
+- (A) armazenar refresh tokens em tabela `RefreshToken` no banco via Prisma (recomendado), ou
+- (B) usar arquivo JSON temporário (rápido, não recomendado para produção).

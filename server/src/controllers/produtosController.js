@@ -1,5 +1,3 @@
-// Controlador simples para produtos (dados em memória)
-
 const produtos = [
   { id: 1, nome: "Camiseta Classic", preco: 79.9, categoria: "camiseta" },
   { id: 2, nome: "Camiseta Street", preco: 99.9, categoria: "camiseta" },
