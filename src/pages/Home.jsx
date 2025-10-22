@@ -98,9 +98,9 @@ const Home = ({ addToCart }) => {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center">
             <img
-              src="/images/Vector.png"
+              src="/images/vector.png"
               alt="Camisa de Rua Logo"
-              className="h-12 w-19 object-cover ml-40"
+              className="h-12 w-auto object-contain ml-4"
             />
           </div>
 
