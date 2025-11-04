@@ -48,7 +48,7 @@ const ProductCard = ({ produto, onAddToCart }) => {
 const Home = ({ addToCart }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [produtosFiltrados, setProdutosFiltrados] = useState(produtos);
+  const [produtosFiltrados, setProdutosFiltrados] = useState([]);
   const [filtroAtivo, setFiltroAtivo] = useState("todos");
 
   useEffect(() => {
@@ -58,23 +58,41 @@ const Home = ({ addToCart }) => {
       return;
     }
     setUser(userData);
+    
+    const fetchProdutos = async () => {
+      try {
+        const response = await fetch("http://localhost:4000/api/produtos");
+        const data = await response.json();
+        if (response.ok) {
+          setProdutosFiltrados(data.produtos || []);
+          aplicarFiltro("todos", data.produtos || []); 
+        } else {
+          console.error("Erro ao buscar produtos:", data.error);
+        }
+      } catch (err) {
+        console.error("Falha na rede ao buscar produtos:", err);
+      }
+    };
+    
+    fetchProdutos();
+  
   }, [navigate]);
 
-  const aplicarFiltro = (categoria) => {
-    setFiltroAtivo(categoria);
+const aplicarFiltro = (categoria, produtosBase = produtosFiltrados) => {
+  setFiltroAtivo(categoria);
 
-    if (categoria === "todos") {
-      setProdutosFiltrados(produtos);
-    } else if (categoria === "preco") {
-      const ordenados = [...produtos].sort((a, b) => a.preco - b.preco);
-      setProdutosFiltrados(ordenados);
-    } else {
-      const filtrados = produtos.filter(
-        (produto) => produto.categoria === categoria
-      );
-      setProdutosFiltrados(filtrados);
-    }
-  };
+  if (categoria === "todos") {
+    setProdutosFiltrados(produtosBase);
+  } else if (categoria === "preco") {
+    const ordenados = [...produtosBase].sort((a, b) => a.preco - b.preco);
+    setProdutosFiltrados(ordenados);
+  } else {
+    const filtrados = produtosBase.filter(
+      (produto) => produto.categoria === categoria
+    );
+    setProdutosFiltrados(filtrados);
+  }
+};
 
   const handleAddToCart = (produto) => {
     addToCart(produto);

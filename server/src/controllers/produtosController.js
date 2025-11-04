@@ -1,23 +1,47 @@
-const produtos = [
-  { id: 1, nome: "Camiseta Classic", preco: 79.9, categoria: "camiseta" },
-  { id: 2, nome: "Camiseta Street", preco: 99.9, categoria: "camiseta" },
-];
+import prisma from "../libs/prisma.js";
 
-export function listar(req, res) {
-  res.json({ produtos });
+// Lista os produtos do banco
+export async function listar(req, res) {
+  try {
+    const produtos = await prisma.product.findMany();
+    res.json({ produtos });
+  } catch (err) {
+    console.error("Erro ao listar produtos:", err.message);
+    res.status(500).json({ error: "Erro interno ao buscar produtos" });
+  }
 }
 
-export function obter(req, res) {
-  const id = Number(req.params.id);
-  const p = produtos.find((x) => x.id === id);
-  if (!p) return res.status(404).json({ error: "Produto não encontrado" });
-  return res.json({ produto: p });
+// Obtém um produto do banco
+export async function obter(req, res) {
+  try {
+    const id = Number(req.params.id);
+    const p = await prisma.product.findUnique({ where: { id } });
+
+    if (!p) return res.status(404).json({ error: "Produto não encontrado" });
+    return res.json({ produto: p });
+  } catch (err) {
+    console.error("Erro ao obter produto:", err.message);
+    res.status(500).json({ error: "Erro interno" });
+  }
 }
 
-export function criar(req, res) {
-  const { nome, preco, categoria } = req.body;
-  if (!nome || preco == null) return res.status(400).json({ error: "nome e preco são obrigatórios" });
-  const novo = { id: produtos.length + 1, nome, preco: Number(preco), categoria: categoria || "" };
-  produtos.push(novo);
-  return res.status(201).json({ produto: novo });
+// Cria um produto do banco
+export async function criar(req, res) {
+  try {
+    const { nome, preco, categoria } = req.body;
+    if (!nome || preco == null) return res.status(400).json({ error: "nome e preco são obrigatórios" });
+
+    const novo = await prisma.product.create({
+      data: {
+        nome,
+        preco: Number(preco),
+        categoria: categoria || ""
+      }
+    });
+
+    return res.status(201).json({ produto: novo });
+  } catch (err) {
+    console.error("Erro ao criar produto:", err.message);
+    res.status(500).json({ error: "Erro interno" });
+  }
 }
