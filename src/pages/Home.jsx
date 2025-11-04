@@ -106,7 +106,7 @@ const Home = ({ addToCart }) => {
 
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-4">
-              <span className="text-verde-neon">Olá, {user.nome}</span>
+              <span className="text-verde-neon">Olá, {user.name}</span>
               <button
                 onClick={handleLogout}
                 className="border-2 border-verde-neon text-verde-neon font-bold py-2 px-6 rounded-full hover:bg-verde-neon hover:text-verde-rua transition-colors"
