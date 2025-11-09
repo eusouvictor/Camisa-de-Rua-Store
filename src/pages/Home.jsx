@@ -48,6 +48,7 @@ const ProductCard = ({ produto, onAddToCart }) => {
 const Home = ({ addToCart }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [allProdutos, setAllProdutos] = useState([]);
   const [produtosFiltrados, setProdutosFiltrados] = useState([]);
   const [filtroAtivo, setFiltroAtivo] = useState("todos");
 
@@ -64,8 +65,9 @@ const Home = ({ addToCart }) => {
         const response = await fetch("http://localhost:4000/api/produtos");
         const data = await response.json();
         if (response.ok) {
+          setAllProdutos(data.produtos || []);
           setProdutosFiltrados(data.produtos || []);
-          aplicarFiltro("todos", data.produtos || []); 
+          aplicarFiltro("todos", data.produtos || []);
         } else {
           console.error("Erro ao buscar produtos:", data.error);
         }
@@ -78,7 +80,7 @@ const Home = ({ addToCart }) => {
   
   }, [navigate]);
 
-const aplicarFiltro = (categoria, produtosBase = produtosFiltrados) => {
+const aplicarFiltro = (categoria, produtosBase = allProdutos) => {
   setFiltroAtivo(categoria);
 
   if (categoria === "todos") {

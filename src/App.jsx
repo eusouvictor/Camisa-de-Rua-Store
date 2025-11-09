@@ -2,11 +2,21 @@ import React, { useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import ModalAuth from "./components/ModalAuth";
 import Home from "./pages/Home";
+import produtos from "./data/produtos";
 
 function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [cart, setCart] = useState([]);
   const navigate = useNavigate();
+
+  const addToCart = (product) => {
+    setCart((prevCart) => {
+      const novoCarrinho = [...prevCart, product];
+      console.log("Carrinho atualizado:", novoCarrinho);
+      return novoCarrinho;
+    });
+  };
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);
@@ -49,9 +59,9 @@ function App() {
                   <div className="flex items-center">
                     <button
                       onClick={handleExploreClick}
-                      className="bg-verde-neon hover:bg-verde-rua text-white font-bold py-2 px-6 rounded-full text-xl transition-all duration-500 transform hover:scale-95 whitespace-nowrap" // Corrigido
+                      className="bg-verde-neon hover:bg-verde-rua text-white font-bold py-2 px-6 rounded-full text-xl transition-all duration-500 transform hover:scale-95 whitespace-nowrap"
                     >
-                      EXPLORAR COLEÇÃO!
+                      Entrar/Criar Conta
                     </button>
                   </div>
                 </div>
@@ -274,7 +284,7 @@ function App() {
         {/* Rota da Home (protegida) */}
         <Route
           path="/home"
-          element={user ? <Home /> : <Navigate to="/" replace />}
+          element={user ? <Home addToCart={addToCart}/> : <Navigate to="/" replace />}
         />
 
         {/* Redirecionamento para raiz */}
