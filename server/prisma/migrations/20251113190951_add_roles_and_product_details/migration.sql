@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE `product` ADD COLUMN `description` VARCHAR(191) NULL,
+    ADD COLUMN `imageUrl` VARCHAR(191) NULL;
+
+-- AlterTable
+ALTER TABLE `user` ADD COLUMN `role` VARCHAR(191) NOT NULL DEFAULT 'CUSTOMER';
