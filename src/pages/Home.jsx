@@ -23,14 +23,29 @@ const ProductCard = ({ produto, onAddToCart }) => {
 
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="h-64 bg-verde-rua flex items-center justify-center">
-        <span className="text-white">Imagem do produto</span>
-      </div>
+
+<div className="h-64 w-full bg-white flex items-center justify-center overflow-hidden">
+  {produto.imageUrl ? (
+    <img 
+      src={produto.imageUrl} 
+      alt={produto.nome} 
+      className="h-full w-full object-contain" // object-contain garante que a foto inteira apareça sem cortar
+    />
+  ) : (
+    // Fallback caso o produto não tenha foto no banco
+    <div className="h-full w-full bg-verde-rua flex items-center justify-center">
+      <span className="text-white">Sem foto</span>
+    </div>
+  )}
+</div>
       <div className="p-4">
         <p className="font-medium mb-2">{produto.nome}</p>
         <span className="text-lg font-bold">
           {formatarPreco(produto.preco)}
         </span>
+        <p className="text-xs text-gray-500 mt-2 line-clamp-3">
+        {produto.description}
+        </p>
         <span className="block text-sm text-gray-500 capitalize mb-3">
           {produto.categoria}
         </span>
