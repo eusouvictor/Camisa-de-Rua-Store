@@ -38,7 +38,7 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
       throw new Error("Preencha todos os campos");
     }
 
-    // Usuário de teste
+    // Usuário de teste - já existe no seu código
     if (email === "teste@teste.com" && senha === "123456") {
       const user = { id: "1", nome: "Usuário Teste", email: "teste@teste.com" };
       localStorage.setItem("user", JSON.stringify(user));

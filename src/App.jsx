@@ -2,10 +2,14 @@ import React, { useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import ModalAuth from "./components/ModalAuth";
 import Home from "./pages/Home";
+import Cart from "./pages/Cart";
+import Events from "./pages/Events"; // Adicione esta importação
+import Settings from "./pages/Settings";
 
 function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [cart, setCart] = useState([]);
   const navigate = useNavigate();
 
   const handleLoginSuccess = (userData) => {
@@ -25,6 +29,29 @@ function App() {
     } else {
       setIsAuthOpen(true);
     }
+  }; // Faltava fechar esta chave
+
+  // Funções do carrinho
+  const addToCart = (product) => {
+    setCart((prevCart) => {
+      const existingItem = prevCart.find((item) => item.id === product.id);
+      if (existingItem) {
+        return prevCart.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: (item.quantity || 1) + 1 }
+            : item
+        );
+      }
+      return [...prevCart, { ...product, quantity: 1 }];
+    });
+  };
+
+  const updateCart = (newCart) => {
+    setCart(newCart);
+  };
+
+  const removeFromCart = (productId) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
   };
 
   return (
@@ -42,14 +69,14 @@ function App() {
                     <img
                       src="/images/Vector.png"
                       alt="Camisa de Rua Logo"
-                      className="h-12 w-auto max-w-full object-contain" // Corrigido
+                      className="h-12 w-auto max-w-full object-contain"
                     />
                   </div>
 
                   <div className="flex items-center">
                     <button
                       onClick={handleExploreClick}
-                      className="bg-verde-neon hover:bg-verde-rua text-white font-bold py-2 px-6 rounded-full text-xl transition-all duration-500 transform hover:scale-95 whitespace-nowrap" // Corrigido
+                      className="bg-verde-neon hover:bg-verde-rua text-white font-bold py-2 px-6 rounded-full text-xl transition-all duration-500 transform hover:scale-95 whitespace-nowrap"
                     >
                       EXPLORAR COLEÇÃO!
                     </button>
@@ -59,7 +86,6 @@ function App() {
 
               {/* HERO SECTION */}
               <section className="relative bg-verde-claro text-white py-10 px-4 w-full">
-                {" "}
                 <div className="flex justify-center items-center w-full max-w-full">
                   {/* mobile */}
                   <img
@@ -85,7 +111,6 @@ function App() {
                   </h2>
 
                   <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-gray-200 w-full">
-                    {" "}
                     <p className="text-lg leading-relaxed text-gray-700 mb-6">
                       A Camisa de Rua Store nasceu com o propósito de vestir a
                       cultura da periferia e dar visibilidade às histórias que
@@ -134,7 +159,6 @@ function App() {
                   </div>
 
                   <div className="bg-gray-900 rounded-2xl p-6 md:p-8 text-white w-full">
-                    {" "}
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <div>
                         <label className="block text-sm font-bold mb-2 text-verde-neon">
@@ -274,7 +298,52 @@ function App() {
         {/* Rota da Home (protegida) */}
         <Route
           path="/home"
-          element={user ? <Home /> : <Navigate to="/" replace />}
+          element={
+            user ? (
+              <Home addToCart={addToCart} cart={cart} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+
+        {/* Rota do Carrinho (protegida) */}
+        <Route
+          path="/cart"
+          element={
+            user ? (
+              <Cart
+                cart={cart}
+                updateCart={updateCart}
+                removeFromCart={removeFromCart}
+              />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+
+        {/* Rota de Eventos (protegida) */}
+        <Route
+          path="/events"
+          element={
+            user ? (
+              <Events addToCart={addToCart} cart={cart} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            user ? (
+              <Settings user={user} setUser={setUser} cart={cart} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
         />
 
         {/* Redirecionamento para raiz */}
