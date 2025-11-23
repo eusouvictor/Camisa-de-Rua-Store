@@ -17,6 +17,7 @@ model User {
   refreshTokens RefreshToken[]
   orders        Order[]
   role          String   @default("CUSTOMER")
+  auditLogs     UserAudit[]
 }
 
 model Product {
@@ -80,4 +81,16 @@ model OrderItem {
   // Ligação: Este item é de um Produto (Product)
   product   Product @relation(fields: [productId], references: [id])
   productId Int
+}
+
+// Tabela para auditar ações do usuário (ex: login, troca de senha)
+model UserAudit {
+  id        Int      @id @default(autoincrement())
+  action    String   // O que aconteceu? (Ex: "LOGIN_SUCCESS")
+  details   String?  // Detalhes extras (Ex: "IP: 192.168...")
+  createdAt DateTime @default(now())
+
+  // Relação com o User
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
 }

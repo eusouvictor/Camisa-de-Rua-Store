@@ -28,6 +28,15 @@ export async function register(req, res) {
       },
     });
 
+    // --- AUDITORIA: Regista que o utilizador foi criado ---
+    await prisma.userAudit.create({
+      data: {
+        action: "USER_CREATED",
+        details: `Registo inicial via app. Nome: ${name || "Sem nome"}`,
+        userId: newUser.id, // Ligamos este evento ao ID do utilizador acabado de criar
+      },
+    });
+    
     const { password: _p, ...safe } = newUser;
     return res.status(201).json({ user: safe });
 
