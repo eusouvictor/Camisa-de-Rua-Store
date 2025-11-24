@@ -13,6 +13,14 @@ function App() {
   const [cart, setCart] = useState([]);
   const navigate = useNavigate();
 
+  const addToCart = (product) => {
+    setCart((prevCart) => {
+      const novoCarrinho = [...prevCart, product];
+      console.log("Carrinho atualizado:", novoCarrinho);
+      return novoCarrinho;
+    });
+  };
+
   const handleLoginSuccess = (userData) => {
     setUser(userData);
     setIsAuthOpen(false);
