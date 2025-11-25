@@ -1,5 +1,9 @@
 import React, { useState } from "react";
+<<<<<<< HEAD
 const API_URL = "http://localhost:4000/api";
+=======
+import { X, Mail, Lock, User, Key } from "lucide-react";
+>>>>>>> 3f26df3 (feat: adiciona página de pagamento, mudança do layout, cores e design, novos detalhes no geral)
 
 const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -52,6 +56,7 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
       throw new Error("Preencha todos os campos");
     }
 
+<<<<<<< HEAD
     // Tenta fazer o login na API
     const response = await fetch(`${API_URL}/auth/login`, {
       method: "POST",
@@ -68,6 +73,13 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
     // Se a API deu erro (ex: senha errada), mostre o erro
     if (!response.ok) {
       throw new Error(data.error || "Erro ao tentar fazer login");
+=======
+    if (email === "teste@teste.com" && senha === "123456") {
+      const user = { id: "1", nome: "Usuário Teste", email: "teste@teste.com" };
+      localStorage.setItem("user", JSON.stringify(user));
+      onLoginSuccess(user);
+      return;
+>>>>>>> 3f26df3 (feat: adiciona página de pagamento, mudança do layout, cores e design, novos detalhes no geral)
     }
 
     // Se deu certo, salve os dados no localStorage
@@ -133,16 +145,14 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
       throw new Error("Email não encontrado");
     }
 
-    // Simular envio de email (em produção, você faria uma chamada API)
     const codigo = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Salvar código temporariamente no localStorage (em produção, use um backend)
     const recuperacoes = JSON.parse(
       localStorage.getItem("recuperacoes") || "{}"
     );
     recuperacoes[email] = {
       codigo,
-      expiracao: Date.now() + 15 * 60 * 1000, // 15 minutos
+      expiracao: Date.now() + 15 * 60 * 1000,
     };
     localStorage.setItem("recuperacoes", JSON.stringify(recuperacoes));
 
@@ -168,7 +178,6 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
       throw new Error("As senhas não coincidem");
     }
 
-    // Verificar código de recuperação
     const recuperacoes = JSON.parse(
       localStorage.getItem("recuperacoes") || "{}"
     );
@@ -186,7 +195,6 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
       throw new Error("Código de recuperação inválido");
     }
 
-    // Atualizar senha do usuário
     const users = JSON.parse(localStorage.getItem("users") || "[]");
     const userIndex = users.findIndex((u) => u.email === email);
 
@@ -197,7 +205,6 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
     users[userIndex].senha = novaSenha;
     localStorage.setItem("users", JSON.stringify(users));
 
-    // Limpar código de recuperação
     delete recuperacoes[email];
     localStorage.setItem("recuperacoes", JSON.stringify(recuperacoes));
 
@@ -205,7 +212,6 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
       "Senha redefinida com sucesso! Faça login com sua nova senha."
     );
 
-    // Voltar para o login após 2 segundos
     setTimeout(() => {
       setIsForgotPassword(false);
       setCodigoEnviado(false);
@@ -291,162 +297,210 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
   const renderForgotPasswordForm = () => (
     <>
       <div className="text-center mb-4">
-        <h3 className="text-lg font-bold text-green-900">Recuperar Senha</h3>
-        <p className="text-gray-600 text-sm mt-2">
+        <div className="w-12 h-12 bg-gradient-to-br from-verde-neon to-verde-rua rounded-xl flex items-center justify-center mx-auto mb-3">
+          <Key className="text-gray-900 w-6 h-6" />
+        </div>
+        <h3 className="text-xl font-black text-white mb-1">Recuperar Senha</h3>
+        <p className="text-gray-300 text-sm">
           {!codigoEnviado
             ? "Digite seu email para receber um código de recuperação"
             : "Digite o código recebido e sua nova senha"}
         </p>
       </div>
 
-      <div>
-        <label className="block text-sm font-bold mb-2 text-green-900">
-          Email
-        </label>
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          disabled={loading || codigoEnviado}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
-          placeholder="seu@email.com"
-        />
+      <div className="space-y-3">
+        <div>
+          <label className="block text-sm font-bold mb-2 text-verde-neon">
+            Email
+          </label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              disabled={loading || codigoEnviado}
+              className="w-full p-3 text-sm bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 pl-10 transition-all duration-300"
+              placeholder="seu@email.com"
+            />
+          </div>
+        </div>
+
+        {codigoEnviado && (
+          <>
+            <div>
+              <label className="block text-sm font-bold mb-2 text-verde-neon">
+                Código de Recuperação
+              </label>
+              <div className="relative">
+                <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  name="codigoRecuperacao"
+                  value={formData.codigoRecuperacao}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  className="w-full p-3 text-sm bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 pl-10 transition-all duration-300"
+                  placeholder="Código de 6 dígitos"
+                  maxLength="6"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold mb-2 text-verde-neon">
+                Nova Senha
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="password"
+                  name="novaSenha"
+                  value={formData.novaSenha}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  className="w-full p-3 text-sm bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 pl-10 transition-all duration-300"
+                  placeholder="Nova senha"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold mb-2 text-verde-neon">
+                Confirmar Nova Senha
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="password"
+                  name="confirmarNovaSenha"
+                  value={formData.confirmarNovaSenha}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  className="w-full p-3 text-sm bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 pl-10 transition-all duration-300"
+                  placeholder="Confirmar nova senha"
+                />
+              </div>
+            </div>
+          </>
+        )}
       </div>
-
-      {codigoEnviado && (
-        <>
-          <div>
-            <label className="block text-sm font-bold mb-2 text-green-900">
-              Código de Recuperação
-            </label>
-            <input
-              type="text"
-              name="codigoRecuperacao"
-              value={formData.codigoRecuperacao}
-              onChange={handleChange}
-              required
-              disabled={loading}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
-              placeholder="Digite o código de 6 dígitos"
-              maxLength="6"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold mb-2 text-green-900">
-              Nova Senha
-            </label>
-            <input
-              type="password"
-              name="novaSenha"
-              value={formData.novaSenha}
-              onChange={handleChange}
-              required
-              disabled={loading}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
-              placeholder="Sua nova senha"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold mb-2 text-green-900">
-              Confirmar Nova Senha
-            </label>
-            <input
-              type="password"
-              name="confirmarNovaSenha"
-              value={formData.confirmarNovaSenha}
-              onChange={handleChange}
-              required
-              disabled={loading}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
-              placeholder="Confirme sua nova senha"
-            />
-          </div>
-        </>
-      )}
     </>
   );
 
   const renderAuthForm = () => (
     <>
-      {!isLogin && (
-        <div>
-          <label className="block text-sm font-bold mb-2 text-green-900">
-            Nome
-          </label>
-          <input
-            type="text"
-            name="nome"
-            value={formData.nome}
-            onChange={handleChange}
-            required={!isLogin}
-            disabled={loading}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
-            placeholder="Seu nome completo"
-          />
+      <div className="text-center mb-4">
+        <div className="w-12 h-12 bg-gradient-to-br from-verde-neon to-verde-rua rounded-xl flex items-center justify-center mx-auto mb-3">
+          {isLogin ? (
+            <User className="text-gray-900 w-6 h-6" />
+          ) : (
+            <Mail className="text-gray-900 w-6 h-6" />
+          )}
         </div>
-      )}
-
-      <div>
-        <label className="block text-sm font-bold mb-2 text-green-900">
-          Email
-        </label>
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          disabled={loading}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
-          placeholder="seu@email.com"
-        />
+        <h3 className="text-xl font-black text-white mb-1">
+          {isLogin ? "Fazer Login" : "Criar Conta"}
+        </h3>
+        <p className="text-gray-300 text-sm">
+          {isLogin ? "Entre na sua conta" : "Junte-se à nossa comunidade"}
+        </p>
       </div>
 
-      <div>
-        <label className="block text-sm font-bold mb-2 text-green-900">
-          Senha
-        </label>
-        <input
-          type="password"
-          name="senha"
-          value={formData.senha}
-          onChange={handleChange}
-          required
-          disabled={loading}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
-          placeholder="Sua senha"
-        />
-      </div>
+      <div className="space-y-3">
+        {!isLogin && (
+          <div>
+            <label className="block text-sm font-bold mb-2 text-verde-neon">
+              Nome
+            </label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                name="nome"
+                value={formData.nome}
+                onChange={handleChange}
+                required={!isLogin}
+                disabled={loading}
+                className="w-full p-3 text-sm bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 pl-10 transition-all duration-300"
+                placeholder="Seu nome completo"
+              />
+            </div>
+          </div>
+        )}
 
-      {!isLogin && (
         <div>
-          <label className="block text-sm font-bold mb-2 text-green-900">
-            Confirmar Senha
+          <label className="block text-sm font-bold mb-2 text-verde-neon">
+            Email
           </label>
-          <input
-            type="password"
-            name="confirmarSenha"
-            value={formData.confirmarSenha}
-            onChange={handleChange}
-            required={!isLogin}
-            disabled={loading}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
-            placeholder="Confirme sua senha"
-          />
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              disabled={loading}
+              className="w-full p-3 text-sm bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 pl-10 transition-all duration-300"
+              placeholder="seu@email.com"
+            />
+          </div>
         </div>
-      )}
+
+        <div>
+          <label className="block text-sm font-bold mb-2 text-verde-neon">
+            Senha
+          </label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="password"
+              name="senha"
+              value={formData.senha}
+              onChange={handleChange}
+              required
+              disabled={loading}
+              className="w-full p-3 text-sm bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 pl-10 transition-all duration-300"
+              placeholder="Sua senha"
+            />
+          </div>
+        </div>
+
+        {!isLogin && (
+          <div>
+            <label className="block text-sm font-bold mb-2 text-verde-neon">
+              Confirmar Senha
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="password"
+                name="confirmarSenha"
+                value={formData.confirmarSenha}
+                onChange={handleChange}
+                required={!isLogin}
+                disabled={loading}
+                className="w-full p-3 text-sm bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 pl-10 transition-all duration-300"
+                placeholder="Confirmar senha"
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </>
   );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-md w-full">
-        <div className="bg-green-900 text-white p-6 rounded-t-2xl flex justify-between items-center">
-          <h2 className="text-2xl font-bold">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-lg flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl w-full max-w-sm border border-verde-neon/20 shadow-2xl shadow-verde-neon/10 my-auto">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-verde-rua to-verde-escuro text-white p-4 rounded-t-2xl flex justify-between items-center">
+          <h2 className="text-lg font-black">
             {isForgotPassword
               ? "Recuperar Senha"
               : isLogin
@@ -455,22 +509,23 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
           </h2>
           <button
             onClick={onClose}
-            className="text-white hover:text-yellow-400 text-2xl"
+            className="text-white hover:text-verde-neon transition-all duration-300 transform hover:scale-110"
             disabled={loading}
           >
-            ×
+            <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-4">
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <div className="bg-red-500/20 border border-red-500/50 text-red-300 px-3 py-2 rounded-xl mb-3 backdrop-blur-lg text-sm">
               {error}
             </div>
           )}
 
           {successMessage && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+            <div className="bg-verde-neon/20 border border-verde-neon/50 text-verde-neon px-3 py-2 rounded-xl mb-3 backdrop-blur-lg text-sm">
               {successMessage}
             </div>
           )}
@@ -480,7 +535,7 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-yellow-400 text-green-900 font-bold py-3 rounded-lg hover:bg-yellow-500 transition-colors disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-verde-neon to-verde-rua hover:from-verde-rua hover:to-verde-neon text-gray-900 font-bold py-3 rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-lg hover:shadow-verde-neon/25 disabled:opacity-50 disabled:hover:scale-100 mt-4 text-sm"
           >
             {loading
               ? "Carregando..."
@@ -493,13 +548,13 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
               : "Criar Conta"}
           </button>
 
-          <div className="text-center pt-4 border-t border-gray-300 space-y-2">
+          <div className="text-center pt-4 border-t border-gray-700/50 space-y-2">
             {isLogin && !isForgotPassword && (
               <div>
                 <button
                   type="button"
                   onClick={switchToForgotPassword}
-                  className="text-green-900 font-bold hover:text-green-700 text-sm"
+                  className="text-verde-neon font-bold hover:text-verde-rua text-xs transition-all duration-300"
                 >
                   Esqueceu a senha?
                 </button>
@@ -507,36 +562,36 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
             )}
 
             {isForgotPassword ? (
-              <div className="space-y-2">
-                <p className="text-gray-600">
+              <div className="space-y-1">
+                <p className="text-gray-400 text-xs">
                   Lembrou sua senha?{" "}
                   <button
                     type="button"
                     onClick={voltarParaLogin}
-                    className="text-green-900 font-bold hover:text-green-700"
+                    className="text-verde-neon font-bold hover:text-verde-rua transition-all duration-300"
                   >
                     Fazer login
                   </button>
                 </p>
               </div>
             ) : isLogin ? (
-              <p className="text-gray-600">
+              <p className="text-gray-400 text-xs">
                 Não tem conta?{" "}
                 <button
                   type="button"
                   onClick={switchToCadastro}
-                  className="text-green-900 font-bold hover:text-green-700"
+                  className="text-verde-neon font-bold hover:text-verde-rua transition-all duration-300"
                 >
                   Criar conta
                 </button>
               </p>
             ) : (
-              <p className="text-gray-600">
+              <p className="text-gray-400 text-xs">
                 Já tem conta?{" "}
                 <button
                   type="button"
                   onClick={switchToLogin}
-                  className="text-green-900 font-bold hover:text-green-700"
+                  className="text-verde-neon font-bold hover:text-verde-rua transition-all duration-300"
                 >
                   Fazer login
                 </button>
