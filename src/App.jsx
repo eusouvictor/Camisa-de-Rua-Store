@@ -5,7 +5,8 @@ import Home from "./pages/Home";
 import Cart from "./pages/Cart";
 import Events from "./pages/Events";
 import Settings from "./pages/Settings";
-import LandingPage from "./pages/Landing"; // Nova importação
+import LandingPage from "./pages/Landing";
+import Checkout from "./components/Checkout";
 
 function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -105,6 +106,18 @@ function App() {
           element={
             user ? (
               <Events addToCart={addToCart} cart={cart} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+
+        {/* NOVA ROTA DO CHECKOUT */}
+        <Route
+          path="/checkout"
+          element={
+            user ? (
+              <Checkout updateCart={updateCart} />
             ) : (
               <Navigate to="/" replace />
             )

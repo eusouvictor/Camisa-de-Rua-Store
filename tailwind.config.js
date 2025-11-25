@@ -3,6 +3,9 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      spacing: {
+        15: "60px",
+      },
       colors: {
         "verde-rua": "#1A3627",
         "verde-neon": "#D0C81C",
