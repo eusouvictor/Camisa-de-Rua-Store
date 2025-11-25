@@ -1,10 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-<<<<<<< HEAD
 import { House, ShoppingCart, Ticket, Bolt } from "lucide-react";
 import produtos from "../data/produtos";
-=======
 import {
   House,
   ShoppingCart,
@@ -66,7 +64,6 @@ const produtos = [
     categoria: "jaquetas",
   },
 ];
->>>>>>> 3f26df3 (feat: adiciona página de pagamento, mudança do layout, cores e design, novos detalhes no geral)
 
 const ProductCard = ({ produto, onAddToCart }) => {
   const formatarPreco = (preco) => {
@@ -175,6 +172,7 @@ const aplicarFiltro = (categoria, produtosBase = allProdutos) => {
     navigate("/");
   };
 
+  // Contador de itens no carrinho
   const totalItemsNoCarrinho = cart.reduce((total, item) => {
     return total + (item.quantity || 1);
   }, 0);
@@ -190,15 +188,12 @@ const aplicarFiltro = (categoria, produtosBase = allProdutos) => {
         <div className="max-w-7xl mx-auto flex items-center justify-between w-full">
           <div className="flex items-center">
             <img
-<<<<<<< HEAD
               src="/images/vector.png"
               alt="Camisa de Rua Logo"
               className="h-12 w-auto object-contain ml-4"
-=======
               src="/images/cdrlogo.svg"
               alt="Camisa de Rua Logo"
               className="h-12 w-auto object-contain transition-transform duration-300 hover:scale-105"
->>>>>>> 3f26df3 (feat: adiciona página de pagamento, mudança do layout, cores e design, novos detalhes no geral)
             />
           </div>
 
@@ -211,12 +206,9 @@ const aplicarFiltro = (categoria, produtosBase = allProdutos) => {
           </div>
 
           <div className="flex items-center space-x-4">
-<<<<<<< HEAD
             <div className="flex items-center space-x-4">
               <span className="text-verde-neon">Olá, {user.name}</span>
-=======
             <div className="hidden sm:flex items-center space-x-4">
->>>>>>> 3f26df3 (feat: adiciona página de pagamento, mudança do layout, cores e design, novos detalhes no geral)
               <button
                 onClick={handleLogout}
                 className="bg-gradient-to-r from-verde-neon to-verde-rua hover:from-verde-rua hover:to-verde-neon text-gray-900 font-bold py-2 px-6 rounded-full transition-all duration-500 transform hover:scale-105 hover:shadow-lg hover:shadow-verde-neon/25"
@@ -248,6 +240,12 @@ const aplicarFiltro = (categoria, produtosBase = allProdutos) => {
               >
                 SAIR
               </button>
+      <div className="min-h-screen bg-white flex">
+        {/* MENU LATERAL */}
+        <aside className="ml-2 w-12 bg-azul-gelo flex flex-col items-center py-3 fixed top-32 h-80 bottom-8 rounded-xl z-40 mt-4">
+          <Link to="/home" className="p-3 bg-verde-neon rounded">
+            <div className="w-6 h-6 rounded">
+              <House className="text-verde-rua" />
             </div>
           </div>
         )}
@@ -284,6 +282,26 @@ const aplicarFiltro = (categoria, produtosBase = allProdutos) => {
             className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl mt-auto transition-all duration-300 hover:scale-110 group border border-gray-600"
           >
             <Bolt className="text-gray-300 group-hover:text-gray-900 w-6 h-6" />
+          </Link>
+          <Link to="/events" className="p-3">
+            <div className="w-6 h-6 bg-azul-gelo rounded">
+              <Ticket />
+            </div>
+          </Link>
+          <Link to="/cart" className="p-3 relative">
+            <div className="w-6 h-6 bg-azul-gelo rounded">
+              <ShoppingCart />
+            </div>
+            {totalItemsNoCarrinho > 0 && (
+              <span className="absolute -top-1 -right-1 bg-verde-neon text-verde-rua text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                {totalItemsNoCarrinho}
+              </span>
+            )}
+          </Link>
+          <Link to="/settings" className="p-3 mt-32">
+            <div className="w-6 h-6 bg-azul-gelo rounded">
+              <Bolt />
+            </div>
           </Link>
         </aside>
 
@@ -367,6 +385,68 @@ const aplicarFiltro = (categoria, produtosBase = allProdutos) => {
                   </div>
                 </div>
               </div>
+          <div className="border-b border-gray-200 p-6 flex justify-between items-center">
+            <div className="flex space-x-4">
+              <button
+                onClick={() => aplicarFiltro("todos")}
+                className={`px-4 py-2 border rounded hover:bg-ouro-claro ${
+                  filtroAtivo === "todos"
+                    ? "bg-black text-white border-black"
+                    : "border-ouro-escuro"
+                }`}
+              >
+                TODOS
+              </button>
+              <button
+                onClick={() => aplicarFiltro("preco")}
+                className={`px-4 py-2 border rounded hover:bg-ouro-claro ${
+                  filtroAtivo === "preco"
+                    ? "bg-black text-white border-black"
+                    : "border-ouro-escuro"
+                }`}
+              >
+                PREÇO
+              </button>
+              <button
+                onClick={() => aplicarFiltro("camisas")}
+                className={`px-4 py-2 border rounded hover:bg-ouro-claro ${
+                  filtroAtivo === "camisas"
+                    ? "bg-black text-white border-black"
+                    : "border-ouro-escuro"
+                }`}
+              >
+                CAMISAS
+              </button>
+              <button
+                onClick={() => aplicarFiltro("camisetas")}
+                className={`px-4 py-2 border rounded hover:bg-ouro-claro ${
+                  filtroAtivo === "camisetas"
+                    ? "bg-black text-white border-black"
+                    : "border-ouro-escuro"
+                }`}
+              >
+                CAMISETAS
+              </button>
+              <button
+                onClick={() => aplicarFiltro("jaquetas")}
+                className={`px-4 py-2 border rounded hover:bg-ouro-claro ${
+                  filtroAtivo === "jaquetas"
+                    ? "bg-black text-white border-black"
+                    : "border-ouro-escuro"
+                }`}
+              >
+                JAQUETAS
+              </button>
+              <button
+                onClick={() => aplicarFiltro("acessorios")}
+                className={`px-4 py-2 border rounded hover:bg-ouro-claro ${
+                  filtroAtivo === "acessorios"
+                    ? "bg-black text-white border-black"
+                    : "border-ouro-escuro"
+                }`}
+              >
+                ACESSÓRIOS
+              </button>
             </div>
           </div>
 

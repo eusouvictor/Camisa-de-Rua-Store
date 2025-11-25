@@ -23,6 +23,9 @@ const Landing = ({
   const scrollToSection = (sectionId) => {
     if (window.location.pathname !== "/") {
       navigate("/");
+      // Se não está na página inicial, vai pra lá primeiro
+      navigate("/");
+      // Espera a navegação acontecer e depois scrolla
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {
@@ -30,6 +33,7 @@ const Landing = ({
         }
       }, 100);
     } else {
+      // Já está na página inicial, só scrolla
       const element = document.getElementById(sectionId);
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
@@ -72,6 +76,37 @@ const Landing = ({
               >
                 Contato
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-verde-neon transition-all duration-300 group-hover:w-full"></span>
+    <div className="min-h-screen bg-dark-theme font-sans w-full overflow-x-hidden">
+      {/* HEADER */}
+      <header className="fixed top-0 left-0 right-0 bg-verde-escuro text-white py-3 px-3 w-full z-50">
+        <div className="max-w-6xl mx-auto flex items-center justify-between w-full">
+          <div className="flex items-center">
+            <img
+              src="/images/Vector.png"
+              alt="Camisa de Rua Logo"
+              className="h-12 w-auto max-w-full object-contain"
+            />
+          </div>
+
+          <div className="flex items-center">
+            <nav className="flex items-center space-x-8">
+              <button
+                onClick={() => scrollToSection("Sobre")}
+                className="text-white hover:text-verde-neon transition-colors duration-300 text-lg font-semibold"
+              >
+                Sobre
+              </button>
+              <button
+                onClick={() => scrollToSection("Foco")}
+                className="text-white hover:text-verde-neon transition-colors duration-300 text-lg font-semibold"
+              >
+                Foco
+              </button>
+              <button
+                onClick={() => scrollToSection("Contato")}
+                className="text-white hover:text-verde-neon transition-colors duration-300 text-lg font-semibold"
+              >
+                Contato
               </button>
             </nav>
           </div>
@@ -79,6 +114,7 @@ const Landing = ({
           <button
             onClick={handleExploreClick}
             className="bg-gradient-to-r from-verde-neon to-verde-rua hover:from-verde-rua hover:to-verde-neon text-gray-900 font-bold py-3 px-8 rounded-full text-lg transition-all duration-500 transform hover:scale-105 hover:shadow-lg hover:shadow-verde-neon/25 whitespace-nowrap"
+            className="bg-verde-neon hover:bg-dark-theme text-white font-bold py-2 px-6 rounded-full text-xl transition-all duration-500 transform hover:scale-95 whitespace-nowrap"
           >
             Login
           </button>
@@ -87,64 +123,46 @@ const Landing = ({
 
       {/* BANNER SECTION */}
       <section className="relative bg-gradient-to-b from-gray-900 to-black text-white pt-20 pb-10 px-4 w-full">
+      <section className="relative bg-dark-theme text-white py-5 px-10 w-full mt-0">
         <div className="flex justify-center items-center w-full max-w-full">
           <BannerSlider />
         </div>
       </section>
 
       {/* OBJETIVO SECTION */}
-      <section
-        id="Sobre"
-        className="py-20 px-4 bg-gradient-to-b from-black to-gray-900 w-full"
-      >
+      <section id="Sobre" className="py-20 px-4 bg-dark-theme w-full">
         <div className="max-w-5xl mx-auto w-full">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl md:text-6xl font-black mb-4 text-white">
-              NOSSO{" "}
-              <span className="text-verde-neon bg-gradient-to-r from-verde-neon to-verde-rua bg-clip-text text-transparent">
-                OBJETIVO
-              </span>
-            </h2>
-            <div className="w-24 h-1 bg-verde-neon mx-auto rounded-full"></div>
-          </div>
+          <h2 className="text-4xl font-black text-center mb-12 text-white">
+            NOSSO <span className="text-verde-neon">OBJETIVO</span>
+          </h2>
 
-          <div className="bg-gray-800/50 backdrop-blur-lg rounded-3xl shadow-2xl p-8 md:p-12 border border-verde-neon/20 w-full transform hover:scale-[1.02] transition-all duration-500">
-            <div className="space-y-6">
-              <p className="text-xl leading-relaxed text-gray-200">
-                A{" "}
-                <span className="text-verde-neon font-bold">
-                  Camisa de Rua Store
-                </span>{" "}
-                nasceu com o propósito de vestir a cultura da periferia e dar
-                visibilidade às histórias que nascem no asfalto, nos becos e nas
-                vielas onde a criatividade floresce.
-              </p>
-              <p className="text-xl leading-relaxed text-gray-200">
-                Cada estampa é um retrato vivo da energia dos blocos
-                independentes e do carnaval de rua, onde a música, a dança e a
-                coletividade se encontram como forma de{" "}
-                <span className="text-verde-neon font-semibold">
-                  resistência e celebração
-                </span>
-                .
-              </p>
-              <div className="bg-verde-neon/10 border border-verde-neon/30 rounded-2xl p-6 my-6">
-                <p className="text-lg leading-relaxed text-verde-neon text-center font-semibold">
-                  "Mais do que roupas, nossas peças carregam narrativas que
-                  valorizam a identidade, a diversidade e a potência cultural
-                  das comunidades."
-                </p>
-              </div>
-              <p className="text-xl leading-relaxed text-gray-200">
-                Em cada venda, uma parte do valor é revertida para projetos
-                sociais que apoiam jovens talentos, artistas locais e
-                iniciativas comunitárias, criando uma{" "}
-                <span className="text-verde-neon font-semibold">
-                  rede de impacto
-                </span>{" "}
-                que vai além da moda.
-              </p>
-            </div>
+          <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-gray-200 w-full">
+            <p className="text-lg leading-relaxed text-gray-700 mb-6">
+              A Camisa de Rua Store nasceu com o propósito de vestir a cultura
+              da periferia e dar visibilidade às histórias que nascem no
+              asfalto, nos becos e nas vielas onde a criatividade floresce. Cada
+              estampa é um retrato vivo da energia dos blocos independentes e do
+              carnaval de rua, onde a música, a dança e a coletividade se
+              encontram como forma de resistência e celebração.
+            </p>
+            <p className="text-lg leading-relaxed text-gray-700 mb-6">
+              Mais do que roupas, nossas peças carregam narrativas que valorizam
+              a identidade, a diversidade e a potência cultural das comunidades.
+              Aqui, moda é instrumento de expressão e também um meio de
+              fortalecer tradições que muitas vezes não encontram espaço na
+              grande indústria.
+            </p>
+            <p className="text-lg leading-relaxed text-gray-700">
+              Mas não paramos na estética. Em cada venda, uma parte do valor é
+              revertida para projetos sociais que apoiam jovens talentos,
+              artistas locais e iniciativas comunitárias, criando uma rede de
+              impacto que vai além da moda. Ao escolher nossas camisetas, você
+              se conecta a uma corrente de solidariedade que acredita no poder
+              da cultura para transformar realidades. Nosso compromisso é unir
+              estilo, consciência social e orgulho periférico em um mesmo
+              movimento, mostrando que quando a rua veste sua própria história,
+              ela também abre caminhos para um futuro mais justo e coletivo.
+            </p>
           </div>
         </div>
       </section>
@@ -213,6 +231,19 @@ const Landing = ({
                 crescimento através da tecnologia e inovação.
               </p>
             </div>
+      {/* FOCOS SECTION - Adicionei esta section para o botão "Foco" */}
+      <section id="Foco" className="py-20 px-4 bg-dark-theme w-full">
+        <div className="max-w-5xl mx-auto w-full">
+          <h2 className="text-4xl font-black text-center mb-12 text-white">
+            NOSSO <span className="text-verde-neon">FOCO</span>
+          </h2>
+          <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-gray-200 w-full">
+            <p className="text-lg leading-relaxed text-gray-700">
+              Nosso foco é conectar a cultura periférica com oportunidades reais
+              de crescimento e visibilidade. Através da moda, criamos pontes
+              entre artistas, comunidades e o mercado, garantindo que cada peça
+              conte uma história genuína e transformadora.
+            </p>
           </div>
         </div>
       </section>
@@ -344,6 +375,64 @@ const Landing = ({
                 </button>
               </form>
             </div>
+      <section id="Contato" className="py-16 px-4 bg-dark-theme w-full">
+        <div className="max-w-4xl mx-auto w-full">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl font-black mb-4 text-white">
+              ENTRE EM CONTATO COM NOSSA{" "}
+              <span className="text-verde-neon">EQUIPE!</span>
+            </h3>
+            <p className="text-lg text-white max-w-2xl mx-auto">
+              Discuta sua curiosidade sobre o projeto, ou faça parte com novas
+              soluções!
+            </p>
+          </div>
+
+          <div className="bg-gray-900 rounded-2xl p-6 md:p-8 text-white w-full">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-bold mb-2 text-verde-neon">
+                  Nome
+                </label>
+                <input
+                  type="text"
+                  required
+                  className="w-full p-4 bg-gray-800 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400"
+                  placeholder="Seu nome completo"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold mb-2 text-verde-neon">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  className="w-full p-4 bg-gray-800 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400"
+                  placeholder="seu@email.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold mb-2 text-verde-neon">
+                  Mensagem
+                </label>
+                <textarea
+                  required
+                  rows="5"
+                  className="w-full p-4 bg-gray-800 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400"
+                  placeholder="Conte-nos sobre sua ideia ou projeto..."
+                ></textarea>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-verde-rua hover:bg-verde-neon text-white font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105"
+              >
+                ENVIAR MENSAGEM
+              </button>
+            </form>
           </div>
         </div>
       </section>
@@ -363,6 +452,9 @@ const Landing = ({
               </p>
             </div>
 
+      <footer className="bg-black text-white py-12 px-4 w-full">
+        <div className="max-w-6xl mx-auto w-full">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div>
               <h4 className="font-bold text-lg mb-4 text-verde-neon">
                 FUNCIONALIDADES
@@ -379,6 +471,18 @@ const Landing = ({
                     </a>
                   )
                 )}
+                <a
+                  href="#"
+                  className="block text-gray-400 hover:text-white transition-colors"
+                >
+                  Produtos
+                </a>
+                <a
+                  href="#"
+                  className="block text-gray-400 hover:text-white transition-colors"
+                >
+                  Pagamento
+                </a>
               </div>
             </div>
 
@@ -396,6 +500,18 @@ const Landing = ({
                     {item}
                   </a>
                 ))}
+                <a
+                  href="#"
+                  className="block text-gray-400 hover:text-white transition-colors"
+                >
+                  Fale conosco
+                </a>
+                <a
+                  href="#"
+                  className="block text-gray-400 hover:text-white transition-colors"
+                >
+                  FAQ
+                </a>
               </div>
             </div>
 
@@ -416,6 +532,18 @@ const Landing = ({
                     {item}
                   </a>
                 ))}
+                <a
+                  href="#"
+                  className="block text-gray-400 hover:text-white transition-colors"
+                >
+                  Política de privacidade
+                </a>
+                <a
+                  href="#"
+                  className="block text-gray-400 hover:text-white transition-colors"
+                >
+                  Termos de uso
+                </a>
               </div>
             </div>
           </div>
@@ -426,6 +554,12 @@ const Landing = ({
               <span className="text-verde-neon">COMUNIDADE</span>.
             </p>
             <p className="text-gray-400">
+          <div className="border-t border-gray-700 pt-8 text-center">
+            <p className="text-xl font-black">
+              VISTA <span className="text-verde-neon">CULTURA</span>. APOIE A{" "}
+              <span className="text-verde-neon">COMUNIDADE</span>.
+            </p>
+            <p className="text-gray-400 mt-2">
               © 2025 Camisa de Rua Store. Todos os direitos reservados.
             </p>
           </div>

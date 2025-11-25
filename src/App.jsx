@@ -7,6 +7,7 @@ import Events from "./pages/Events";
 import Settings from "./pages/Settings";
 import LandingPage from "./pages/Landing";
 import Checkout from "./components/Checkout";
+import LandingPage from "./pages/Landing"; // Nova importação
 
 function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -114,6 +115,13 @@ function App() {
           element={
             user ? (
               <Events addToCart={addToCart} cart={cart} />
+
+        {/* Rotas protegidas */}
+        <Route
+          path="/home"
+          element={
+            user ? (
+              <Home addToCart={addToCart} cart={cart} />
             ) : (
               <Navigate to="/" replace />
             )
@@ -126,6 +134,26 @@ function App() {
           element={
             user ? (
               <Checkout updateCart={updateCart} />
+        <Route
+          path="/cart"
+          element={
+            user ? (
+              <Cart
+                cart={cart}
+                updateCart={updateCart}
+                removeFromCart={removeFromCart}
+              />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+
+        <Route
+          path="/events"
+          element={
+            user ? (
+              <Events addToCart={addToCart} cart={cart} />
             ) : (
               <Navigate to="/" replace />
             )

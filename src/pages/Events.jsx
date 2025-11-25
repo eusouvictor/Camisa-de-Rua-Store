@@ -10,6 +10,7 @@ import {
   X,
   Filter,
 } from "lucide-react";
+import { House, ShoppingCart, Ticket, Bolt } from "lucide-react";
 
 // Dados dos eventos
 const eventos = [
@@ -83,6 +84,7 @@ const EventCard = ({ evento, onAddToCart }) => {
       name: evento.nome,
       price: evento.preco,
       type: "evento",
+      type: "evento", // Tipo para diferenciar no carrinho
       data: evento.data,
       local: evento.local,
       descricao: evento.descricao,
@@ -118,11 +120,27 @@ const EventCard = ({ evento, onAddToCart }) => {
           {formatarPreco(evento.preco)}
         </span>
         <span className="block text-sm text-gray-300 capitalize mb-4 font-medium">
+    <div className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+      <div className="h-48 bg-verde-rua flex items-center justify-center">
+        <span className="text-white">Imagem do Evento</span>
+      </div>
+      <div className="p-4">
+        <p className="font-bold text-lg mb-2">{evento.nome}</p>
+        <p className="text-sm text-gray-600 mb-2">{evento.descricao}</p>
+        <div className="text-sm text-gray-700 space-y-1 mb-3">
+          <p>📅 {evento.data}</p>
+          <p>📍 {evento.local}</p>
+        </div>
+        <span className="text-lg font-bold text-verde-rua">
+          {formatarPreco(evento.preco)}
+        </span>
+        <span className="block text-sm text-gray-500 capitalize mb-3">
           {evento.categoria}
         </span>
         <button
           onClick={handleAddToCart}
           className="w-full bg-gradient-to-r from-verde-neon to-verde-rua hover:from-verde-rua hover:to-verde-neon text-gray-900 font-bold py-3 px-4 rounded-2xl transition-all duration-500 transform hover:scale-105 hover:shadow-lg hover:shadow-verde-neon/25"
+          className="w-full bg-verde-rua text-white py-2 rounded-lg hover:bg-verde-escuro transition-colors font-semibold"
         >
           Comprar Ingresso
         </button>
@@ -173,6 +191,7 @@ const Events = ({ addToCart, cart }) => {
     navigate("/");
   };
 
+  // Contador de itens no carrinho
   const totalItemsNoCarrinho = cart.reduce((total, item) => {
     return total + (item.quantity || 1);
   }, 0);
@@ -207,6 +226,24 @@ const Events = ({ addToCart, cart }) => {
               <button
                 onClick={handleLogout}
                 className="bg-gradient-to-r from-verde-neon to-verde-rua hover:from-verde-rua hover:to-verde-neon text-gray-900 font-bold py-2 px-6 rounded-full transition-all duration-500 transform hover:scale-105 hover:shadow-lg hover:shadow-verde-neon/25"
+    <div className="min-h-screen bg-white font-advent">
+      {/* HEADER */}
+      <header className="bg-verde-rua text-white py-4 px-4 z-30">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center">
+            <img
+              src="/images/Vector.png"
+              alt="Camisa de Rua Logo"
+              className="h-12 w-19 object-cover ml-40"
+            />
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4">
+              <span className="text-verde-neon">Olá, {user.nome}</span>
+              <button
+                onClick={handleLogout}
+                className="border-2 border-verde-neon text-verde-neon font-bold py-2 px-6 rounded-full hover:bg-verde-neon hover:text-verde-rua transition-colors"
               >
                 SAIR
               </button>
@@ -262,6 +299,29 @@ const Events = ({ addToCart, cart }) => {
             <ShoppingCart className="text-gray-300 group-hover:text-gray-900 w-6 h-6" />
             {totalItemsNoCarrinho > 0 && (
               <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg">
+          </div>
+        </div>
+      </header>
+
+      <div className="min-h-screen bg-white flex">
+        {/* MENU LATERAL */}
+        <aside className="ml-2 w-12 bg-azul-gelo flex flex-col items-center py-3 fixed top-32 h-80 bottom-8 rounded-xl z-40 mt-4">
+          <Link to="/home" className="p-3">
+            <div className="w-6 h-6 bg-azul-gelo rounded">
+              <House />
+            </div>
+          </Link>
+          <Link to="/events" className="p-3 bg-verde-neon rounded">
+            <div className="w-6 h-6 rounded">
+              <Ticket className="text-verde-rua" />
+            </div>
+          </Link>
+          <Link to="/cart" className="p-3 relative">
+            <div className="w-6 h-6 bg-azul-gelo rounded">
+              <ShoppingCart />
+            </div>
+            {totalItemsNoCarrinho > 0 && (
+              <span className="absolute -top-1 -right-1 bg-verde-neon text-verde-rua text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                 {totalItemsNoCarrinho}
               </span>
             )}
@@ -358,6 +418,64 @@ const Events = ({ addToCart, cart }) => {
 
           {/* GRID DE EVENTOS */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 max-w-7xl mx-auto">
+          <Link to="/settings" className="p-3 mt-32">
+            <div className="w-6 h-6 bg-azul-gelo rounded">
+              <Bolt />
+            </div>
+          </Link>
+        </aside>
+
+        {/* CONTEÚDO PRINCIPAL */}
+        <main className="flex-1 ml-16">
+          {/* TOPO COM FILTROS */}
+          <div className="border-b border-gray-200 p-6">
+            <h1 className="text-3xl font-bold mb-4">Eventos e Festas</h1>
+            <div className="flex space-x-4">
+              <button
+                onClick={() => aplicarFiltro("todos")}
+                className={`px-4 py-2 border rounded hover:bg-ouro-claro ${
+                  filtroAtivo === "todos"
+                    ? "bg-black text-white border-black"
+                    : "border-ouro-escuro"
+                }`}
+              >
+                TODOS
+              </button>
+              <button
+                onClick={() => aplicarFiltro("preco")}
+                className={`px-4 py-2 border rounded hover:bg-ouro-claro ${
+                  filtroAtivo === "preco"
+                    ? "bg-black text-white border-black"
+                    : "border-ouro-escuro"
+                }`}
+              >
+                PREÇO
+              </button>
+              <button
+                onClick={() => aplicarFiltro("carnaval")}
+                className={`px-4 py-2 border rounded hover:bg-ouro-claro ${
+                  filtroAtivo === "carnaval"
+                    ? "bg-black text-white border-black"
+                    : "border-ouro-escuro"
+                }`}
+              >
+                CARNAVAL
+              </button>
+              <button
+                onClick={() => aplicarFiltro("musica")}
+                className={`px-4 py-2 border rounded hover:bg-ouro-claro ${
+                  filtroAtivo === "musica"
+                    ? "bg-black text-white border-black"
+                    : "border-ouro-escuro"
+                }`}
+              >
+                MÚSICA
+              </button>
+            </div>
+          </div>
+
+          {/* GRID DE EVENTOS */}
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
             {eventosFiltrados.map((evento) => (
               <EventCard
                 key={evento.id}
