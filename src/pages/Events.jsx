@@ -2,9 +2,66 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { House, ShoppingCart, Ticket, Bolt } from "lucide-react";
-import produtos from "../data/produtos";
 
-const ProductCard = ({ produto, onAddToCart }) => {
+// Dados dos eventos
+const eventos = [
+  {
+    id: 1,
+    nome: "CARNAVAL DA RUA 2025",
+    preco: 89.9,
+    data: "25/02/2025",
+    local: "Centro da Cidade",
+    descricao: "O maior bloco de carnaval de rua da região!",
+    categoria: "carnaval",
+  },
+  {
+    id: 2,
+    nome: "SAMBA NA PRAÇA",
+    preco: 45.0,
+    data: "15/03/2025",
+    local: "Praça Central",
+    descricao: "Noite de samba com as melhores bandas locais",
+    categoria: "musica",
+  },
+  {
+    id: 3,
+    nome: "FESTA DO BLOCO DA LATINHA",
+    preco: 65.0,
+    data: "28/02/2025",
+    local: "Rua da Festa, 123",
+    descricao: "Traga sua latinha e venha curtir o melhor do carnaval",
+    categoria: "carnaval",
+  },
+  {
+    id: 4,
+    nome: "SHOW DE SAMBA TRADICIONAL",
+    preco: 75.0,
+    data: "10/03/2025",
+    local: "Teatro Municipal",
+    descricao: "As raízes do samba com artistas consagrados",
+    categoria: "musica",
+  },
+  {
+    id: 5,
+    nome: "BAILE DE CARNAVAL FAMÍLIA",
+    preco: 35.0,
+    data: "01/03/2025",
+    local: "Clube da Cidade",
+    descricao: "Carnaval para toda a família, das 14h às 20h",
+    categoria: "carnaval",
+  },
+  {
+    id: 6,
+    nome: "FESTIVAL DE MÚSICA URBANA",
+    preco: 120.0,
+    data: "20/04/2025",
+    local: "Parque Central",
+    descricao: "12 horas de música com diversos artistas urbanos",
+    categoria: "musica",
+  },
+];
+
+const EventCard = ({ evento, onAddToCart }) => {
   const formatarPreco = (preco) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -14,42 +71,49 @@ const ProductCard = ({ produto, onAddToCart }) => {
 
   const handleAddToCart = () => {
     onAddToCart({
-      id: produto.id,
-      name: produto.nome,
-      price: produto.preco,
-      category: produto.categoria,
+      id: evento.id,
+      name: evento.nome,
+      price: evento.preco,
+      type: "evento", // Tipo para diferenciar no carrinho
+      data: evento.data,
+      local: evento.local,
+      descricao: evento.descricao,
     });
   };
 
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="h-64 bg-verde-rua flex items-center justify-center">
-        <span className="text-white">Imagem do produto</span>
+      <div className="h-48 bg-verde-rua flex items-center justify-center">
+        <span className="text-white">Imagem do Evento</span>
       </div>
       <div className="p-4">
-        <p className="font-medium mb-2">{produto.nome}</p>
-        <span className="text-lg font-bold">
-          {formatarPreco(produto.preco)}
+        <p className="font-bold text-lg mb-2">{evento.nome}</p>
+        <p className="text-sm text-gray-600 mb-2">{evento.descricao}</p>
+        <div className="text-sm text-gray-700 space-y-1 mb-3">
+          <p>📅 {evento.data}</p>
+          <p>📍 {evento.local}</p>
+        </div>
+        <span className="text-lg font-bold text-verde-rua">
+          {formatarPreco(evento.preco)}
         </span>
         <span className="block text-sm text-gray-500 capitalize mb-3">
-          {produto.categoria}
+          {evento.categoria}
         </span>
         <button
           onClick={handleAddToCart}
           className="w-full bg-verde-rua text-white py-2 rounded-lg hover:bg-verde-escuro transition-colors font-semibold"
         >
-          Adicionar ao Carrinho
+          Comprar Ingresso
         </button>
       </div>
     </div>
   );
 };
 
-const Home = ({ addToCart, cart }) => {
+const Events = ({ addToCart, cart }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [allProdutos, setAllProdutos] = useState([]);
-  const [produtosFiltrados, setProdutosFiltrados] = useState([]);
+  const [eventosFiltrados, setEventosFiltrados] = useState(eventos);
   const [filtroAtivo, setFiltroAtivo] = useState("todos");
 
   useEffect(() => {
@@ -59,47 +123,27 @@ const Home = ({ addToCart, cart }) => {
       return;
     }
     setUser(userData);
-    
-    const fetchProdutos = async () => {
-      try {
-        const response = await fetch("http://localhost:4000/api/produtos");
-        const data = await response.json();
-        if (response.ok) {
-          setAllProdutos(data.produtos || []);
-          setProdutosFiltrados(data.produtos || []);
-          aplicarFiltro("todos", data.produtos || []);
-        } else {
-          console.error("Erro ao buscar produtos:", data.error);
-        }
-      } catch (err) {
-        console.error("Falha na rede ao buscar produtos:", err);
-      }
-    };
-    
-    fetchProdutos();
-  
   }, [navigate]);
 
-const aplicarFiltro = (categoria, produtosBase = allProdutos) => {
-  setFiltroAtivo(categoria);
+  const aplicarFiltro = (categoria) => {
+    setFiltroAtivo(categoria);
 
-  if (categoria === "todos") {
-    setProdutosFiltrados(produtosBase);
-  } else if (categoria === "preco") {
-    const ordenados = [...produtosBase].sort((a, b) => a.preco - b.preco);
-    setProdutosFiltrados(ordenados);
-  } else {
-    const filtrados = produtosBase.filter(
-      (produto) => produto.categoria === categoria
-    );
-    setProdutosFiltrados(filtrados);
-  }
-};
+    if (categoria === "todos") {
+      setEventosFiltrados(eventos);
+    } else if (categoria === "preco") {
+      const ordenados = [...eventos].sort((a, b) => a.preco - b.preco);
+      setEventosFiltrados(ordenados);
+    } else {
+      const filtrados = eventos.filter(
+        (evento) => evento.categoria === categoria
+      );
+      setEventosFiltrados(filtrados);
+    }
+  };
 
-  const handleAddToCart = (produto) => {
-    addToCart(produto);
-    // Feedback visual opcional
-    alert(`${produto.name} adicionado ao carrinho!`);
+  const handleAddToCart = (evento) => {
+    addToCart(evento);
+    alert(`Ingresso para ${evento.name} adicionado ao carrinho!`);
   };
 
   const handleLogout = () => {
@@ -123,15 +167,15 @@ const aplicarFiltro = (categoria, produtosBase = allProdutos) => {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center">
             <img
-              src="/images/vector.png"
+              src="/images/Vector.png"
               alt="Camisa de Rua Logo"
-              className="h-12 w-auto object-contain ml-4"
+              className="h-12 w-19 object-cover ml-40"
             />
           </div>
 
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-4">
-              <span className="text-verde-neon">Olá, {user.name}</span>
+              <span className="text-verde-neon">Olá, {user.nome}</span>
               <button
                 onClick={handleLogout}
                 className="border-2 border-verde-neon text-verde-neon font-bold py-2 px-6 rounded-full hover:bg-verde-neon hover:text-verde-rua transition-colors"
@@ -146,14 +190,14 @@ const aplicarFiltro = (categoria, produtosBase = allProdutos) => {
       <div className="min-h-screen bg-white flex">
         {/* MENU LATERAL */}
         <aside className="ml-2 w-12 bg-azul-gelo flex flex-col items-center py-3 fixed top-32 h-80 bottom-8 rounded-xl z-40 mt-4">
-          <Link to="/home" className="p-3 bg-verde-neon rounded">
-            <div className="w-6 h-6 rounded">
-              <House className="text-verde-rua" />
+          <Link to="/home" className="p-3">
+            <div className="w-6 h-6 bg-azul-gelo rounded">
+              <House />
             </div>
           </Link>
-          <Link to="/events" className="p-3">
-            <div className="w-6 h-6 bg-azul-gelo rounded">
-              <Ticket />
+          <Link to="/events" className="p-3 bg-verde-neon rounded">
+            <div className="w-6 h-6 rounded">
+              <Ticket className="text-verde-rua" />
             </div>
           </Link>
           <Link to="/cart" className="p-3 relative">
@@ -176,7 +220,8 @@ const aplicarFiltro = (categoria, produtosBase = allProdutos) => {
         {/* CONTEÚDO PRINCIPAL */}
         <main className="flex-1 ml-16">
           {/* TOPO COM FILTROS */}
-          <div className="border-b border-gray-200 p-6 flex justify-between items-center">
+          <div className="border-b border-gray-200 p-6">
+            <h1 className="text-3xl font-bold mb-4">Eventos e Festas</h1>
             <div className="flex space-x-4">
               <button
                 onClick={() => aplicarFiltro("todos")}
@@ -199,54 +244,34 @@ const aplicarFiltro = (categoria, produtosBase = allProdutos) => {
                 PREÇO
               </button>
               <button
-                onClick={() => aplicarFiltro("camisas")}
+                onClick={() => aplicarFiltro("carnaval")}
                 className={`px-4 py-2 border rounded hover:bg-ouro-claro ${
-                  filtroAtivo === "camisas"
+                  filtroAtivo === "carnaval"
                     ? "bg-black text-white border-black"
                     : "border-ouro-escuro"
                 }`}
               >
-                CAMISAS
+                CARNAVAL
               </button>
               <button
-                onClick={() => aplicarFiltro("camisetas")}
+                onClick={() => aplicarFiltro("musica")}
                 className={`px-4 py-2 border rounded hover:bg-ouro-claro ${
-                  filtroAtivo === "camisetas"
+                  filtroAtivo === "musica"
                     ? "bg-black text-white border-black"
                     : "border-ouro-escuro"
                 }`}
               >
-                CAMISETAS
-              </button>
-              <button
-                onClick={() => aplicarFiltro("jaquetas")}
-                className={`px-4 py-2 border rounded hover:bg-ouro-claro ${
-                  filtroAtivo === "jaquetas"
-                    ? "bg-black text-white border-black"
-                    : "border-ouro-escuro"
-                }`}
-              >
-                JAQUETAS
-              </button>
-              <button
-                onClick={() => aplicarFiltro("acessorios")}
-                className={`px-4 py-2 border rounded hover:bg-ouro-claro ${
-                  filtroAtivo === "acessorios"
-                    ? "bg-black text-white border-black"
-                    : "border-ouro-escuro"
-                }`}
-              >
-                ACESSÓRIOS
+                MÚSICA
               </button>
             </div>
           </div>
 
-          {/* GRID DE PRODUTOS */}
-          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
-            {produtosFiltrados.map((produto) => (
-              <ProductCard
-                key={produto.id}
-                produto={produto}
+          {/* GRID DE EVENTOS */}
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+            {eventosFiltrados.map((evento) => (
+              <EventCard
+                key={evento.id}
+                evento={evento}
                 onAddToCart={handleAddToCart}
               />
             ))}
@@ -257,4 +282,4 @@ const aplicarFiltro = (categoria, produtosBase = allProdutos) => {
   );
 };
 
-export default Home;
+export default Events;
