@@ -5,6 +5,8 @@ import Home from "./pages/Home";
 import Cart from "./pages/Cart";
 import Events from "./pages/Events";
 import Settings from "./pages/Settings";
+import LandingPage from "./pages/Landing";
+import Checkout from "./components/Checkout";
 import LandingPage from "./pages/Landing"; // Nova importação
 
 function App() {
@@ -93,6 +95,45 @@ function App() {
           }
         />
 
+        <Route
+          path="/cart"
+          element={
+            user ? (
+              <Cart
+                cart={cart}
+                updateCart={updateCart}
+                removeFromCart={removeFromCart}
+              />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+
+        <Route
+          path="/events"
+          element={
+            user ? (
+              <Events addToCart={addToCart} cart={cart} />
+
+        {/* Rotas protegidas */}
+        <Route
+          path="/home"
+          element={
+            user ? (
+              <Home addToCart={addToCart} cart={cart} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+
+        {/* NOVA ROTA DO CHECKOUT */}
+        <Route
+          path="/checkout"
+          element={
+            user ? (
+              <Checkout updateCart={updateCart} />
         <Route
           path="/cart"
           element={
