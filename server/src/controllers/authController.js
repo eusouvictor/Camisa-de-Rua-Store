@@ -59,6 +59,20 @@ export async function login(req, res) {
     const ok = bcrypt.compareSync(password, user.password);
     if (!ok) return res.status(401).json({ error: "Credenciais inválidas" });
 
+    // --- NOVO: Auditoria de Login ---
+    try {
+      await prisma.userAudit.create({
+        data: {
+          action: "USER_LOGIN",
+          details: "Login realizado com sucesso",
+          userId: user.id,
+        },
+      });
+    } catch (auditErr) {
+      console.error("Erro ao registrar auditoria de login:", auditErr);
+      // Não paramos o login se a auditoria falhar, apenas logamos o erro no console
+    }
+    // -------------------------------
     const payload = { sub: user.id, email: user.email };
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET || "change_me", { expiresIn: "15m" });
 
