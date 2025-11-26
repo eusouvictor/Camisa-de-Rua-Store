@@ -6,7 +6,8 @@ import App from "./App.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter>
+    {/* Adicione o basename aqui 👇 */}
+    <BrowserRouter basename="/Camisa-de-Rua-Store">
       <App />
     </BrowserRouter>
   </React.StrictMode>
