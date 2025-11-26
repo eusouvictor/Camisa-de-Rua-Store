@@ -3,32 +3,32 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  password String
-  name     String?
-  createdAt DateTime @default(now())
-  products Product[]
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  password      String
+  name          String?
+  createdAt     DateTime       @default(now())
+  products      Product[]
   refreshTokens RefreshToken[]
   orders        Order[]
-  role          String   @default("CUSTOMER")
+  role          String         @default("CUSTOMER")
   auditLogs     UserAudit[]
 }
 
 model Product {
-  id        Int     @id @default(autoincrement())
-  nome      String
-  preco     Float
-  categoria String?
-  ownerId   Int?
-  owner     User?   @relation(fields: [ownerId], references: [id])
-  createdAt DateTime @default(now())
-  orderItems OrderItem[]
+  id          Int         @id @default(autoincrement())
+  nome        String
+  preco       Float
+  categoria   String?
+  ownerId     Int?
+  owner       User?       @relation(fields: [ownerId], references: [id])
+  createdAt   DateTime    @default(now())
+  orderItems  OrderItem[]
   description String?
   imageUrl    String?
 }
@@ -55,7 +55,7 @@ model Order {
 
   // Esta é a "ligação" importante:
   // Um Pedido (Order) pertence a um Usuário (User)
-  user   User   @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id])
   userId Int
 
   // Um Pedido (Order) pode ter vários Itens (OrderItem)
@@ -64,8 +64,8 @@ model Order {
 
 // Este é o código para criar a tabela 'order_item' de Huan
 model OrderItem {
-  id        Int      @id @default(autoincrement())
-  
+  id Int @id @default(autoincrement())
+
   product_name String
   product_size String?
   unit_price   Float
@@ -73,9 +73,9 @@ model OrderItem {
   subtotal     Float // (Provavelmente unit_price * quantity)
 
   createdAt DateTime @default(now())
-  
+
   // Ligação: Este item pertence a um Pedido (Order)
-  order   Order  @relation(fields: [orderId], references: [id])
+  order   Order @relation(fields: [orderId], references: [id])
   orderId Int
 
   // Ligação: Este item é de um Produto (Product)
@@ -86,11 +86,11 @@ model OrderItem {
 // Tabela para auditar ações do usuário (ex: login, troca de senha)
 model UserAudit {
   id        Int      @id @default(autoincrement())
-  action    String   // O que aconteceu? (Ex: "LOGIN_SUCCESS")
-  details   String?  // Detalhes extras (Ex: "IP: 192.168...")
+  action    String // O que aconteceu? (Ex: "LOGIN_SUCCESS")
+  details   String? // Detalhes extras (Ex: "IP: 192.168...")
   createdAt DateTime @default(now())
 
   // Relação com o User
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
 }

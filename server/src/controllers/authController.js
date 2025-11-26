@@ -6,7 +6,7 @@ import * as tokenStore from "../libs/tokenStore.js";
 
 // Verifica se o prisma está disponível.
 // Se o prisma não conectou, usamos o tokenStore em arquivo.
-const usePrisma = !!prisma; 
+const usePrisma = !!prisma;
 
 export async function register(req, res) {
   try {
@@ -29,6 +29,7 @@ export async function register(req, res) {
     });
 
     // --- AUDITORIA: Regista que o utilizador foi criado ---
+    // Mantivemos este bloco porque é a sua funcionalidade nova!
     await prisma.userAudit.create({
       data: {
         action: "USER_CREATED",
@@ -36,7 +37,7 @@ export async function register(req, res) {
         userId: newUser.id, // Ligamos este evento ao ID do utilizador acabado de criar
       },
     });
-    
+
     const { password: _p, ...safe } = newUser;
     return res.status(201).json({ user: safe });
 
@@ -67,12 +68,12 @@ export async function login(req, res) {
     // 5. SALVA O REFRESH TOKEN NO BANCO (PRISMA)
     if (usePrisma) {
       // O schema.prisma está correto para isso
-      await prisma.refreshToken.create({ 
-        data: { 
-          token: refreshToken, 
-          userId: user.id, 
-          expiresAt 
-        } 
+      await prisma.refreshToken.create({
+        data: {
+          token: refreshToken,
+          userId: user.id,
+          expiresAt
+        }
       });
     } else {
       // Fallback se o prisma não conectou
@@ -100,8 +101,8 @@ export async function refresh(req, res) {
     if (!token) return res.status(401).json({ error: "Refresh token ausente" });
 
     // 6. PROCURA O REFRESH TOKEN NO BANCO (PRISMA)
-    const record = usePrisma 
-      ? await prisma.refreshToken.findUnique({ where: { token } }) 
+    const record = usePrisma
+      ? await prisma.refreshToken.findUnique({ where: { token } })
       : await tokenStore.find(token);
 
     if (!record || record.revoked) return res.status(401).json({ error: "Refresh token inválido" });
@@ -115,8 +116,7 @@ export async function refresh(req, res) {
     const payload = { sub: user.id, email: user.email };
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET || "change_me", { expiresIn: "15m" });
     return res.json({ accessToken });
-  } catch (err)
-  {
+  } catch (err) {
     console.error("Erro no refresh:", err.message);
     return res.status(500).json({ error: "Erro interno", details: err.message });
   }
