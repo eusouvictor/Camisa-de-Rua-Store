@@ -5,8 +5,9 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Começando a semeadura do banco...');
 
-  // Vamos limpar os produtos antigos antes de criar novos (opcional)
-  // await prisma.product.deleteMany(); 
+  // 1. LIMPEZA: Apaga os produtos antigos para não duplicar
+  // Isso é importante para corrigir o produto bugado
+  await prisma.product.deleteMany(); 
 
   const produtos = [
     {
@@ -62,7 +63,7 @@ async function main() {
       nome: "JAQUETA COURO",
       preco: 199.90,
       categoria: "jaquetas",
-      imageUrl: "https://images.unsplash.com/photo-1551028919-341980d78441?auto=format&fit=crop&w=800&q=80",
+      imageUrl: "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?auto=format&fit=crop&w=800&q=80", // Link novo!
       description: "Estilo e atitude em uma peça única."
     },
   ];
