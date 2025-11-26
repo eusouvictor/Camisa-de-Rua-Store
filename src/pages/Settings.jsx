@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
   House,
@@ -10,8 +9,20 @@ import {
   Mail,
   Lock,
   Save,
+  Menu,
+  X,
+  MapPin,
+  Phone,
+  Eye,
+  EyeOff,
+  Bell,
+  Globe,
+  Trash2,
+  AlertTriangle,
+  CheckCircle2,
   LogOut,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Settings = ({ user, setUser, cart }) => {
   const navigate = useNavigate();
@@ -19,13 +30,25 @@ const Settings = ({ user, setUser, cart }) => {
   const [formData, setFormData] = useState({
     nome: "",
     email: "",
+    telefone: "",
+    endereco: "",
+    cidade: "",
+    estado: "",
+    cep: "",
     senhaAtual: "",
     novaSenha: "",
     confirmarSenha: "",
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
-  const [activeTab, setActiveTab] = useState("dados");
+  const [activeTab, setActiveTab] = useState("perfil");
+  const [showPassword, setShowPassword] = useState(false);
+  const [menuMobileAberto, setMenuMobileAberto] = useState(false);
+
+  // Contador de itens no carrinho
+  const totalItemsNoCarrinho = cart.reduce((total, item) => {
+    return total + (item.quantity || 1);
+  }, 0);
 
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("user"));
@@ -38,6 +61,11 @@ const Settings = ({ user, setUser, cart }) => {
       ...prev,
       nome: userData.nome || "",
       email: userData.email || "",
+      telefone: userData.telefone || "",
+      endereco: userData.endereco || "",
+      cidade: userData.cidade || "",
+      estado: userData.estado || "",
+      cep: userData.cep || "",
     }));
   }, [navigate, user]);
 
@@ -55,42 +83,46 @@ const Settings = ({ user, setUser, cart }) => {
     setMessage({ type: "", text: "" });
 
     try {
-      // Validar dados
       if (!formData.nome || !formData.email) {
         throw new Error("Nome e email são obrigatórios");
       }
 
-      // Buscar usuários do localStorage
       const users = JSON.parse(localStorage.getItem("users") || "[]");
-
-      // Verificar se o email já existe (para outro usuário)
       const emailExists = users.find(
         (u) => u.email === formData.email && u.id !== currentUser.id
       );
       if (emailExists) {
-        throw new Error("Este email já está em uso por outro usuário");
+        throw new Error("Este email já está em uso por outro utilizador");
       }
 
-      // Atualizar usuário no array de users
       const updatedUsers = users.map((u) => {
         if (u.id === currentUser.id) {
           return {
             ...u,
             nome: formData.nome,
             email: formData.email,
+            telefone: formData.telefone,
+            endereco: formData.endereco,
+            cidade: formData.cidade,
+            estado: formData.estado,
+            cep: formData.cep,
+            dataAtualizacao: new Date().toISOString(),
           };
         }
         return u;
       });
 
-      // Atualizar localStorage
       localStorage.setItem("users", JSON.stringify(updatedUsers));
 
-      // Atualizar user no localStorage e estado
       const updatedUser = {
         ...currentUser,
         nome: formData.nome,
         email: formData.email,
+        telefone: formData.telefone,
+        endereco: formData.endereco,
+        cidade: formData.cidade,
+        estado: formData.estado,
+        cep: formData.cep,
       };
 
       localStorage.setItem("user", JSON.stringify(updatedUser));
@@ -99,7 +131,7 @@ const Settings = ({ user, setUser, cart }) => {
 
       setMessage({
         type: "success",
-        text: "Dados atualizados com sucesso!",
+        text: "Perfil atualizado com sucesso!",
       });
     } catch (error) {
       setMessage({
@@ -117,7 +149,6 @@ const Settings = ({ user, setUser, cart }) => {
     setMessage({ type: "", text: "" });
 
     try {
-      // Validar senhas
       if (
         !formData.senhaAtual ||
         !formData.novaSenha ||
@@ -134,20 +165,17 @@ const Settings = ({ user, setUser, cart }) => {
         throw new Error("As novas senhas não coincidem");
       }
 
-      // Buscar usuário completo do localStorage
       const users = JSON.parse(localStorage.getItem("users") || "[]");
       const currentUserData = users.find((u) => u.id === currentUser.id);
 
       if (!currentUserData) {
-        throw new Error("Usuário não encontrado");
+        throw new Error("Utilizador não encontrado");
       }
 
-      // Verificar senha atual
       if (currentUserData.senha !== formData.senhaAtual) {
         throw new Error("Senha atual incorreta");
       }
 
-      // Atualizar senha
       const updatedUsers = users.map((u) => {
         if (u.id === currentUser.id) {
           return {
@@ -160,7 +188,6 @@ const Settings = ({ user, setUser, cart }) => {
 
       localStorage.setItem("users", JSON.stringify(updatedUsers));
 
-      // Limpar campos de senha
       setFormData((prev) => ({
         ...prev,
         senhaAtual: "",
@@ -191,7 +218,7 @@ const Settings = ({ user, setUser, cart }) => {
   const handleDeleteAccount = () => {
     if (
       window.confirm(
-        "Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita."
+        "Tem a certeza que deseja excluir a sua conta? Todos os seus dados serão permanentemente removidos."
       )
     ) {
       const users = JSON.parse(localStorage.getItem("users") || "[]");
@@ -204,269 +231,512 @@ const Settings = ({ user, setUser, cart }) => {
     }
   };
 
-  // Contador de itens no carrinho
-  const totalItemsNoCarrinho = cart.reduce((total, item) => {
-    return total + (item.quantity || 1);
-  }, 0);
-
   if (!currentUser) {
     return null;
   }
 
-  return (
-    <div className="min-h-screen bg-white font-advent">
-      {/* HEADER */}
-      <header className="bg-verde-rua text-white py-4 px-4 z-30">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center">
-            <img
-              src="/images/Vector.png"
-              alt="Camisa de Rua Logo"
-              className="h-12 w-19 object-cover ml-40"
+  const renderPerfilTab = () => (
+    <div className="space-y-6">
+      <div className="bg-gray-800/50 backdrop-blur-lg border border-verde-neon/20 rounded-3xl p-6">
+        <h2 className="text-xl font-black text-white mb-6 flex items-center">
+          <User className="mr-3 text-verde-neon" size={24} />
+          Informações Pessoais
+        </h2>
+
+        <form onSubmit={handleUpdateProfile}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-bold mb-3 text-verde-neon">
+                Nome Completo
+              </label>
+              <input
+                type="text"
+                name="nome"
+                value={formData.nome}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                className="w-full p-4 bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
+                placeholder="Seu nome completo"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold mb-3 text-verde-neon">
+                <Mail className="inline w-4 h-4 mr-2" />
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                className="w-full p-4 bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
+                placeholder="seu@email.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold mb-3 text-verde-neon">
+                <Phone className="inline w-4 h-4 mr-2" />
+                Telefone
+              </label>
+              <input
+                type="tel"
+                name="telefone"
+                value={formData.telefone}
+                onChange={handleChange}
+                disabled={loading}
+                className="w-full p-4 bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
+                placeholder="(11) 99999-9999"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold mb-3 text-verde-neon">
+                <MapPin className="inline w-4 h-4 mr-2" />
+                CEP
+              </label>
+              <input
+                type="text"
+                name="cep"
+                value={formData.cep}
+                onChange={handleChange}
+                disabled={loading}
+                className="w-full p-4 bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
+                placeholder="00000-000"
+              />
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-bold mb-3 text-verde-neon">
+              <MapPin className="inline w-4 h-4 mr-2" />
+              Endereço
+            </label>
+            <input
+              type="text"
+              name="endereco"
+              value={formData.endereco}
+              onChange={handleChange}
+              disabled={loading}
+              className="w-full p-4 bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
+              placeholder="Rua, número, complemento"
             />
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <label className="block text-sm font-bold mb-3 text-verde-neon">
+                Cidade
+              </label>
+              <input
+                type="text"
+                name="cidade"
+                value={formData.cidade}
+                onChange={handleChange}
+                disabled={loading}
+                className="w-full p-4 bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
+                placeholder="Sua cidade"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold mb-3 text-verde-neon">
+                Estado
+              </label>
+              <input
+                type="text"
+                name="estado"
+                value={formData.estado}
+                onChange={handleChange}
+                disabled={loading}
+                className="w-full p-4 bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
+                placeholder="Seu estado"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center pt-4 border-t border-gray-700/50">
+            <div className="text-gray-400 text-sm">
+              <p>ID: {currentUser.id}</p>
+              {currentUser.dataCadastro && (
+                <p>
+                  Membro desde:{" "}
+                  {new Date(currentUser.dataCadastro).toLocaleDateString(
+                    "pt-BR"
+                  )}
+                </p>
+              )}
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-gradient-to-r from-verde-neon to-verde-rua hover:from-verde-rua hover:to-verde-neon text-gray-900 font-bold py-3 px-8 rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-lg hover:shadow-verde-neon/25 disabled:opacity-50 flex items-center"
+            >
+              <Save size={20} className="mr-2" />
+              {loading ? "A guardar..." : "Atualizar Perfil"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+
+  const renderSegurancaTab = () => (
+    <div className="space-y-6">
+      <div className="bg-gray-800/50 backdrop-blur-lg border border-verde-neon/20 rounded-3xl p-6">
+        <h2 className="text-xl font-black text-white mb-6 flex items-center">
+          <Lock className="mr-3 text-verde-neon" size={24} />
+          Alterar Senha
+        </h2>
+
+        <form onSubmit={handleChangePassword}>
+          <div className="space-y-4 mb-6">
+            <div>
+              <label className="block text-sm font-bold mb-3 text-verde-neon">
+                Senha Atual
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="senhaAtual"
+                  value={formData.senhaAtual}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  className="w-full p-4 bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 transition-all duration-300 pr-12"
+                  placeholder="Sua senha atual"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-verde-neon transition-colors"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold mb-3 text-verde-neon">
+                Nova Senha
+              </label>
+              <input
+                type="password"
+                name="novaSenha"
+                value={formData.novaSenha}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                className="w-full p-4 bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
+                placeholder="Nova senha (mín. 6 caracteres)"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold mb-3 text-verde-neon">
+                Confirmar Nova Senha
+              </label>
+              <input
+                type="password"
+                name="confirmarSenha"
+                value={formData.confirmarSenha}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                className="w-full p-4 bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
+                placeholder="Confirme a nova senha"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-gradient-to-r from-verde-neon to-verde-rua hover:from-verde-rua hover:to-verde-neon text-gray-900 font-bold py-3 px-8 rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-lg hover:shadow-verde-neon/25 disabled:opacity-50 flex items-center"
+            >
+              <Lock size={20} className="mr-2" />
+              {loading ? "A alterar..." : "Alterar Senha"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+
+  const renderPreferenciasTab = () => (
+    <div className="space-y-6">
+      <div className="bg-gray-800/50 backdrop-blur-lg border border-verde-neon/20 rounded-3xl p-6">
+        <h2 className="text-xl font-black text-white mb-6 flex items-center">
+          <Bell className="mr-3 text-verde-neon" size={24} />
+          Notificações
+        </h2>
+        <div className="space-y-4">
+          {[
+            {
+              label: "Promoções e ofertas",
+              description: "Receba novidades e descontos exclusivos",
+            },
+            {
+              label: "Atualizações de pedidos",
+              description: "Acompanhamento dos seus pedidos",
+            },
+            {
+              label: "Eventos e festas",
+              description: "Novos eventos na sua área",
+            },
+          ].map((item, index) => (
+            <div
+              key={index}
+              className="flex justify-between items-center p-4 bg-gray-700/30 rounded-xl"
+            >
+              <div>
+                <p className="font-bold text-white">{item.label}</p>
+                <p className="text-gray-400 text-sm">{item.description}</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  defaultChecked
+                />
+                <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-verde-neon"></div>
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-gray-800/50 backdrop-blur-lg border border-verde-neon/20 rounded-3xl p-6">
+        <h2 className="text-xl font-black text-white mb-6 flex items-center">
+          <Globe className="mr-3 text-verde-neon" size={24} />
+          Preferências
+        </h2>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-bold mb-3 text-verde-neon">
+              Idioma
+            </label>
+            <select className="w-full p-4 bg-gray-700/50 border border-verde-neon/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-verde-neon focus:border-transparent text-white transition-all duration-300">
+              <option value="pt">Português (Brasil)</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black font-advent">
+      {/* HEADER */}
+      <header className="fixed top-0 left-0 right-0 bg-gray-900/95 backdrop-blur-lg border-b border-verde-neon/20 text-white py-4 px-4 w-full z-50">
+        <div className="max-w-7xl mx-auto flex items-center justify-between w-full">
+          <div className="flex items-center">
+            <img
+              src="/images/cdrlogo.svg"
+              alt="Camisa de Rua Logo"
+              className="h-12 w-auto object-contain transition-transform duration-300 hover:scale-105"
+            />
+          </div>
+
+          <div className="hidden lg:flex items-center">
+            <nav className="flex items-center space-x-8">
+              <span className="text-verde-neon font-semibold text-lg">
+                Olá, {currentUser.nome}
+              </span>
+            </nav>
+          </div>
+
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-4">
-              <span className="text-verde-neon">Olá, {currentUser.nome}</span>
+            <div className="hidden sm:flex items-center space-x-4">
               <button
                 onClick={handleLogout}
-                className="border-2 border-verde-neon text-verde-neon font-bold py-2 px-6 rounded-full hover:bg-verde-neon hover:text-verde-rua transition-colors"
+                className="bg-gradient-to-r from-verde-neon to-verde-rua hover:from-verde-rua hover:to-verde-neon text-gray-900 font-bold py-2 px-6 rounded-full transition-all duration-500 transform hover:scale-105 hover:shadow-lg hover:shadow-verde-neon/25"
+              >
+                SAIR
+              </button>
+            </div>
+
+            <div className="sm:hidden">
+              <button
+                onClick={() => setMenuMobileAberto(!menuMobileAberto)}
+                className="p-2 bg-verde-neon/20 rounded-lg hover:bg-verde-neon/30 transition-all duration-300"
+              >
+                {menuMobileAberto ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {menuMobileAberto && (
+          <div className="sm:hidden bg-gray-800/95 backdrop-blur-lg border-t border-verde-neon/20 mt-4 py-4 rounded-b-2xl">
+            <div className="flex flex-col space-y-4 px-4">
+              <span className="text-verde-neon text-center font-semibold">
+                Olá, {currentUser.nome}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="bg-gradient-to-r from-verde-neon to-verde-rua text-gray-900 font-bold py-3 rounded-full transition-all duration-300"
               >
                 SAIR
               </button>
             </div>
           </div>
-        </div>
+        )}
       </header>
 
-      <div className="min-h-screen bg-white flex">
-        {/* MENU LATERAL */}
-        <aside className="ml-2 w-12 bg-azul-gelo flex flex-col items-center py-3 fixed top-32 h-80 bottom-8 rounded-xl z-40 mt-4">
-          <Link to="/home" className="p-3">
-            <div className="w-6 h-6 bg-azul-gelo rounded">
-              <House />
-            </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex flex-col sm:flex-row pt-20">
+        {/* MENU LATERAL - DESKTOP */}
+        <aside className="hidden sm:flex ml-4 w-16 bg-gray-800/50 backdrop-blur-lg flex-col items-center py-6 fixed top-32 h-80 bottom-8 rounded-2xl z-40 border border-verde-neon/20">
+          <Link
+            to="/home"
+            className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl mb-8 transition-all duration-300 hover:scale-110 group border border-gray-600"
+          >
+            <House className="text-gray-300 group-hover:text-gray-900 w-6 h-6" />
           </Link>
-          <Link to="/events" className="p-3">
-            <div className="w-6 h-6 bg-azul-gelo rounded">
-              <Ticket />
-            </div>
+          <Link
+            to="/events"
+            className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl mb-8 transition-all duration-300 hover:scale-110 group border border-gray-600"
+          >
+            <Ticket className="text-gray-300 group-hover:text-gray-900 w-6 h-6" />
           </Link>
-          <Link to="/cart" className="p-3 relative">
-            <div className="w-6 h-6 bg-azul-gelo rounded">
-              <ShoppingCart />
-            </div>
+          <Link
+            to="/cart"
+            className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl mb-8 transition-all duration-300 hover:scale-110 relative group border border-gray-600"
+          >
+            <ShoppingCart className="text-gray-300 group-hover:text-gray-900 w-6 h-6" />
             {totalItemsNoCarrinho > 0 && (
-              <span className="absolute -top-1 -right-1 bg-verde-neon text-verde-rua text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+              <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg">
                 {totalItemsNoCarrinho}
               </span>
             )}
           </Link>
-          <Link to="/settings" className="p-3 bg-verde-neon rounded mt-32">
-            <div className="w-6 h-6 rounded">
-              <Bolt className="text-verde-rua" />
-            </div>
+          <Link
+            to="/settings"
+            className="p-3 bg-gradient-to-br from-verde-neon to-verde-rua rounded-xl mt-auto transition-all duration-300 hover:scale-110 hover:shadow-lg"
+          >
+            <Bolt className="text-gray-900 w-6 h-6" />
           </Link>
         </aside>
 
-        {/* CONTEÚDO PRINCIPAL */}
-        <main className="flex-1 ml-16 p-6">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold mb-2">Configurações</h1>
-            <p className="text-gray-600 mb-8">
-              Gerencie suas informações pessoais e preferências
-            </p>
+        {/* MENU INFERIOR - MOBILE */}
+        <nav className="sm:hidden fixed bottom-4 left-4 right-4 bg-gray-800/90 backdrop-blur-lg border border-verde-neon/20 rounded-2xl z-40 shadow-2xl">
+          <div className="flex justify-around items-center py-3">
+            <Link
+              to="/home"
+              className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl transition-all duration-300 hover:scale-110 group border border-gray-600"
+            >
+              <House className="text-gray-300 group-hover:text-gray-900 w-5 h-5" />
+            </Link>
+            <Link
+              to="/events"
+              className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl transition-all duration-300 hover:scale-110 group border border-gray-600"
+            >
+              <Ticket className="text-gray-300 group-hover:text-gray-900 w-5 h-5" />
+            </Link>
+            <Link
+              to="/cart"
+              className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl transition-all duration-300 hover:scale-110 relative group border border-gray-600"
+            >
+              <ShoppingCart className="text-gray-300 group-hover:text-gray-900 w-5 h-5" />
+              {totalItemsNoCarrinho > 0 && (
+                <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg">
+                  {totalItemsNoCarrinho}
+                </span>
+              )}
+            </Link>
+            <Link
+              to="/settings"
+              className="p-3 bg-gradient-to-br from-verde-neon to-verde-rua rounded-xl transition-all duration-300 hover:scale-110"
+            >
+              <Bolt className="text-gray-900 w-5 h-5" />
+            </Link>
+          </div>
+        </nav>
 
-            {/* TABS */}
-            <div className="flex border-b border-gray-200 mb-8">
-              <button
-                onClick={() => setActiveTab("dados")}
-                className={`px-6 py-3 font-semibold border-b-2 transition-colors ${
-                  activeTab === "dados"
-                    ? "border-verde-rua text-verde-rua"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
-                }`}
-              >
-                <User size={18} className="inline mr-2" />
-                Dados Pessoais
-              </button>
-              <button
-                onClick={() => setActiveTab("senha")}
-                className={`px-6 py-3 font-semibold border-b-2 transition-colors ${
-                  activeTab === "senha"
-                    ? "border-verde-rua text-verde-rua"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
-                }`}
-              >
-                <Lock size={18} className="inline mr-2" />
-                Alterar Senha
-              </button>
+        {/* CONTEÚDO PRINCIPAL */}
+        <main className="flex-1 sm:ml-20 pb-20 sm:pb-0 p-4 sm:p-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center space-x-4 mb-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-verde-neon to-verde-rua rounded-2xl flex items-center justify-center">
+                <User className="text-gray-900 w-8 h-8" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-black text-white">
+                  Configurações
+                </h1>
+                <p className="text-gray-300">
+                  Gerencie a sua conta e preferências
+                </p>
+              </div>
             </div>
 
-            {/* MENSAGENS */}
             {message.text && (
               <div
-                className={`p-4 rounded-lg mb-6 ${
+                className={`p-4 rounded-2xl mb-6 backdrop-blur-lg border ${
                   message.type === "success"
-                    ? "bg-green-100 border border-green-400 text-green-700"
-                    : "bg-red-100 border border-red-400 text-red-700"
+                    ? "bg-verde-neon/20 border-verde-neon/50 text-verde-neon"
+                    : "bg-red-500/20 border-red-500/50 text-red-300"
                 }`}
               >
-                {message.text}
+                <div className="flex items-center">
+                  {message.type === "success" ? (
+                    <CheckCircle2 className="mr-2" />
+                  ) : (
+                    <AlertTriangle className="mr-2" />
+                  )}
+                  {message.text}
+                </div>
               </div>
             )}
 
-            {/* FORMULÁRIO - DADOS PESSOAIS */}
-            {activeTab === "dados" && (
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-xl font-bold mb-6 flex items-center">
-                  <User className="mr-2" size={20} />
-                  Informações Pessoais
-                </h2>
+            <div className="flex space-x-1 bg-gray-800/50 backdrop-blur-lg rounded-2xl p-2 mb-8 border border-verde-neon/20">
+              {[
+                { id: "perfil", label: "Perfil", icon: User },
+                { id: "seguranca", label: "Segurança", icon: Lock },
+                { id: "preferencias", label: "Preferências", icon: Bell },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-bold transition-all duration-300 flex-1 text-center ${
+                    activeTab === tab.id
+                      ? "bg-gradient-to-r from-verde-neon to-verde-rua text-gray-900 shadow-lg shadow-verde-neon/25"
+                      : "text-gray-300 hover:text-verde-neon hover:bg-gray-700/50"
+                  }`}
+                >
+                  <tab.icon size={20} />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </button>
+              ))}
+            </div>
 
-                <form onSubmit={handleUpdateProfile}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                      <label className="block text-sm font-bold mb-2 text-gray-700">
-                        Nome Completo
-                      </label>
-                      <input
-                        type="text"
-                        name="nome"
-                        value={formData.nome}
-                        onChange={handleChange}
-                        required
-                        disabled={loading}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-verde-rua focus:border-transparent"
-                        placeholder="Seu nome completo"
-                      />
-                    </div>
+            {activeTab === "perfil" && renderPerfilTab()}
+            {activeTab === "seguranca" && renderSegurancaTab()}
+            {activeTab === "preferencias" && renderPreferenciasTab()}
 
-                    <div>
-                      <label className="block text-sm font-bold mb-2 text-gray-700">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        disabled={loading}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-verde-rua focus:border-transparent"
-                        placeholder="seu@email.com"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="text-sm text-gray-500">
-                        ID da conta: {currentUser.id}
-                      </p>
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="bg-verde-rua text-white font-bold py-3 px-6 rounded-lg hover:bg-verde-escuro transition-colors disabled:opacity-50 flex items-center"
-                    >
-                      <Save size={18} className="mr-2" />
-                      {loading ? "Salvando..." : "Salvar Alterações"}
-                    </button>
-                  </div>
-                </form>
+            <div className="bg-red-500/10 backdrop-blur-lg border border-red-500/30 rounded-3xl p-6 mt-8">
+              <div className="flex items-center mb-4">
+                <AlertTriangle className="text-red-400 mr-3" size={24} />
+                <h3 className="text-xl font-black text-red-400">
+                  Zona de Perigo
+                </h3>
               </div>
-            )}
-
-            {/* FORMULÁRIO - ALTERAR SENHA */}
-            {activeTab === "senha" && (
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-xl font-bold mb-6 flex items-center">
-                  <Lock className="mr-2" size={20} />
-                  Alterar Senha
-                </h2>
-
-                <form onSubmit={handleChangePassword}>
-                  <div className="space-y-4 mb-6">
-                    <div>
-                      <label className="block text-sm font-bold mb-2 text-gray-700">
-                        Senha Atual
-                      </label>
-                      <input
-                        type="password"
-                        name="senhaAtual"
-                        value={formData.senhaAtual}
-                        onChange={handleChange}
-                        required
-                        disabled={loading}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-verde-rua focus:border-transparent"
-                        placeholder="Sua senha atual"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-bold mb-2 text-gray-700">
-                        Nova Senha
-                      </label>
-                      <input
-                        type="password"
-                        name="novaSenha"
-                        value={formData.novaSenha}
-                        onChange={handleChange}
-                        required
-                        disabled={loading}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-verde-rua focus:border-transparent"
-                        placeholder="Nova senha (mín. 6 caracteres)"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-bold mb-2 text-gray-700">
-                        Confirmar Nova Senha
-                      </label>
-                      <input
-                        type="password"
-                        name="confirmarSenha"
-                        value={formData.confirmarSenha}
-                        onChange={handleChange}
-                        required
-                        disabled={loading}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-verde-rua focus:border-transparent"
-                        placeholder="Confirme a nova senha"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end">
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="bg-verde-rua text-white font-bold py-3 px-6 rounded-lg hover:bg-verde-escuro transition-colors disabled:opacity-50 flex items-center"
-                    >
-                      <Save size={18} className="mr-2" />
-                      {loading ? "Alterando..." : "Alterar Senha"}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
-
-            {/* SEÇÃO PERIGOSA */}
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6 mt-8">
-              <h3 className="text-lg font-bold text-red-800 mb-2">
-                Zona de Perigo
-              </h3>
-              <p className="text-red-700 mb-4">
-                Ações nesta seção são irreversíveis. Tenha certeza do que está
-                fazendo.
+              <p className="text-red-300 mb-4">
+                Ações nesta secção são irreversíveis. Tenha certeza absoluta do
+                que está a fazer.
               </p>
               <button
                 onClick={handleDeleteAccount}
-                className="bg-red-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-700 transition-colors flex items-center"
+                className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center"
               >
-                <LogOut size={18} className="mr-2" />
-                Excluir Minha Conta
+                <Trash2 size={20} className="mr-2" />
+                Excluir Minha Conta Permanentemente
               </button>
             </div>
           </div>

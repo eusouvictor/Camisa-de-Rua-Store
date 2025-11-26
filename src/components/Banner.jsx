@@ -7,12 +7,12 @@ const Banner = () => {
   const slides = [
     {
       id: 1,
-      image: "/images/banner1.jpg", // ou use URLs externas
+      image: "/images/banner1.jpg", // Certifique-se que estas imagens existem ou use placeholders
       title: "CARNAVAL 2025",
       subtitle: "Blocos Exclusivos",
       description: "Viva a experiência única do carnaval de rua",
       buttonText: "VER INGRESSOS",
-      bgColor: "bg-verde-rua",
+      gradient: "from-verde-rua to-verde-escuro",
     },
     {
       id: 2,
@@ -21,7 +21,7 @@ const Banner = () => {
       subtitle: "Lançamento Exclusivo",
       description: "Camisetas com estampas autorais da periferia",
       buttonText: "COMPRAR AGORA",
-      bgColor: "bg-verde-escuro",
+      gradient: "from-verde-escuro to-gray-900",
     },
     {
       id: 3,
@@ -30,7 +30,7 @@ const Banner = () => {
       subtitle: "Eventos Mensais",
       description: "Shows e rodas de samba toda semana",
       buttonText: "CONFIRA A PROGRAMAÇÃO",
-      bgColor: "bg-azul-gelo",
+      gradient: "from-azul-gelo to-verde-rua",
     },
     {
       id: 4,
@@ -40,17 +40,18 @@ const Banner = () => {
       description: "Parte do valor é revertido para iniciativas locais",
       buttonText: "SABER MAIS",
       bgColor: "bg-ouro-escuro",
+      gradient: "from-ouro-escuro to-black",
     },
   ];
 
   // Auto-play
   useEffect(() => {
     const interval = setInterval(() => {
-      nextSlide();
-    }, 10000); // Muda a cada 10 segundos
+      setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+    }, 5000);
 
     return () => clearInterval(interval);
-  }, [currentSlide]);
+  }, [slides.length]);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
@@ -65,36 +66,41 @@ const Banner = () => {
   };
 
   return (
-    <div className="relative w-full h-[300px] md:h-[500px] overflow-hidden mt-20 rounded">
+    <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] overflow-hidden mt-4 sm:mt-8 rounded-2xl shadow-2xl group">
       {/* Slides */}
       <div
-        className="flex transition-transform duration-500 ease-in-out h-full"
+        className="flex transition-transform duration-500 ease-out h-full"
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
       >
         {slides.map((slide) => (
-          <div key={slide.id} className="w-full h-full flex-shrink-0 relative">
-            {/* Imagem de fundo */}
+          <div
+            key={slide.id}
+            className="w-full h-full flex-shrink-0 relative"
+          >
+            {/* Background com gradiente (fallback se não tiver imagem) */}
             <div
-              className={`w-full h-full ${slide.bgColor} flex items-center justify-center`}
+              className={`w-full h-full bg-gradient-to-br ${slide.gradient || "from-gray-900 to-black"} flex items-center justify-center p-4 sm:p-6`}
             >
-              <div className="text-center text-white px-4 max-w-4xl mx-auto">
-                <h2 className="text-5xl md:text-7xl font-black mb-4">
+              <div className="text-center text-white max-w-4xl mx-auto z-10">
+                <h2 className="text-3xl sm:text-4xl md:text-6xl font-black mb-2 sm:mb-4 tracking-tight">
                   {slide.title}
                 </h2>
-                <p className="text-2xl md:text-3xl font-bold text-verde-neon mb-2">
+                
+                <p className="text-lg sm:text-xl md:text-2xl font-bold text-verde-neon mb-2 sm:mb-3">
                   {slide.subtitle}
                 </p>
-                <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">
+                
+                <p className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto text-gray-200">
                   {slide.description}
                 </p>
-                <button className="bg-verde-neon text-verde-rua font-bold py-4 px-8 rounded-full text-xl hover:bg-white hover:scale-105 transform transition-all duration-300">
+                
+                <button className="bg-verde-neon hover:bg-white text-verde-rua font-bold py-3 px-8 rounded-full text-sm sm:text-base transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-verde-neon/50">
                   {slide.buttonText}
                 </button>
               </div>
             </div>
-
-            {/* Overlay escuro para melhor contraste */}
-            <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+             {/* Overlay escuro */}
+             <div className="absolute inset-0 bg-black/20"></div>
           </div>
         ))}
       </div>
@@ -102,28 +108,28 @@ const Banner = () => {
       {/* Botões de navegação */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition-all duration-300 z-10"
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition-all duration-300 z-20 opacity-0 group-hover:opacity-100"
       >
         <ChevronLeft size={32} />
       </button>
 
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition-all duration-300 z-10"
+        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition-all duration-300 z-20 opacity-0 group-hover:opacity-100"
       >
         <ChevronRight size={32} />
       </button>
 
       {/* Indicadores (dots) */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-3 z-10">
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+            className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
               index === currentSlide
-                ? "bg-verde-neon scale-125"
-                : "bg-white bg-opacity-50 hover:bg-opacity-100"
+                ? "bg-verde-neon scale-125 w-4 sm:w-6"
+                : "bg-white/50 hover:bg-white/80"
             }`}
           />
         ))}
