@@ -17,7 +17,7 @@ import {
   LogOut,
 } from "lucide-react";
 
-const API_URL = "http://localhost:4000/api";
+const API_URL = "/api";
 
 const Settings = ({ user, setUser, cart }) => {
   const navigate = useNavigate();

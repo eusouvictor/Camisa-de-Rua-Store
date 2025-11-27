@@ -7,7 +7,8 @@ import cookieParser from "cookie-parser";
 const app = express();
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  // Aceita localhost E o seu site no Vercel
+  origin: ['http://localhost:5173', 'https://rua-store.vercel.app'], 
   credentials: true
 }));
 
@@ -21,5 +22,14 @@ app.get("/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/produtos", produtosRoutes);
 
+// ... (seu código anterior continua igual)
+
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Se não estivermos no Vercel, rodamos o servidor normalmente
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+// Exportamos o app para o Vercel usar
+export default app;

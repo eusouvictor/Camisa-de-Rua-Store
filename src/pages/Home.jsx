@@ -98,7 +98,7 @@ const Home = ({ addToCart, cart }) => {
     // Lógica de buscar produtos do Backend
     const fetchProdutos = async () => {
       try {
-        const response = await fetch("http://localhost:4000/api/produtos");
+        const response = await fetch("/api/produtos");
         const data = await response.json();
         if (response.ok) {
           setAllProdutos(data.produtos || []);

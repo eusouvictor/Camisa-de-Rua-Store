@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { X, Mail, Lock, User, Key } from "lucide-react";
 
 // URL da API
-const API_URL = "http://localhost:4000/api";
+const API_URL = "/api";
 
 const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
