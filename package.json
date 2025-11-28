@@ -19,6 +19,7 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.544.0",
+    "mysql2": "^3.4.0",
     "node-fetch": "^3.3.2",
     "prisma": "^6.17.1",
     "react": "^19.1.1",
