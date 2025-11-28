@@ -39,7 +39,10 @@ const Cart = ({ cart, updateCart, removeFromCart }) => {
     }).format(preco);
   };
 
+<<<<<<< HEAD
   // Contador de itens no carrinho
+=======
+>>>>>>> amigo/minha-nova-feature
   const totalItemsNoCarrinho = cart.reduce((total, item) => {
     return total + (item.quantity || 1);
   }, 0);
@@ -70,6 +73,7 @@ const Cart = ({ cart, updateCart, removeFromCart }) => {
     }, 0);
   };
 
+<<<<<<< HEAD
   const handleCheckout = () => {
     if (cartItems.length === 0) {
       alert("Seu carrinho está vazio!");
@@ -78,6 +82,15 @@ const Cart = ({ cart, updateCart, removeFromCart }) => {
     // Redireciona para a página de checkout com os dados
     navigate("/checkout", { state: { cartItems, total: calcularTotal() } });
   };
+=======
+const handleCheckout = () => {
+  if (cartItems.length === 0) {
+    alert("Seu carrinho está vazio!");
+    return;
+  }
+  navigate("/checkout", { state: { cartItems, total: calcularTotal() } });
+};
+>>>>>>> amigo/minha-nova-feature
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -213,8 +226,13 @@ const Cart = ({ cart, updateCart, removeFromCart }) => {
         </nav>
 
         {/* CONTEÚDO PRINCIPAL */}
+<<<<<<< HEAD
         <main className="flex-1 sm:ml-20 pb-20 sm:pb-0 p-4">
           <div className="max-w-6xl mx-auto">
+=======
+        <main className="flex-1 sm:ml-20 pb-20 sm:pb-0 p-4 sm:p-6">
+          <div className="max-w-7xl mx-auto">
+>>>>>>> amigo/minha-nova-feature
             <div className="flex items-center space-x-3 mb-6">
               <ShoppingCart className="text-verde-neon w-8 h-8" />
               <h1 className="text-3xl font-black text-white">Meu Carrinho</h1>

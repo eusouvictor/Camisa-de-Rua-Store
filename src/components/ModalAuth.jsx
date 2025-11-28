@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { X, Mail, Lock, User, Key } from "lucide-react";
+<<<<<<< HEAD
 
 // URL da API
 const API_URL = "/api";
+=======
+>>>>>>> amigo/minha-nova-feature
 
 const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -23,7 +26,205 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
 
   if (!isOpen) return null;
 
+<<<<<<< HEAD
   // --- Funções Auxiliares de Estado ---
+=======
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccessMessage("");
+
+    try {
+      if (isForgotPassword) {
+        if (!codigoEnviado) {
+          await handleSolicitarRecuperacao();
+        } else {
+          await handleRedefinirSenha();
+        }
+      } else if (isLogin) {
+        await handleLogin();
+      } else {
+        await handleCadastro();
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogin = async () => {
+    const { email, senha } = formData;
+
+    if (!email || !senha) {
+      throw new Error("Preencha todos os campos");
+    }
+
+    if (email === "teste@teste.com" && senha === "123456") {
+      const user = { id: "1", nome: "Usuário Teste", email: "teste@teste.com" };
+      localStorage.setItem("user", JSON.stringify(user));
+      onLoginSuccess(user);
+      return;
+    }
+
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const user = users.find((u) => u.email === email && u.senha === senha);
+
+    if (!user) {
+      throw new Error("Email ou senha incorretos");
+    }
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        id: user.id,
+        nome: user.nome,
+        email: user.email,
+      })
+    );
+
+    onLoginSuccess(user);
+  };
+
+  const handleCadastro = async () => {
+    const { nome, email, senha, confirmarSenha } = formData;
+
+    if (!nome || !email || !senha || !confirmarSenha) {
+      throw new Error("Preencha todos os campos");
+    }
+
+    if (senha.length < 6) {
+      throw new Error("A senha deve ter pelo menos 6 caracteres");
+    }
+
+    if (senha !== confirmarSenha) {
+      throw new Error("As senhas não coincidem");
+    }
+
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const userExists = users.find((u) => u.email === email);
+
+    if (userExists) {
+      throw new Error("Este email já está cadastrado");
+    }
+
+    const newUser = {
+      id: Date.now().toString(),
+      nome,
+      email,
+      senha,
+      dataCadastro: new Date().toISOString(),
+    };
+
+    const updatedUsers = [...users, newUser];
+    localStorage.setItem("users", JSON.stringify(updatedUsers));
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        id: newUser.id,
+        nome: newUser.nome,
+        email: newUser.email,
+      })
+    );
+
+    onLoginSuccess(newUser);
+  };
+>>>>>>> amigo/minha-nova-feature
+
+  const handleSolicitarRecuperacao = async () => {
+    const { email } = formData;
+
+    if (!email) {
+      throw new Error("Digite seu email para recuperar a senha");
+    }
+
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const userExists = users.find((u) => u.email === email);
+
+    if (!userExists) {
+      throw new Error("Email não encontrado");
+    }
+
+    const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const recuperacoes = JSON.parse(
+      localStorage.getItem("recuperacoes") || "{}"
+    );
+    recuperacoes[email] = {
+      codigo,
+      expiracao: Date.now() + 15 * 60 * 1000,
+    };
+    localStorage.setItem("recuperacoes", JSON.stringify(recuperacoes));
+
+    setCodigoEnviado(true);
+    setSuccessMessage(
+      `Código de recuperação enviado para ${email} (Código: ${codigo})`
+    );
+  };
+
+  const handleRedefinirSenha = async () => {
+    const { email, codigoRecuperacao, novaSenha, confirmarNovaSenha } =
+      formData;
+
+    if (!codigoRecuperacao || !novaSenha || !confirmarNovaSenha) {
+      throw new Error("Preencha todos os campos");
+    }
+
+    if (novaSenha.length < 6) {
+      throw new Error("A nova senha deve ter pelo menos 6 caracteres");
+    }
+
+    if (novaSenha !== confirmarNovaSenha) {
+      throw new Error("As senhas não coincidem");
+    }
+
+    const recuperacoes = JSON.parse(
+      localStorage.getItem("recuperacoes") || "{}"
+    );
+    const recuperacao = recuperacoes[email];
+
+    if (!recuperacao) {
+      throw new Error("Solicitação de recuperação não encontrada");
+    }
+
+    if (Date.now() > recuperacao.expiracao) {
+      throw new Error("Código expirado. Solicite um novo código.");
+    }
+
+    if (recuperacao.codigo !== codigoRecuperacao) {
+      throw new Error("Código de recuperação inválido");
+    }
+
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const userIndex = users.findIndex((u) => u.email === email);
+
+    if (userIndex === -1) {
+      throw new Error("Usuário não encontrado");
+    }
+
+    users[userIndex].senha = novaSenha;
+    localStorage.setItem("users", JSON.stringify(users));
+
+    delete recuperacoes[email];
+    localStorage.setItem("recuperacoes", JSON.stringify(recuperacoes));
+
+    setSuccessMessage(
+      "Senha redefinida com sucesso! Faça login com sua nova senha."
+    );
+
+    setTimeout(() => {
+      setIsForgotPassword(false);
+      setCodigoEnviado(false);
+      setFormData({
+        ...formData,
+        codigoRecuperacao: "",
+        novaSenha: "",
+        confirmarNovaSenha: "",
+      });
+    }, 2000);
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -37,19 +238,48 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
     setIsLogin(false);
     setIsForgotPassword(false);
     setCodigoEnviado(false);
+<<<<<<< HEAD
     limparFormulario();
+=======
+    setFormData({
+      nome: "",
+      email: formData.email,
+      senha: "",
+      confirmarSenha: "",
+      codigoRecuperacao: "",
+      novaSenha: "",
+      confirmarNovaSenha: "",
+    });
+    setError("");
+    setSuccessMessage("");
+>>>>>>> amigo/minha-nova-feature
   };
 
   const switchToLogin = () => {
     setIsLogin(true);
     setIsForgotPassword(false);
     setCodigoEnviado(false);
+<<<<<<< HEAD
     limparFormulario();
+=======
+    setFormData({
+      nome: "",
+      email: formData.email,
+      senha: "",
+      confirmarSenha: "",
+      codigoRecuperacao: "",
+      novaSenha: "",
+      confirmarNovaSenha: "",
+    });
+    setError("");
+    setSuccessMessage("");
+>>>>>>> amigo/minha-nova-feature
   };
 
   const switchToForgotPassword = () => {
     setIsForgotPassword(true);
     setCodigoEnviado(false);
+<<<<<<< HEAD
     limparFormulario();
   };
 
@@ -62,16 +292,25 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
   const limparFormulario = () => {
     setFormData((prev) => ({
       ...prev,
+=======
+    setFormData({
+      ...formData,
+>>>>>>> amigo/minha-nova-feature
       senha: "",
       confirmarSenha: "",
       codigoRecuperacao: "",
       novaSenha: "",
       confirmarNovaSenha: "",
+<<<<<<< HEAD
     }));
+=======
+    });
+>>>>>>> amigo/minha-nova-feature
     setError("");
     setSuccessMessage("");
   };
 
+<<<<<<< HEAD
   // --- Lógica de Envio (Handlers) ---
 
   const handleLogin = async () => {
@@ -192,6 +431,21 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
 
   // --- Renderização dos Formulários ---
 
+=======
+  const voltarParaLogin = () => {
+    setIsForgotPassword(false);
+    setCodigoEnviado(false);
+    setFormData({
+      ...formData,
+      codigoRecuperacao: "",
+      novaSenha: "",
+      confirmarNovaSenha: "",
+    });
+    setError("");
+    setSuccessMessage("");
+  };
+
+>>>>>>> amigo/minha-nova-feature
   const renderForgotPasswordForm = () => (
     <>
       <div className="text-center mb-4">
@@ -208,7 +462,13 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
 
       <div className="space-y-3">
         <div>
+<<<<<<< HEAD
           <label className="block text-sm font-bold mb-2 text-verde-neon">Email</label>
+=======
+          <label className="block text-sm font-bold mb-2 text-verde-neon">
+            Email
+          </label>
+>>>>>>> amigo/minha-nova-feature
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
@@ -227,7 +487,13 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
         {codigoEnviado && (
           <>
             <div>
+<<<<<<< HEAD
               <label className="block text-sm font-bold mb-2 text-verde-neon">Código</label>
+=======
+              <label className="block text-sm font-bold mb-2 text-verde-neon">
+                Código de Recuperação
+              </label>
+>>>>>>> amigo/minha-nova-feature
               <div className="relative">
                 <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
@@ -243,8 +509,16 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
                 />
               </div>
             </div>
+<<<<<<< HEAD
             <div>
               <label className="block text-sm font-bold mb-2 text-verde-neon">Nova Senha</label>
+=======
+
+            <div>
+              <label className="block text-sm font-bold mb-2 text-verde-neon">
+                Nova Senha
+              </label>
+>>>>>>> amigo/minha-nova-feature
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
@@ -259,8 +533,16 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
                 />
               </div>
             </div>
+<<<<<<< HEAD
             <div>
               <label className="block text-sm font-bold mb-2 text-verde-neon">Confirmar Nova Senha</label>
+=======
+
+            <div>
+              <label className="block text-sm font-bold mb-2 text-verde-neon">
+                Confirmar Nova Senha
+              </label>
+>>>>>>> amigo/minha-nova-feature
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
@@ -285,16 +567,37 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
     <>
       <div className="text-center mb-4">
         <div className="w-12 h-12 bg-gradient-to-br from-verde-neon to-verde-rua rounded-xl flex items-center justify-center mx-auto mb-3">
+<<<<<<< HEAD
           {isLogin ? <User className="text-gray-900 w-6 h-6" /> : <Mail className="text-gray-900 w-6 h-6" />}
         </div>
         <h3 className="text-xl font-black text-white mb-1">{isLogin ? "Fazer Login" : "Criar Conta"}</h3>
         <p className="text-gray-300 text-sm">{isLogin ? "Entre na sua conta" : "Junte-se à nossa comunidade"}</p>
+=======
+          {isLogin ? (
+            <User className="text-gray-900 w-6 h-6" />
+          ) : (
+            <Mail className="text-gray-900 w-6 h-6" />
+          )}
+        </div>
+        <h3 className="text-xl font-black text-white mb-1">
+          {isLogin ? "Fazer Login" : "Criar Conta"}
+        </h3>
+        <p className="text-gray-300 text-sm">
+          {isLogin ? "Entre na sua conta" : "Junte-se à nossa comunidade"}
+        </p>
+>>>>>>> amigo/minha-nova-feature
       </div>
 
       <div className="space-y-3">
         {!isLogin && (
           <div>
+<<<<<<< HEAD
             <label className="block text-sm font-bold mb-2 text-verde-neon">Nome</label>
+=======
+            <label className="block text-sm font-bold mb-2 text-verde-neon">
+              Nome
+            </label>
+>>>>>>> amigo/minha-nova-feature
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
@@ -312,7 +615,13 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
         )}
 
         <div>
+<<<<<<< HEAD
           <label className="block text-sm font-bold mb-2 text-verde-neon">Email</label>
+=======
+          <label className="block text-sm font-bold mb-2 text-verde-neon">
+            Email
+          </label>
+>>>>>>> amigo/minha-nova-feature
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
@@ -329,7 +638,13 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
         </div>
 
         <div>
+<<<<<<< HEAD
           <label className="block text-sm font-bold mb-2 text-verde-neon">Senha</label>
+=======
+          <label className="block text-sm font-bold mb-2 text-verde-neon">
+            Senha
+          </label>
+>>>>>>> amigo/minha-nova-feature
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
@@ -347,7 +662,13 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
 
         {!isLogin && (
           <div>
+<<<<<<< HEAD
             <label className="block text-sm font-bold mb-2 text-verde-neon">Confirmar Senha</label>
+=======
+            <label className="block text-sm font-bold mb-2 text-verde-neon">
+              Confirmar Senha
+            </label>
+>>>>>>> amigo/minha-nova-feature
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
@@ -434,7 +755,11 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
             )}
 
             {isForgotPassword ? (
+<<<<<<< HEAD
               <div className="space-y-2">
+=======
+              <div className="space-y-1">
+>>>>>>> amigo/minha-nova-feature
                 <p className="text-gray-400 text-xs">
                   Lembrou sua senha?{" "}
                   <button
