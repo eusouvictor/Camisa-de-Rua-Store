@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { X, Mail, Lock, User, Key } from "lucide-react";
 
-// URL da API
-const API_URL = "http://localhost:4000/api";
+// Se estiver em produção (Vercel), usa o caminho relativo /api.
+// Se estiver local, usa o localhost:4000.
+const API_URL = import.meta.env.PROD 
+  ? "/api" 
+  : "http://localhost:4000/api";
 
 const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
