@@ -11,11 +11,7 @@ import {
   Filter,
 } from "lucide-react";
 
-<<<<<<< HEAD
 // Dados dos eventos (Agora com IMAGENS!)
-=======
-// Dados dos eventos
->>>>>>> amigo/minha-nova-feature
 const eventos = [
   {
     id: 1,
@@ -25,10 +21,7 @@ const eventos = [
     local: "Centro da Cidade",
     descricao: "O maior bloco de carnaval de rua da região!",
     categoria: "carnaval",
-<<<<<<< HEAD
     imagem: "https://images.unsplash.com/photo-1582716401301-b2407dc65613?auto=format&fit=crop&w=800&q=80"
-=======
->>>>>>> amigo/minha-nova-feature
   },
   {
     id: 2,
@@ -38,10 +31,7 @@ const eventos = [
     local: "Praça Central",
     descricao: "Noite de samba com as melhores bandas locais",
     categoria: "musica",
-<<<<<<< HEAD
     imagem: "https://images.unsplash.com/photo-1514525253440-b393452e8d2e?auto=format&fit=crop&w=800&q=80"
-=======
->>>>>>> amigo/minha-nova-feature
   },
   {
     id: 3,
@@ -51,10 +41,7 @@ const eventos = [
     local: "Rua da Festa, 123",
     descricao: "Traga sua latinha e venha curtir o melhor do carnaval",
     categoria: "carnaval",
-<<<<<<< HEAD
     imagem: "https://images.unsplash.com/photo-1545128485-c400e7702796?auto=format&fit=crop&w=800&q=80"
-=======
->>>>>>> amigo/minha-nova-feature
   },
   {
     id: 4,
@@ -64,10 +51,7 @@ const eventos = [
     local: "Teatro Municipal",
     descricao: "As raízes do samba com artistas consagrados",
     categoria: "musica",
-<<<<<<< HEAD
     imagem: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80"
-=======
->>>>>>> amigo/minha-nova-feature
   },
   {
     id: 5,
@@ -77,10 +61,7 @@ const eventos = [
     local: "Clube da Cidade",
     descricao: "Carnaval para toda a família, das 14h às 20h",
     categoria: "carnaval",
-<<<<<<< HEAD
     imagem: "https://images.unsplash.com/photo-1551972251-12070d63502a?auto=format&fit=crop&w=800&q=80"
-=======
->>>>>>> amigo/minha-nova-feature
   },
   {
     id: 6,
@@ -90,10 +71,7 @@ const eventos = [
     local: "Parque Central",
     descricao: "12 horas de música com diversos artistas urbanos",
     categoria: "musica",
-<<<<<<< HEAD
     imagem: "https://images.unsplash.com/photo-1533174072545-e8d4aa97d848?auto=format&fit=crop&w=800&q=80"
-=======
->>>>>>> amigo/minha-nova-feature
   },
 ];
 
@@ -110,25 +88,17 @@ const EventCard = ({ evento, onAddToCart }) => {
       id: evento.id,
       name: evento.nome,
       price: evento.preco,
-<<<<<<< HEAD
       type: "evento", // Tipo para diferenciar no carrinho
       data: evento.data,
       local: evento.local,
       descricao: evento.descricao,
       imageUrl: evento.imagem // Passa a imagem para o carrinho
-=======
-      type: "evento",
-      data: evento.data,
-      local: evento.local,
-      descricao: evento.descricao,
->>>>>>> amigo/minha-nova-feature
     });
   };
 
   return (
     <div className="group bg-gray-800/50 backdrop-blur-lg border border-verde-neon/20 rounded-3xl overflow-hidden hover:scale-105 hover:shadow-2xl hover:shadow-verde-neon/20 hover:border-verde-neon/40 transition-all duration-500">
       <div className="h-48 sm:h-64 bg-gradient-to-br from-verde-rua to-verde-escuro flex items-center justify-center relative overflow-hidden">
-<<<<<<< HEAD
         {evento.imagem ? (
           <img 
             src={evento.imagem} 
@@ -143,13 +113,6 @@ const EventCard = ({ evento, onAddToCart }) => {
         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-300"></div>
       </div>
       
-=======
-        <span className="text-white text-sm sm:text-base font-semibold z-10">
-          Imagem do Evento
-        </span>
-        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-300"></div>
-      </div>
->>>>>>> amigo/minha-nova-feature
       <div className="p-6">
         <p className="font-bold mb-3 text-white text-sm sm:text-base line-clamp-2">
           {evento.nome}
@@ -218,12 +181,7 @@ const Events = ({ addToCart, cart }) => {
 
   const handleAddToCart = (evento) => {
     addToCart(evento);
-<<<<<<< HEAD
-    // Feedback visual opcional pode ser adicionado aqui
     alert(`Ingresso para ${evento.nome} adicionado ao carrinho!`);
-=======
-    alert(`Ingresso para ${evento.name} adicionado ao carrinho!`);
->>>>>>> amigo/minha-nova-feature
   };
 
   const handleLogout = () => {
@@ -231,10 +189,7 @@ const Events = ({ addToCart, cart }) => {
     navigate("/");
   };
 
-<<<<<<< HEAD
   // Contador de itens no carrinho
-=======
->>>>>>> amigo/minha-nova-feature
   const totalItemsNoCarrinho = cart.reduce((total, item) => {
     return total + (item.quantity || 1);
   }, 0);
@@ -259,11 +214,7 @@ const Events = ({ addToCart, cart }) => {
           <div className="hidden lg:flex items-center">
             <nav className="flex items-center space-x-8">
               <span className="text-verde-neon font-semibold text-lg">
-<<<<<<< HEAD
                 Olá, {user.nome || user.name}
-=======
-                Olá, {user.nome}
->>>>>>> amigo/minha-nova-feature
               </span>
             </nav>
           </div>
@@ -293,11 +244,7 @@ const Events = ({ addToCart, cart }) => {
           <div className="sm:hidden bg-gray-800/95 backdrop-blur-lg border-t border-verde-neon/20 mt-4 py-4 rounded-b-2xl">
             <div className="flex flex-col space-y-4 px-4">
               <span className="text-verde-neon text-center font-semibold">
-<<<<<<< HEAD
                 Olá, {user.nome || user.name}
-=======
-                Olá, {user.nome}
->>>>>>> amigo/minha-nova-feature
               </span>
               <button
                 onClick={handleLogout}
@@ -380,12 +327,12 @@ const Events = ({ addToCart, cart }) => {
         </nav>
 
         {/* CONTEÚDO PRINCIPAL */}
-<<<<<<< HEAD
-        <main className="flex-1 sm:ml-20 pb-20 sm:pb-0">
-          {/* TOPO COM FILTROS */}
-          <div className="bg-gray-800/50 backdrop-blur-lg border-b border-verde-neon/20 p-4 sm:p-6">
-            <div className="max-w-7xl mx-auto">
+        <main className="flex-1 sm:ml-20 pb-20 sm:pb-0 p-4 sm:p-6">
+          <div className="max-w-7xl mx-auto">
+            {/* TOPO COM FILTROS */}
+            <div className="bg-gray-800/50 backdrop-blur-lg border-b border-verde-neon/20 p-4 sm:p-6 rounded-3xl mb-6">
               <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
+                
                 {/* Título e Ícone */}
                 <div className="flex items-center space-x-3">
                   <Filter className="text-verde-neon w-5 h-5 sm:w-6 sm:h-6" />
@@ -407,35 +354,6 @@ const Events = ({ addToCart, cart }) => {
                         key={filtro.key}
                         onClick={() => aplicarFiltro(filtro.key)}
                         className={`
-=======
-<main className="flex-1 sm:ml-20 pb-20 sm:pb-0">
-  {/* TOPO COM FILTROS */}
-  <div className="bg-gray-800/50 backdrop-blur-lg border-b border-verde-neon/20 p-4 sm:p-6">
-    <div className="max-w-7xl mx-auto">
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-        
-        {/* Título e Ícone */}
-        <div className="flex items-center space-x-3">
-          <Filter className="text-verde-neon w-5 h-5 sm:w-6 sm:h-6" />
-          <h1 className="text-xl sm:text-2xl lg:text-3xl text-white font-bold tracking-tight">
-            Eventos e Festas
-          </h1>
-        </div>
-
-        {/* Filtros - Versão Responsiva */}
-        <div className="w-full lg:w-auto">
-          <div className="flex flex-wrap justify-start lg:justify-end gap-2 sm:gap-3">
-            {[
-              { key: "todos", label: "TODOS" },
-              { key: "preco", label: "PREÇO" },
-              { key: "carnaval", label: "CARNAVAL" },
-              { key: "musica", label: "MÚSICA" },
-            ].map((filtro) => (
-              <button
-                key={filtro.key}
-                onClick={() => aplicarFiltro(filtro.key)}
-                className={`
->>>>>>> amigo/minha-nova-feature
                   px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 rounded-lg font-semibold 
                   transition-all duration-300 whitespace-nowrap border text-sm sm:text-base
                   transform hover:scale-105 active:scale-95
@@ -445,7 +363,6 @@ const Events = ({ addToCart, cart }) => {
                       : "bg-gray-700/50 text-gray-300 border-verde-neon/20 hover:border-verde-neon/40 hover:text-verde-neon hover:bg-gray-600/50"
                   }
                 `}
-<<<<<<< HEAD
                       >
                         {filtro.label}
                       </button>
@@ -454,50 +371,35 @@ const Events = ({ addToCart, cart }) => {
                 </div>
               </div>
             </div>
-          </div>
-=======
-              >
-                {filtro.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
->>>>>>> amigo/minha-nova-feature
 
-          {/* GRID DE EVENTOS */}
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 max-w-7xl mx-auto">
-            {eventosFiltrados.map((evento) => (
-              <EventCard
-                key={evento.id}
-                evento={evento}
-                onAddToCart={handleAddToCart}
-              />
-            ))}
-          </section>
+            {/* GRID DE EVENTOS */}
+            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {eventosFiltrados.map((evento) => (
+                <EventCard
+                  key={evento.id}
+                  evento={evento}
+                  onAddToCart={handleAddToCart}
+                />
+              ))}
+            </section>
 
-          {eventosFiltrados.length === 0 && (
-            <div className="text-center py-16">
-              <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-8 max-w-md mx-auto border border-verde-neon/20">
-                <p className="text-xl font-bold text-verde-neon mb-2">
-                  Nenhum evento encontrado
-                </p>
-                <p className="text-gray-300">
-                  Tente alterar os filtros para ver mais eventos.
-                </p>
+            {eventosFiltrados.length === 0 && (
+              <div className="text-center py-16">
+                <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-8 max-w-md mx-auto border border-verde-neon/20">
+                  <p className="text-xl font-bold text-verde-neon mb-2">
+                    Nenhum evento encontrado
+                  </p>
+                  <p className="text-gray-300">
+                    Tente alterar os filtros para ver mais eventos.
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </main>
       </div>
     </div>
   );
 };
 
-<<<<<<< HEAD
 export default Events;
-=======
-export default Events;
->>>>>>> amigo/minha-nova-feature
