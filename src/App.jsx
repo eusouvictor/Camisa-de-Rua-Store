@@ -41,7 +41,6 @@ function App() {
     }
   };
 
-<<<<<<< HEAD
   // --- Lógica do Carrinho ---
   const addToCart = (product) => {
     setCart((prevCart) => {
@@ -49,15 +48,6 @@ function App() {
       if (existingItem) {
         return prevCart.map((item) =>
           item.id === product.id && item.type === product.type
-=======
-  // Funções do carrinho
-  const addToCart = (product) => {
-    setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id);
-      if (existingItem) {
-        return prevCart.map((item) =>
-          item.id === product.id
->>>>>>> amigo/minha-nova-feature
             ? { ...item, quantity: (item.quantity || 1) + 1 }
             : item
         );
@@ -70,13 +60,8 @@ function App() {
     setCart(newCart);
   };
 
-<<<<<<< HEAD
   const removeFromCart = (productId, type) => {
     setCart((prevCart) => prevCart.filter((item) => !(item.id === productId && item.type === type)));
-=======
-  const removeFromCart = (productId) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
->>>>>>> amigo/minha-nova-feature
   };
 
   return (
@@ -135,19 +120,11 @@ function App() {
           }
         />
 
-<<<<<<< HEAD
-=======
-        {/* NOVA ROTA DO CHECKOUT */}
->>>>>>> amigo/minha-nova-feature
         <Route
           path="/checkout"
           element={
             user ? (
-<<<<<<< HEAD
               <Checkout updateCart={updateCart} cart={cart} />
-=======
-              <Checkout updateCart={updateCart} />
->>>>>>> amigo/minha-nova-feature
             ) : (
               <Navigate to="/" replace />
             )
