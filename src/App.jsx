@@ -41,10 +41,12 @@ function App() {
     }
   };
 
-  // --- Lógica do Carrinho ---
+  // --- Lógica do Carrinho (A versão correta que suporta Eventos e Produtos) ---
   const addToCart = (product) => {
     setCart((prevCart) => {
+      // Verifica se o item já existe (considerando ID e TIPO)
       const existingItem = prevCart.find((item) => item.id === product.id && item.type === product.type);
+      
       if (existingItem) {
         return prevCart.map((item) =>
           item.id === product.id && item.type === product.type
@@ -61,8 +63,10 @@ function App() {
   };
 
   const removeFromCart = (productId, type) => {
+    // Remove considerando ID e TIPO
     setCart((prevCart) => prevCart.filter((item) => !(item.id === productId && item.type === type)));
   };
+  // ---------------------------
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-white font-sans">
