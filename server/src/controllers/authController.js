@@ -4,7 +4,8 @@ import crypto from "crypto";
 import prisma from "../libs/prisma.js";
 import * as tokenStore from "../libs/tokenStore.js";
 
-// Verifica se o prisma está disponível
+// Verifica se o prisma está disponível.
+// Se o prisma não conectou, usamos o tokenStore em arquivo.
 const usePrisma = !!prisma;
 
 export async function register(req, res) {
@@ -25,16 +26,15 @@ export async function register(req, res) {
       },
     });
 
-    // --- AUDITORIA: Registro ---
-    if (usePrisma) {
-      await prisma.userAudit.create({
-        data: {
-          action: "USER_CREATED",
-          details: `Registo inicial via app. Nome: ${name || "Sem nome"}`,
-          userId: newUser.id,
-        },
-      });
-    }
+    // --- AUDITORIA: Regista que o utilizador foi criado ---
+    // Mantivemos este bloco porque é a sua funcionalidade nova!
+    await prisma.userAudit.create({
+      data: {
+        action: "USER_CREATED",
+        details: `Registo inicial via app. Nome: ${name || "Sem nome"}`,
+        userId: newUser.id, // Ligamos este evento ao ID do utilizador acabado de criar
+      },
+    });
 
     const { password: _p, ...safe } = newUser;
     return res.status(201).json({ user: safe });
@@ -79,6 +79,7 @@ export async function login(req, res) {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
 
     if (usePrisma) {
+      // O schema.prisma está correto para isso
       await prisma.refreshToken.create({
         data: {
           token: refreshToken,
@@ -110,6 +111,7 @@ export async function refresh(req, res) {
     const token = req.cookies?.refreshToken;
     if (!token) return res.status(401).json({ error: "Refresh token ausente" });
 
+    // 6. PROCURA O REFRESH TOKEN NO BANCO (PRISMA)
     const record = usePrisma
       ? await prisma.refreshToken.findUnique({ where: { token } })
       : await tokenStore.find(token);

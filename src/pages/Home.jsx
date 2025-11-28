@@ -25,12 +25,13 @@ const ProductCard = ({ produto, onAddToCart }) => {
       name: produto.nome,
       price: produto.preco,
       category: produto.categoria,
-      imageUrl: produto.imageUrl,
+      imageUrl: produto.imageUrl, // Passa a imagem para o carrinho também
     });
   };
 
   return (
     <div className="group bg-gray-800/50 backdrop-blur-lg border border-verde-neon/20 rounded-3xl overflow-hidden hover:scale-105 hover:shadow-2xl hover:shadow-verde-neon/20 hover:border-verde-neon/40 transition-all duration-500">
+      {/* Área da Imagem */}
       <div className="h-48 sm:h-64 bg-white flex items-center justify-center relative overflow-hidden">
         {produto.imageUrl ? (
           <img
@@ -45,6 +46,7 @@ const ProductCard = ({ produto, onAddToCart }) => {
             </span>
           </div>
         )}
+        {/* Overlay escuro ao passar o mouse */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
       </div>
 
@@ -52,11 +54,14 @@ const ProductCard = ({ produto, onAddToCart }) => {
         <p className="font-bold mb-3 text-white text-sm sm:text-base line-clamp-2">
           {produto.nome}
         </p>
+        
+        {/* Descrição opcional se existir */}
         {produto.description && (
            <p className="text-xs text-gray-400 mb-3 line-clamp-2">
              {produto.description}
            </p>
         )}
+
         <span className="text-xl font-black text-verde-neon">
           {formatarPreco(produto.preco)}
         </span>
@@ -90,6 +95,7 @@ const Home = ({ addToCart, cart }) => {
     }
     setUser(userData);
 
+    // Lógica de buscar produtos do Backend
     const fetchProdutos = async () => {
       try {
         // IMPORTANTE: Usa /api/produtos para funcionar no Vercel e Localmente
@@ -98,6 +104,7 @@ const Home = ({ addToCart, cart }) => {
         if (response.ok) {
           setAllProdutos(data.produtos || []);
           setProdutosFiltrados(data.produtos || []);
+          // Aplica o filtro inicial "todos" com os dados carregados
           setFiltroAtivo("todos");
         } else {
           console.error("Erro ao buscar produtos:", data.error);
@@ -112,6 +119,7 @@ const Home = ({ addToCart, cart }) => {
 
   const aplicarFiltro = (categoria) => {
     setFiltroAtivo(categoria);
+
     if (categoria === "todos") {
       setProdutosFiltrados(allProdutos);
     } else if (categoria === "preco") {
@@ -268,11 +276,12 @@ const Home = ({ addToCart, cart }) => {
         </nav>
 
         {/* CONTEÚDO PRINCIPAL */}
-        <main className="flex-1 sm:ml-20 pb-20 sm:pb-0 p-4 sm:p-6">
+        <main className="flex-1 sm:ml-20 pb-20 sm:pb-0">
           {/* TOPO COM FILTROS */}
-          <div className="bg-gray-800/50 backdrop-blur-lg border-b border-verde-neon/20 p-4 sm:p-6 rounded-3xl mb-6">
+          <div className="bg-gray-800/50 backdrop-blur-lg border-b border-verde-neon/20 p-4 sm:p-6">
             <div className="max-w-7xl mx-auto">
               <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
+                {/* Título e Ícone */}
                 <div className="flex items-center space-x-3">
                   <Filter className="text-verde-neon w-5 h-5 sm:w-6 sm:h-6" />
                   <h1 className="text-xl sm:text-2xl lg:text-3xl text-white font-bold tracking-tight">
@@ -280,6 +289,7 @@ const Home = ({ addToCart, cart }) => {
                   </h1>
                 </div>
 
+                {/* Filtros */}
                 <div className="w-full lg:w-auto">
                   <div className="flex flex-wrap justify-start lg:justify-end gap-2 sm:gap-3">
                     {[
@@ -314,7 +324,7 @@ const Home = ({ addToCart, cart }) => {
           </div>
 
           {/* GRID DE PRODUTOS */}
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 max-w-7xl mx-auto">
             {produtosFiltrados.map((produto) => (
               <ProductCard
                 key={produto.id}

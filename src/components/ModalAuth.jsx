@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { X, Mail, Lock, User, Key } from "lucide-react";
 
-// URL da API (Ajustado para o Vercel)
-const API_URL = "/api";
+// URL da API
+const API_URL = "http://localhost:4000/api";
 
 const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -127,12 +127,15 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
     switchToLogin();
   };
 
-  // Funções simuladas para recuperação de senha
+  // Funções que faltavam (Simuladas por enquanto)
   const handleSolicitarRecuperacao = async () => {
     const { email } = formData;
     if (!email) throw new Error("Digite seu email para recuperar a senha");
+
+    // Simulação: Em produção, isso chamaria uma rota do backend (ex: /auth/forgot-password)
+    console.log(`Solicitação de recuperação para: ${email}`);
     
-    // Simulando delay
+    // Simulando um delay de rede
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     setCodigoEnviado(true);
@@ -149,6 +152,7 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
       throw new Error("As senhas não coincidem");
     }
 
+    // Simulação: Em produção, chamaria o backend (ex: /auth/reset-password)
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     if (codigoRecuperacao !== "123456") {
@@ -186,7 +190,7 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
     }
   };
 
-  // --- Renderização ---
+  // --- Renderização dos Formulários ---
 
   const renderForgotPasswordForm = () => (
     <>
