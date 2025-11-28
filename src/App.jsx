@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import ModalAuth from "./components/ModalAuth";
 import Home from "./pages/Home";
@@ -13,14 +13,6 @@ function App() {
   const [user, setUser] = useState(null);
   const [cart, setCart] = useState([]);
   const navigate = useNavigate();
-
-  // Recupera o usuário ao carregar a página
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);
@@ -41,15 +33,13 @@ function App() {
     }
   };
 
-  // --- Lógica do Carrinho (A versão correta que suporta Eventos e Produtos) ---
+  // Funções do carrinho
   const addToCart = (product) => {
     setCart((prevCart) => {
-      // Verifica se o item já existe (considerando ID e TIPO)
-      const existingItem = prevCart.find((item) => item.id === product.id && item.type === product.type);
-      
+      const existingItem = prevCart.find((item) => item.id === product.id);
       if (existingItem) {
         return prevCart.map((item) =>
-          item.id === product.id && item.type === product.type
+          item.id === product.id
             ? { ...item, quantity: (item.quantity || 1) + 1 }
             : item
         );
@@ -62,11 +52,9 @@ function App() {
     setCart(newCart);
   };
 
-  const removeFromCart = (productId, type) => {
-    // Remove considerando ID e TIPO
-    setCart((prevCart) => prevCart.filter((item) => !(item.id === productId && item.type === type)));
+  const removeFromCart = (productId) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
   };
-  // ---------------------------
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-white font-sans">
@@ -124,11 +112,12 @@ function App() {
           }
         />
 
+        {/* NOVA ROTA DO CHECKOUT */}
         <Route
           path="/checkout"
           element={
             user ? (
-              <Checkout updateCart={updateCart} cart={cart} />
+              <Checkout updateCart={updateCart} />
             ) : (
               <Navigate to="/" replace />
             )

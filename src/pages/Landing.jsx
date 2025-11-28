@@ -1,6 +1,6 @@
 import React from "react";
 import ModalAuth from "../components/ModalAuth";
-import Banner from "../components/Banner";
+import BannerSlider from "../components/Banner";
 import { useNavigate } from "react-router-dom";
 import {
   Instagram,
@@ -22,9 +22,7 @@ const Landing = ({
 
   const scrollToSection = (sectionId) => {
     if (window.location.pathname !== "/") {
-      // Se não está na página inicial, vai pra lá primeiro
       navigate("/");
-      // Espera a navegação acontecer e depois scrolla
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {
@@ -32,7 +30,6 @@ const Landing = ({
         }
       }, 100);
     } else {
-      // Já está na página inicial, só scrolla
       const element = document.getElementById(sectionId);
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
@@ -91,44 +88,63 @@ const Landing = ({
       {/* BANNER SECTION */}
       <section className="relative bg-gradient-to-b from-gray-900 to-black text-white pt-20 pb-10 px-4 w-full">
         <div className="flex justify-center items-center w-full max-w-full">
-          <Banner />
+          <BannerSlider />
         </div>
       </section>
 
       {/* OBJETIVO SECTION */}
-      <section id="Sobre" className="py-20 px-4 bg-gray-900 w-full">
+      <section
+        id="Sobre"
+        className="py-20 px-4 bg-gradient-to-b from-black to-gray-900 w-full"
+      >
         <div className="max-w-5xl mx-auto w-full">
-          <h2 className="text-4xl font-black text-center mb-12 text-white">
-            NOSSO <span className="text-verde-neon">OBJETIVO</span>
-          </h2>
+          <div className="text-center mb-16">
+            <h2 className="text-5xl md:text-6xl font-black mb-4 text-white">
+              NOSSO{" "}
+              <span className="text-verde-neon bg-gradient-to-r from-verde-neon to-verde-rua bg-clip-text text-transparent">
+                OBJETIVO
+              </span>
+            </h2>
+            <div className="w-24 h-1 bg-verde-neon mx-auto rounded-full"></div>
+          </div>
 
-          <div className="bg-gray-800/50 backdrop-blur-lg border border-verde-neon/20 rounded-3xl p-8 shadow-2xl">
-            <p className="text-lg leading-relaxed text-gray-300 mb-6">
-              A Camisa de Rua Store nasceu com o propósito de vestir a cultura
-              da periferia e dar visibilidade às histórias que nascem no
-              asfalto, nos becos e nas vielas onde a criatividade floresce. Cada
-              estampa é um retrato vivo da energia dos blocos independentes e do
-              carnaval de rua, onde a música, a dança e a coletividade se
-              encontram como forma de resistência e celebração.
-            </p>
-            <p className="text-lg leading-relaxed text-gray-300 mb-6">
-              Mais do que roupas, nossas peças carregam narrativas que valorizam
-              a identidade, a diversidade e a potência cultural das comunidades.
-              Aqui, moda é instrumento de expressão e também um meio de
-              fortalecer tradições que muitas vezes não encontram espaço na
-              grande indústria.
-            </p>
-            <p className="text-lg leading-relaxed text-gray-300">
-              Mas não paramos na estética. Em cada venda, uma parte do valor é
-              revertida para projetos sociais que apoiam jovens talentos,
-              artistas locais e iniciativas comunitárias, criando uma rede de
-              impacto que vai além da moda. Ao escolher nossas camisetas, você
-              se conecta a uma corrente de solidariedade que acredita no poder
-              da cultura para transformar realidades. Nosso compromisso é unir
-              estilo, consciência social e orgulho periférico em um mesmo
-              movimento, mostrando que quando a rua veste sua própria história,
-              ela também abre caminhos para um futuro mais justo e coletivo.
-            </p>
+          <div className="bg-gray-800/50 backdrop-blur-lg rounded-3xl shadow-2xl p-8 md:p-12 border border-verde-neon/20 w-full transform hover:scale-[1.02] transition-all duration-500">
+            <div className="space-y-6">
+              <p className="text-xl leading-relaxed text-gray-200">
+                A{" "}
+                <span className="text-verde-neon font-bold">
+                  Camisa de Rua Store
+                </span>{" "}
+                nasceu com o propósito de vestir a cultura da periferia e dar
+                visibilidade às histórias que nascem no asfalto, nos becos e nas
+                vielas onde a criatividade floresce.
+              </p>
+              <p className="text-xl leading-relaxed text-gray-200">
+                Cada estampa é um retrato vivo da energia dos blocos
+                independentes e do carnaval de rua, onde a música, a dança e a
+                coletividade se encontram como forma de{" "}
+                <span className="text-verde-neon font-semibold">
+                  resistência e celebração
+                </span>
+                .
+              </p>
+              <div className="bg-verde-neon/10 border border-verde-neon/30 rounded-2xl p-6 my-6">
+                <p className="text-lg leading-relaxed text-verde-neon text-center font-semibold">
+                  "Mais do que roupas, nossas peças carregam narrativas que
+                  valorizam a identidade, a diversidade e a potência cultural
+                  das comunidades."
+                </p>
+              </div>
+              <p className="text-xl leading-relaxed text-gray-200">
+                Em cada venda, uma parte do valor é revertida para projetos
+                sociais que apoiam jovens talentos, artistas locais e
+                iniciativas comunitárias, criando uma{" "}
+                <span className="text-verde-neon font-semibold">
+                  rede de impacto
+                </span>{" "}
+                que vai além da moda.
+              </p>
+            </div>
           </div>
         </div>
       </section>

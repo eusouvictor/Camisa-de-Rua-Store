@@ -39,7 +39,6 @@ const Cart = ({ cart, updateCart, removeFromCart }) => {
     }).format(preco);
   };
 
-  // Contador de itens no carrinho
   const totalItemsNoCarrinho = cart.reduce((total, item) => {
     return total + (item.quantity || 1);
   }, 0);
@@ -70,18 +69,16 @@ const Cart = ({ cart, updateCart, removeFromCart }) => {
     }, 0);
   };
 
-  const handleCheckout = () => {
-    if (cartItems.length === 0) {
-      alert("Seu carrinho está vazio!");
-      return;
-    }
-    // Redireciona para a página de checkout com os dados
-    navigate("/checkout", { state: { cartItems, total: calcularTotal() } });
-  };
+const handleCheckout = () => {
+  if (cartItems.length === 0) {
+    alert("Seu carrinho está vazio!");
+    return;
+  }
+  navigate("/checkout", { state: { cartItems, total: calcularTotal() } });
+};
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    localStorage.removeItem("accessToken");
     navigate("/");
   };
 
@@ -104,7 +101,7 @@ const Cart = ({ cart, updateCart, removeFromCart }) => {
 
           <div className="hidden lg:flex items-center">
             <nav className="flex items-center space-x-8">
-              <span className="text-verde-neon font-semibold text-lg">Olá, {user.nome || user.name}</span>
+              <span className="text-verde-neon font-semibold text-lg">Olá, {user.nome}</span>
             </nav>
           </div>
 
@@ -132,7 +129,7 @@ const Cart = ({ cart, updateCart, removeFromCart }) => {
         {menuMobileAberto && (
           <div className="sm:hidden bg-gray-800/95 backdrop-blur-lg border-t border-verde-neon/20 mt-4 py-4 rounded-b-2xl">
             <div className="flex flex-col space-y-4 px-4">
-              <span className="text-verde-neon text-center font-semibold">Olá, {user.nome || user.name}</span>
+              <span className="text-verde-neon text-center font-semibold">Olá, {user.nome}</span>
               <button
                 onClick={handleLogout}
                 className="bg-gradient-to-r from-verde-neon to-verde-rua text-gray-900 font-bold py-3 rounded-full transition-all duration-300"
@@ -214,8 +211,8 @@ const Cart = ({ cart, updateCart, removeFromCart }) => {
         </nav>
 
         {/* CONTEÚDO PRINCIPAL */}
-        <main className="flex-1 sm:ml-20 pb-20 sm:pb-0 p-4">
-          <div className="max-w-6xl mx-auto">
+        <main className="flex-1 sm:ml-20 pb-20 sm:pb-0 p-4 sm:p-6">
+          <div className="max-w-7xl mx-auto">
             <div className="flex items-center space-x-3 mb-6">
               <ShoppingCart className="text-verde-neon w-8 h-8" />
               <h1 className="text-3xl font-black text-white">Meu Carrinho</h1>
@@ -248,20 +245,10 @@ const Cart = ({ cart, updateCart, removeFromCart }) => {
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-4 sm:space-y-0">
                         <div className="flex items-center space-x-4">
-                          <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 border border-gray-700">
-                            {item.imageUrl ? (
-                              <img 
-                                src={item.imageUrl} 
-                                alt={item.name} 
-                                className="w-full h-full object-cover" 
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-verde-rua to-verde-escuro flex items-center justify-center">
-                                <span className="text-white text-lg font-bold">
-                                  {item.type === "evento" ? "🎫" : "👕"}
-                                </span>
-                              </div>
-                            )}
+                          <div className="w-16 h-16 bg-gradient-to-br from-verde-rua to-verde-escuro rounded-2xl flex items-center justify-center">
+                            <span className="text-white text-lg font-bold">
+                              {item.type === "evento" ? "🎫" : "👕"}
+                            </span>
                           </div>
                           <div className="flex-1">
                             <h3 className="font-bold text-white text-lg mb-2">{item.name}</h3>

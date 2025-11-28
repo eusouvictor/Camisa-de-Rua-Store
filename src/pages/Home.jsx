@@ -11,6 +11,58 @@ import {
   Filter,
 } from "lucide-react";
 
+// Dados dos produtos diretamente no arquivo (temporariamente)
+const produtos = [
+  {
+    id: 1,
+    nome: "CAMISA BLOCO DA LATINHA",
+    preco: 49.1,
+    categoria: "camisas",
+  },
+  {
+    id: 2,
+    nome: "CAMISA SAMBA TRADICIONAL",
+    preco: 59.9,
+    categoria: "camisas",
+  },
+  {
+    id: 3,
+    nome: "BONÉ ESTILO RUA",
+    preco: 35.0,
+    categoria: "acessorios",
+  },
+  {
+    id: 4,
+    nome: "CAMISA NOITE CARIOCA",
+    preco: 65.0,
+    categoria: "camisas",
+  },
+  {
+    id: 5,
+    nome: "COPO CONFORTO",
+    preco: 89.9,
+    categoria: "acessorios",
+  },
+  {
+    id: 6,
+    nome: "CAMISA URBANA",
+    preco: 120.0,
+    categoria: "camisas",
+  },
+  {
+    id: 7,
+    nome: "CAMISETA BÁSICA",
+    preco: 29.9,
+    categoria: "camisetas",
+  },
+  {
+    id: 8,
+    nome: "JAQUETA COURO",
+    preco: 199.9,
+    categoria: "jaquetas",
+  },
+];
+
 const ProductCard = ({ produto, onAddToCart }) => {
   const formatarPreco = (preco) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -25,38 +77,21 @@ const ProductCard = ({ produto, onAddToCart }) => {
       name: produto.nome,
       price: produto.preco,
       category: produto.categoria,
-      imageUrl: produto.imageUrl,
     });
   };
 
   return (
     <div className="group bg-gray-800/50 backdrop-blur-lg border border-verde-neon/20 rounded-3xl overflow-hidden hover:scale-105 hover:shadow-2xl hover:shadow-verde-neon/20 hover:border-verde-neon/40 transition-all duration-500">
-      <div className="h-48 sm:h-64 bg-white flex items-center justify-center relative overflow-hidden">
-        {produto.imageUrl ? (
-          <img
-            src={produto.imageUrl}
-            alt={produto.nome}
-            className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-110"
-          />
-        ) : (
-          <div className="h-full w-full bg-gradient-to-br from-verde-rua to-verde-escuro flex items-center justify-center">
-            <span className="text-white text-sm sm:text-base font-semibold z-10">
-              Sem Foto
-            </span>
-          </div>
-        )}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
+      <div className="h-48 sm:h-64 bg-gradient-to-br from-verde-rua to-verde-escuro flex items-center justify-center relative overflow-hidden">
+        <span className="text-white text-sm sm:text-base font-semibold z-10">
+          Imagem do produto
+        </span>
+        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-300"></div>
       </div>
-
       <div className="p-6">
         <p className="font-bold mb-3 text-white text-sm sm:text-base line-clamp-2">
           {produto.nome}
         </p>
-        {produto.description && (
-           <p className="text-xs text-gray-400 mb-3 line-clamp-2">
-             {produto.description}
-           </p>
-        )}
         <span className="text-xl font-black text-verde-neon">
           {formatarPreco(produto.preco)}
         </span>
@@ -77,8 +112,7 @@ const ProductCard = ({ produto, onAddToCart }) => {
 const Home = ({ addToCart, cart }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [allProdutos, setAllProdutos] = useState([]);
-  const [produtosFiltrados, setProdutosFiltrados] = useState([]);
+  const [produtosFiltrados, setProdutosFiltrados] = useState(produtos);
   const [filtroAtivo, setFiltroAtivo] = useState("todos");
   const [menuMobileAberto, setMenuMobileAberto] = useState(false);
 
@@ -89,45 +123,30 @@ const Home = ({ addToCart, cart }) => {
       return;
     }
     setUser(userData);
-
-    const fetchProdutos = async () => {
-      try {
-        // IMPORTANTE: Usa /api/produtos para funcionar no Vercel e Localmente
-        const response = await fetch("/api/produtos");
-        const data = await response.json();
-        if (response.ok) {
-          setAllProdutos(data.produtos || []);
-          setProdutosFiltrados(data.produtos || []);
-          setFiltroAtivo("todos");
-        } else {
-          console.error("Erro ao buscar produtos:", data.error);
-        }
-      } catch (err) {
-        console.error("Falha na rede ao buscar produtos:", err);
-      }
-    };
-
-    fetchProdutos();
   }, [navigate]);
 
   const aplicarFiltro = (categoria) => {
     setFiltroAtivo(categoria);
+
     if (categoria === "todos") {
-      setProdutosFiltrados(allProdutos);
+      setProdutosFiltrados(produtos);
     } else if (categoria === "preco") {
-      const ordenados = [...allProdutos].sort((a, b) => a.preco - b.preco);
+      const ordenados = [...produtos].sort((a, b) => a.preco - b.preco);
       setProdutosFiltrados(ordenados);
     } else {
-      const filtrados = allProdutos.filter(
+      const filtrados = produtos.filter(
         (produto) => produto.categoria === categoria
       );
       setProdutosFiltrados(filtrados);
     }
   };
 
+  const handleAddToCart = (produto) => {
+    addToCart(produto);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("user");
-    localStorage.removeItem("accessToken");
     navigate("/");
   };
 
@@ -155,7 +174,7 @@ const Home = ({ addToCart, cart }) => {
           <div className="hidden lg:flex items-center">
             <nav className="flex items-center space-x-8">
               <span className="text-verde-neon font-semibold text-lg">
-                Olá, {user.nome || user.name}
+                Olá, {user.nome}
               </span>
             </nav>
           </div>
@@ -185,7 +204,7 @@ const Home = ({ addToCart, cart }) => {
           <div className="sm:hidden bg-gray-800/95 backdrop-blur-lg border-t border-verde-neon/20 mt-4 py-4 rounded-b-2xl">
             <div className="flex flex-col space-y-4 px-4">
               <span className="text-verde-neon text-center font-semibold">
-                Olá, {user.nome || user.name}
+                Olá, {user.nome}
               </span>
               <button
                 onClick={handleLogout}
@@ -219,7 +238,7 @@ const Home = ({ addToCart, cart }) => {
           >
             <ShoppingCart className="text-gray-300 group-hover:text-gray-900 w-6 h-6" />
             {totalItemsNoCarrinho > 0 && (
-              <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg">
+              <span className="absolute -top-2 -right-2  bg-white text-black text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg">
                 {totalItemsNoCarrinho}
               </span>
             )}
@@ -268,11 +287,12 @@ const Home = ({ addToCart, cart }) => {
         </nav>
 
         {/* CONTEÚDO PRINCIPAL */}
-        <main className="flex-1 sm:ml-20 pb-20 sm:pb-0 p-4 sm:p-6">
+        <main className="flex-1 sm:ml-20 pb-20 sm:pb-0">
           {/* TOPO COM FILTROS */}
-          <div className="bg-gray-800/50 backdrop-blur-lg border-b border-verde-neon/20 p-4 sm:p-6 rounded-3xl mb-6">
+          <div className="bg-gray-800/50 backdrop-blur-lg border-b border-verde-neon/20 p-4 sm:p-6">
             <div className="max-w-7xl mx-auto">
               <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
+                {/* Título e Ícone */}
                 <div className="flex items-center space-x-3">
                   <Filter className="text-verde-neon w-5 h-5 sm:w-6 sm:h-6" />
                   <h1 className="text-xl sm:text-2xl lg:text-3xl text-white font-bold tracking-tight">
@@ -280,6 +300,7 @@ const Home = ({ addToCart, cart }) => {
                   </h1>
                 </div>
 
+                {/* Filtros - Versão Responsiva */}
                 <div className="w-full lg:w-auto">
                   <div className="flex flex-wrap justify-start lg:justify-end gap-2 sm:gap-3">
                     {[
@@ -314,17 +335,16 @@ const Home = ({ addToCart, cart }) => {
           </div>
 
           {/* GRID DE PRODUTOS */}
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 max-w-7xl mx-auto">
             {produtosFiltrados.map((produto) => (
               <ProductCard
                 key={produto.id}
                 produto={produto}
-                onAddToCart={addToCart}
+                onAddToCart={handleAddToCart}
               />
             ))}
           </section>
 
-          {/* Feedback Vazio */}
           {produtosFiltrados.length === 0 && (
             <div className="text-center py-16">
               <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-8 max-w-md mx-auto border border-verde-neon/20">
@@ -332,7 +352,7 @@ const Home = ({ addToCart, cart }) => {
                   Nenhum produto encontrado
                 </p>
                 <p className="text-gray-300">
-                  Tente alterar os filtros ou verificar sua conexão com o backend.
+                  Tente alterar os filtros para ver mais produtos.
                 </p>
               </div>
             </div>
