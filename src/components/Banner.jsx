@@ -7,6 +7,7 @@ const Banner = () => {
   const slides = [
     {
       id: 1,
+      image: "/images/banner1.jpg", // Certifique-se que estas imagens existem ou use placeholders
       title: "CARNAVAL 2025",
       subtitle: "Blocos Exclusivos",
       description: "Viva a experiência única do carnaval de rua",

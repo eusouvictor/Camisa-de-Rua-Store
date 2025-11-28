@@ -33,10 +33,10 @@ function App() {
     }
   };
 
-  // Funções do carrinho
+  // --- Lógica do Carrinho ---
   const addToCart = (product) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id);
+      const existingItem = prevCart.find((item) => item.id === product.id && item.type === product.type);
       if (existingItem) {
         return prevCart.map((item) =>
           item.id === product.id
@@ -52,8 +52,8 @@ function App() {
     setCart(newCart);
   };
 
-  const removeFromCart = (productId) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
+  const removeFromCart = (productId, type) => {
+    setCart((prevCart) => prevCart.filter((item) => !(item.id === productId && item.type === type)));
   };
 
   return (

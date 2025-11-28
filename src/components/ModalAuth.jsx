@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { X, Mail, Lock, User, Key } from "lucide-react";
 
+// URL da API
+const API_URL = "http://localhost:4000/api";
+
 const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
@@ -19,6 +22,148 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
   const [codigoEnviado, setCodigoEnviado] = useState(false);
 
   if (!isOpen) return null;
+
+  // --- Funções Auxiliares de Estado ---
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+    if (error) setError("");
+  };
+
+  const switchToCadastro = () => {
+    setIsLogin(false);
+    setIsForgotPassword(false);
+    setCodigoEnviado(false);
+    limparFormulario();
+  };
+
+  const switchToLogin = () => {
+    setIsLogin(true);
+    setIsForgotPassword(false);
+    setCodigoEnviado(false);
+    limparFormulario();
+  };
+
+  const switchToForgotPassword = () => {
+    setIsForgotPassword(true);
+    setCodigoEnviado(false);
+    limparFormulario();
+  };
+
+  const voltarParaLogin = () => {
+    setIsForgotPassword(false);
+    setCodigoEnviado(false);
+    limparFormulario();
+  };
+
+  const limparFormulario = () => {
+    setFormData((prev) => ({
+      ...prev,
+      senha: "",
+      confirmarSenha: "",
+      codigoRecuperacao: "",
+      novaSenha: "",
+      confirmarNovaSenha: "",
+    }));
+    setError("");
+    setSuccessMessage("");
+  };
+
+  // --- Lógica de Envio (Handlers) ---
+
+  const handleLogin = async () => {
+    const { email, senha } = formData;
+
+    if (!email || !senha) {
+      throw new Error("Preencha todos os campos");
+    }
+
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password: senha }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Erro ao tentar fazer login");
+    }
+
+    localStorage.setItem("user", JSON.stringify(data.user));
+    localStorage.setItem("accessToken", data.accessToken);
+    onLoginSuccess(data.user);
+  };
+
+  const handleCadastro = async () => {
+    const { nome, email, senha, confirmarSenha } = formData;
+
+    if (!nome || !email || !senha || !confirmarSenha) {
+      throw new Error("Preencha todos os campos");
+    }
+    if (senha.length < 6) {
+      throw new Error("A senha deve ter pelo menos 6 caracteres");
+    }
+    if (senha !== confirmarSenha) {
+      throw new Error("As senhas não coincidem");
+    }
+
+    const response = await fetch(`${API_URL}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: nome, email, password: senha }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Erro ao tentar cadastrar");
+    }
+
+    alert("Cadastro realizado com sucesso! Por favor, faça o login.");
+    switchToLogin();
+  };
+
+  // Funções que faltavam (Simuladas por enquanto)
+  const handleSolicitarRecuperacao = async () => {
+    const { email } = formData;
+    if (!email) throw new Error("Digite seu email para recuperar a senha");
+
+    // Simulação: Em produção, isso chamaria uma rota do backend (ex: /auth/forgot-password)
+    console.log(`Solicitação de recuperação para: ${email}`);
+    
+    // Simulando um delay de rede
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    setCodigoEnviado(true);
+    setSuccessMessage(`Código de recuperação enviado para ${email} (Simulado: 123456)`);
+  };
+
+  const handleRedefinirSenha = async () => {
+    const { codigoRecuperacao, novaSenha, confirmarNovaSenha } = formData;
+
+    if (!codigoRecuperacao || !novaSenha || !confirmarNovaSenha) {
+      throw new Error("Preencha todos os campos");
+    }
+    if (novaSenha !== confirmarNovaSenha) {
+      throw new Error("As senhas não coincidem");
+    }
+
+    // Simulação: Em produção, chamaria o backend (ex: /auth/reset-password)
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    if (codigoRecuperacao !== "123456") {
+        throw new Error("Código inválido (use 123456 para testar)");
+    }
+
+    setSuccessMessage("Senha redefinida com sucesso! Faça login.");
+    setTimeout(() => {
+      switchToLogin();
+    }, 2000);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,246 +190,7 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
     }
   };
 
-  const handleLogin = async () => {
-    const { email, senha } = formData;
-
-    if (!email || !senha) {
-      throw new Error("Preencha todos os campos");
-    }
-
-    if (email === "teste@teste.com" && senha === "123456") {
-      const user = { id: "1", nome: "Usuário Teste", email: "teste@teste.com" };
-      localStorage.setItem("user", JSON.stringify(user));
-      onLoginSuccess(user);
-      return;
-    }
-
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    const user = users.find((u) => u.email === email && u.senha === senha);
-
-    if (!user) {
-      throw new Error("Email ou senha incorretos");
-    }
-
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        id: user.id,
-        nome: user.nome,
-        email: user.email,
-      })
-    );
-
-    onLoginSuccess(user);
-  };
-
-  const handleCadastro = async () => {
-    const { nome, email, senha, confirmarSenha } = formData;
-
-    if (!nome || !email || !senha || !confirmarSenha) {
-      throw new Error("Preencha todos os campos");
-    }
-
-    if (senha.length < 6) {
-      throw new Error("A senha deve ter pelo menos 6 caracteres");
-    }
-
-    if (senha !== confirmarSenha) {
-      throw new Error("As senhas não coincidem");
-    }
-
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    const userExists = users.find((u) => u.email === email);
-
-    if (userExists) {
-      throw new Error("Este email já está cadastrado");
-    }
-
-    const newUser = {
-      id: Date.now().toString(),
-      nome,
-      email,
-      senha,
-      dataCadastro: new Date().toISOString(),
-    };
-
-    const updatedUsers = [...users, newUser];
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
-
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        id: newUser.id,
-        nome: newUser.nome,
-        email: newUser.email,
-      })
-    );
-
-    onLoginSuccess(newUser);
-  };
-
-  const handleSolicitarRecuperacao = async () => {
-    const { email } = formData;
-
-    if (!email) {
-      throw new Error("Digite seu email para recuperar a senha");
-    }
-
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    const userExists = users.find((u) => u.email === email);
-
-    if (!userExists) {
-      throw new Error("Email não encontrado");
-    }
-
-    const codigo = Math.floor(100000 + Math.random() * 900000).toString();
-
-    const recuperacoes = JSON.parse(
-      localStorage.getItem("recuperacoes") || "{}"
-    );
-    recuperacoes[email] = {
-      codigo,
-      expiracao: Date.now() + 15 * 60 * 1000,
-    };
-    localStorage.setItem("recuperacoes", JSON.stringify(recuperacoes));
-
-    setCodigoEnviado(true);
-    setSuccessMessage(
-      `Código de recuperação enviado para ${email} (Código: ${codigo})`
-    );
-  };
-
-  const handleRedefinirSenha = async () => {
-    const { email, codigoRecuperacao, novaSenha, confirmarNovaSenha } =
-      formData;
-
-    if (!codigoRecuperacao || !novaSenha || !confirmarNovaSenha) {
-      throw new Error("Preencha todos os campos");
-    }
-
-    if (novaSenha.length < 6) {
-      throw new Error("A nova senha deve ter pelo menos 6 caracteres");
-    }
-
-    if (novaSenha !== confirmarNovaSenha) {
-      throw new Error("As senhas não coincidem");
-    }
-
-    const recuperacoes = JSON.parse(
-      localStorage.getItem("recuperacoes") || "{}"
-    );
-    const recuperacao = recuperacoes[email];
-
-    if (!recuperacao) {
-      throw new Error("Solicitação de recuperação não encontrada");
-    }
-
-    if (Date.now() > recuperacao.expiracao) {
-      throw new Error("Código expirado. Solicite um novo código.");
-    }
-
-    if (recuperacao.codigo !== codigoRecuperacao) {
-      throw new Error("Código de recuperação inválido");
-    }
-
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    const userIndex = users.findIndex((u) => u.email === email);
-
-    if (userIndex === -1) {
-      throw new Error("Usuário não encontrado");
-    }
-
-    users[userIndex].senha = novaSenha;
-    localStorage.setItem("users", JSON.stringify(users));
-
-    delete recuperacoes[email];
-    localStorage.setItem("recuperacoes", JSON.stringify(recuperacoes));
-
-    setSuccessMessage(
-      "Senha redefinida com sucesso! Faça login com sua nova senha."
-    );
-
-    setTimeout(() => {
-      setIsForgotPassword(false);
-      setCodigoEnviado(false);
-      setFormData({
-        ...formData,
-        codigoRecuperacao: "",
-        novaSenha: "",
-        confirmarNovaSenha: "",
-      });
-    }, 2000);
-  };
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-    if (error) setError("");
-  };
-
-  const switchToCadastro = () => {
-    setIsLogin(false);
-    setIsForgotPassword(false);
-    setCodigoEnviado(false);
-    setFormData({
-      nome: "",
-      email: formData.email,
-      senha: "",
-      confirmarSenha: "",
-      codigoRecuperacao: "",
-      novaSenha: "",
-      confirmarNovaSenha: "",
-    });
-    setError("");
-    setSuccessMessage("");
-  };
-
-  const switchToLogin = () => {
-    setIsLogin(true);
-    setIsForgotPassword(false);
-    setCodigoEnviado(false);
-    setFormData({
-      nome: "",
-      email: formData.email,
-      senha: "",
-      confirmarSenha: "",
-      codigoRecuperacao: "",
-      novaSenha: "",
-      confirmarNovaSenha: "",
-    });
-    setError("");
-    setSuccessMessage("");
-  };
-
-  const switchToForgotPassword = () => {
-    setIsForgotPassword(true);
-    setCodigoEnviado(false);
-    setFormData({
-      ...formData,
-      senha: "",
-      confirmarSenha: "",
-      codigoRecuperacao: "",
-      novaSenha: "",
-      confirmarNovaSenha: "",
-    });
-    setError("");
-    setSuccessMessage("");
-  };
-
-  const voltarParaLogin = () => {
-    setIsForgotPassword(false);
-    setCodigoEnviado(false);
-    setFormData({
-      ...formData,
-      codigoRecuperacao: "",
-      novaSenha: "",
-      confirmarNovaSenha: "",
-    });
-    setError("");
-    setSuccessMessage("");
-  };
+  // --- Renderização dos Formulários ---
 
   const renderForgotPasswordForm = () => (
     <>

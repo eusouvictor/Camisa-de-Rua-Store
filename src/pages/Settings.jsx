@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
   House,
@@ -21,8 +20,9 @@ import {
   Trash2,
   AlertTriangle,
   CheckCircle2,
-  Shield,
+  LogOut,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Settings = ({ user, setUser, cart }) => {
   const navigate = useNavigate();
@@ -44,6 +44,11 @@ const Settings = ({ user, setUser, cart }) => {
   const [activeTab, setActiveTab] = useState("perfil");
   const [showPassword, setShowPassword] = useState(false);
   const [menuMobileAberto, setMenuMobileAberto] = useState(false);
+
+  // Contador de itens no carrinho
+  const totalItemsNoCarrinho = cart.reduce((total, item) => {
+    return total + (item.quantity || 1);
+  }, 0);
 
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("user"));
@@ -87,7 +92,7 @@ const Settings = ({ user, setUser, cart }) => {
         (u) => u.email === formData.email && u.id !== currentUser.id
       );
       if (emailExists) {
-        throw new Error("Este email já está em uso por outro usuário");
+        throw new Error("Este email já está em uso por outro utilizador");
       }
 
       const updatedUsers = users.map((u) => {
@@ -164,7 +169,7 @@ const Settings = ({ user, setUser, cart }) => {
       const currentUserData = users.find((u) => u.id === currentUser.id);
 
       if (!currentUserData) {
-        throw new Error("Usuário não encontrado");
+        throw new Error("Utilizador não encontrado");
       }
 
       if (currentUserData.senha !== formData.senhaAtual) {
@@ -213,7 +218,7 @@ const Settings = ({ user, setUser, cart }) => {
   const handleDeleteAccount = () => {
     if (
       window.confirm(
-        "Tem certeza que deseja excluir sua conta? Todos os seus dados serão permanentemente removidos."
+        "Tem a certeza que deseja excluir a sua conta? Todos os seus dados serão permanentemente removidos."
       )
     ) {
       const users = JSON.parse(localStorage.getItem("users") || "[]");
@@ -225,10 +230,6 @@ const Settings = ({ user, setUser, cart }) => {
       navigate("/");
     }
   };
-
-  const totalItemsNoCarrinho = cart.reduce((total, item) => {
-    return total + (item.quantity || 1);
-  }, 0);
 
   if (!currentUser) {
     return null;
@@ -376,7 +377,7 @@ const Settings = ({ user, setUser, cart }) => {
               className="bg-gradient-to-r from-verde-neon to-verde-rua hover:from-verde-rua hover:to-verde-neon text-gray-900 font-bold py-3 px-8 rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-lg hover:shadow-verde-neon/25 disabled:opacity-50 flex items-center"
             >
               <Save size={20} className="mr-2" />
-              {loading ? "Salvando..." : "Atualizar Perfil"}
+              {loading ? "A guardar..." : "Atualizar Perfil"}
             </button>
           </div>
         </form>
@@ -459,7 +460,7 @@ const Settings = ({ user, setUser, cart }) => {
               className="bg-gradient-to-r from-verde-neon to-verde-rua hover:from-verde-rua hover:to-verde-neon text-gray-900 font-bold py-3 px-8 rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-lg hover:shadow-verde-neon/25 disabled:opacity-50 flex items-center"
             >
               <Lock size={20} className="mr-2" />
-              {loading ? "Alterando..." : "Alterar Senha"}
+              {loading ? "A alterar..." : "Alterar Senha"}
             </button>
           </div>
         </form>
@@ -543,9 +544,11 @@ const Settings = ({ user, setUser, cart }) => {
           </div>
 
           <div className="hidden lg:flex items-center">
-            <span className="text-verde-neon font-semibold text-lg">
-              Olá, {currentUser.nome}
-            </span>
+            <nav className="flex items-center space-x-8">
+              <span className="text-verde-neon font-semibold text-lg">
+                Olá, {currentUser.nome}
+              </span>
+            </nav>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -619,6 +622,42 @@ const Settings = ({ user, setUser, cart }) => {
           </Link>
         </aside>
 
+        {/* MENU INFERIOR - MOBILE */}
+        <nav className="sm:hidden fixed bottom-4 left-4 right-4 bg-gray-800/90 backdrop-blur-lg border border-verde-neon/20 rounded-2xl z-40 shadow-2xl">
+          <div className="flex justify-around items-center py-3">
+            <Link
+              to="/home"
+              className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl transition-all duration-300 hover:scale-110 group border border-gray-600"
+            >
+              <House className="text-gray-300 group-hover:text-gray-900 w-5 h-5" />
+            </Link>
+            <Link
+              to="/events"
+              className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl transition-all duration-300 hover:scale-110 group border border-gray-600"
+            >
+              <Ticket className="text-gray-300 group-hover:text-gray-900 w-5 h-5" />
+            </Link>
+            <Link
+              to="/cart"
+              className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl transition-all duration-300 hover:scale-110 relative group border border-gray-600"
+            >
+              <ShoppingCart className="text-gray-300 group-hover:text-gray-900 w-5 h-5" />
+              {totalItemsNoCarrinho > 0 && (
+                <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg">
+                  {totalItemsNoCarrinho}
+                </span>
+              )}
+            </Link>
+            <Link
+              to="/settings"
+              className="p-3 bg-gradient-to-br from-verde-neon to-verde-rua rounded-xl transition-all duration-300 hover:scale-110"
+            >
+              <Bolt className="text-gray-900 w-5 h-5" />
+            </Link>
+          </div>
+        </nav>
+
+        {/* CONTEÚDO PRINCIPAL */}
         <main className="flex-1 sm:ml-20 pb-20 sm:pb-0 p-4 sm:p-6">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center space-x-4 mb-8">
@@ -630,7 +669,7 @@ const Settings = ({ user, setUser, cart }) => {
                   Configurações
                 </h1>
                 <p className="text-gray-300">
-                  Gerencie sua conta e preferências
+                  Gerencie a sua conta e preferências
                 </p>
               </div>
             </div>
@@ -687,8 +726,8 @@ const Settings = ({ user, setUser, cart }) => {
                 </h3>
               </div>
               <p className="text-red-300 mb-4">
-                Ações nesta seção são irreversíveis. Tenha certeza absoluta do
-                que está fazendo.
+                Ações nesta secção são irreversíveis. Tenha certeza absoluta do
+                que está a fazer.
               </p>
               <button
                 onClick={handleDeleteAccount}

@@ -77,21 +77,42 @@ const ProductCard = ({ produto, onAddToCart }) => {
       name: produto.nome,
       price: produto.preco,
       category: produto.categoria,
+      imageUrl: produto.imageUrl, // Passa a imagem para o carrinho também
     });
   };
 
   return (
     <div className="group bg-gray-800/50 backdrop-blur-lg border border-verde-neon/20 rounded-3xl overflow-hidden hover:scale-105 hover:shadow-2xl hover:shadow-verde-neon/20 hover:border-verde-neon/40 transition-all duration-500">
-      <div className="h-48 sm:h-64 bg-gradient-to-br from-verde-rua to-verde-escuro flex items-center justify-center relative overflow-hidden">
-        <span className="text-white text-sm sm:text-base font-semibold z-10">
-          Imagem do produto
-        </span>
-        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-300"></div>
+      {/* Área da Imagem */}
+      <div className="h-48 sm:h-64 bg-white flex items-center justify-center relative overflow-hidden">
+        {produto.imageUrl ? (
+          <img
+            src={produto.imageUrl}
+            alt={produto.nome}
+            className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-110"
+          />
+        ) : (
+          <div className="h-full w-full bg-gradient-to-br from-verde-rua to-verde-escuro flex items-center justify-center">
+            <span className="text-white text-sm sm:text-base font-semibold z-10">
+              Sem Foto
+            </span>
+          </div>
+        )}
+        {/* Overlay escuro ao passar o mouse */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
       </div>
       <div className="p-6">
         <p className="font-bold mb-3 text-white text-sm sm:text-base line-clamp-2">
           {produto.nome}
         </p>
+        
+        {/* Descrição opcional se existir */}
+        {produto.description && (
+           <p className="text-xs text-gray-400 mb-3 line-clamp-2">
+             {produto.description}
+           </p>
+        )}
+
         <span className="text-xl font-black text-verde-neon">
           {formatarPreco(produto.preco)}
         </span>
@@ -123,6 +144,27 @@ const Home = ({ addToCart, cart }) => {
       return;
     }
     setUser(userData);
+
+    // Lógica de buscar produtos do Backend
+    const fetchProdutos = async () => {
+      try {
+        // IMPORTANTE: Usa /api/produtos para funcionar no Vercel e Localmente
+        const response = await fetch("/api/produtos");
+        const data = await response.json();
+        if (response.ok) {
+          setAllProdutos(data.produtos || []);
+          setProdutosFiltrados(data.produtos || []);
+          // Aplica o filtro inicial "todos" com os dados carregados
+          setFiltroAtivo("todos");
+        } else {
+          console.error("Erro ao buscar produtos:", data.error);
+        }
+      } catch (err) {
+        console.error("Falha na rede ao buscar produtos:", err);
+      }
+    };
+
+    fetchProdutos();
   }, [navigate]);
 
   const aplicarFiltro = (categoria) => {
@@ -300,7 +342,7 @@ const Home = ({ addToCart, cart }) => {
                   </h1>
                 </div>
 
-                {/* Filtros - Versão Responsiva */}
+                {/* Filtros */}
                 <div className="w-full lg:w-auto">
                   <div className="flex flex-wrap justify-start lg:justify-end gap-2 sm:gap-3">
                     {[

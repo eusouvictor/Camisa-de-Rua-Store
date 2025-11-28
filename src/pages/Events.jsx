@@ -310,33 +310,32 @@ const Events = ({ addToCart, cart }) => {
         </nav>
 
         {/* CONTEÚDO PRINCIPAL */}
-<main className="flex-1 sm:ml-20 pb-20 sm:pb-0">
-  {/* TOPO COM FILTROS */}
-  <div className="bg-gray-800/50 backdrop-blur-lg border-b border-verde-neon/20 p-4 sm:p-6">
-    <div className="max-w-7xl mx-auto">
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-        
-        {/* Título e Ícone */}
-        <div className="flex items-center space-x-3">
-          <Filter className="text-verde-neon w-5 h-5 sm:w-6 sm:h-6" />
-          <h1 className="text-xl sm:text-2xl lg:text-3xl text-white font-bold tracking-tight">
-            Eventos e Festas
-          </h1>
-        </div>
+        <main className="flex-1 sm:ml-20 pb-20 sm:pb-0">
+          {/* TOPO COM FILTROS */}
+          <div className="bg-gray-800/50 backdrop-blur-lg border-b border-verde-neon/20 p-4 sm:p-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
+                {/* Título e Ícone */}
+                <div className="flex items-center space-x-3">
+                  <Filter className="text-verde-neon w-5 h-5 sm:w-6 sm:h-6" />
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl text-white font-bold tracking-tight">
+                    Eventos e Festas
+                  </h1>
+                </div>
 
-        {/* Filtros - Versão Responsiva */}
-        <div className="w-full lg:w-auto">
-          <div className="flex flex-wrap justify-start lg:justify-end gap-2 sm:gap-3">
-            {[
-              { key: "todos", label: "TODOS" },
-              { key: "preco", label: "PREÇO" },
-              { key: "carnaval", label: "CARNAVAL" },
-              { key: "musica", label: "MÚSICA" },
-            ].map((filtro) => (
-              <button
-                key={filtro.key}
-                onClick={() => aplicarFiltro(filtro.key)}
-                className={`
+                {/* Filtros */}
+                <div className="w-full lg:w-auto">
+                  <div className="flex flex-wrap justify-start lg:justify-end gap-2 sm:gap-3">
+                    {[
+                      { key: "todos", label: "TODOS" },
+                      { key: "preco", label: "PREÇO" },
+                      { key: "carnaval", label: "CARNAVAL" },
+                      { key: "musica", label: "MÚSICA" },
+                    ].map((filtro) => (
+                      <button
+                        key={filtro.key}
+                        onClick={() => aplicarFiltro(filtro.key)}
+                        className={`
                   px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 rounded-lg font-semibold 
                   transition-all duration-300 whitespace-nowrap border text-sm sm:text-base
                   transform hover:scale-105 active:scale-95
@@ -355,6 +354,29 @@ const Events = ({ addToCart, cart }) => {
       </div>
     </div>
   </div>
+
+          {/* GRID DE EVENTOS */}
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 max-w-7xl mx-auto">
+            {eventosFiltrados.map((evento) => (
+              <EventCard
+                key={evento.id}
+                evento={evento}
+                onAddToCart={handleAddToCart}
+              />
+            ))}
+          </section>
+
+          {eventosFiltrados.length === 0 && (
+            <div className="text-center py-16">
+              <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-8 max-w-md mx-auto border border-verde-neon/20">
+                <p className="text-xl font-bold text-verde-neon mb-2">
+                  Nenhum evento encontrado
+                </p>
+                <p className="text-gray-300">
+                  Tente alterar os filtros para ver mais eventos.
+                </p>
+              </div>
+            </div>
 
           {/* GRID DE EVENTOS */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 max-w-7xl mx-auto">
