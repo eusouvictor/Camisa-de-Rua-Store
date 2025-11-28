@@ -63,6 +63,7 @@ function App() {
   const removeFromCart = (productId, type) => {
     setCart((prevCart) => prevCart.filter((item) => !(item.id === productId && item.type === type)));
   };
+  // ---------------------------
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-white font-sans">

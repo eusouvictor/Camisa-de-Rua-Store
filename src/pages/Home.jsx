@@ -98,7 +98,8 @@ const Home = ({ addToCart, cart }) => {
     // Lógica de buscar produtos do Backend
     const fetchProdutos = async () => {
       try {
-        const response = await fetch("http://localhost:4000/api/produtos");
+        // IMPORTANTE: Usa /api/produtos para funcionar no Vercel e Localmente
+        const response = await fetch("/api/produtos");
         const data = await response.json();
         if (response.ok) {
           setAllProdutos(data.produtos || []);
@@ -134,10 +135,10 @@ const Home = ({ addToCart, cart }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("accessToken");
     navigate("/");
   };
 
-  // Contador de itens no carrinho
   const totalItemsNoCarrinho = cart.reduce((total, item) => {
     return total + (item.quantity || 1);
   }, 0);

@@ -24,7 +24,75 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const Settings = ({ user, setUser, cart }) => {
+const ProductCard = ({ produto, onAddToCart }) => {
+  const formatarPreco = (preco) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(preco);
+  };
+
+  const handleAddToCart = () => {
+    onAddToCart({
+      id: produto.id,
+      name: produto.nome,
+      price: produto.preco,
+      category: produto.categoria,
+      imageUrl: produto.imageUrl, // Passa a imagem para o carrinho também
+    });
+  };
+
+  return (
+    <div className="group bg-gray-800/50 backdrop-blur-lg border border-verde-neon/20 rounded-3xl overflow-hidden hover:scale-105 hover:shadow-2xl hover:shadow-verde-neon/20 hover:border-verde-neon/40 transition-all duration-500">
+      {/* Área da Imagem */}
+      <div className="h-48 sm:h-64 bg-white flex items-center justify-center relative overflow-hidden">
+        {produto.imageUrl ? (
+          <img
+            src={produto.imageUrl}
+            alt={produto.nome}
+            className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-110"
+          />
+        ) : (
+          <div className="h-full w-full bg-gradient-to-br from-verde-rua to-verde-escuro flex items-center justify-center">
+            <span className="text-white text-sm sm:text-base font-semibold z-10">
+              Sem Foto
+            </span>
+          </div>
+        )}
+        {/* Overlay escuro ao passar o mouse */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
+      </div>
+
+      <div className="p-6">
+        <p className="font-bold mb-3 text-white text-sm sm:text-base line-clamp-2">
+          {produto.nome}
+        </p>
+        
+        {/* Descrição opcional se existir */}
+        {produto.description && (
+           <p className="text-xs text-gray-400 mb-3 line-clamp-2">
+             {produto.description}
+           </p>
+        )}
+
+        <span className="text-xl font-black text-verde-neon">
+          {formatarPreco(produto.preco)}
+        </span>
+        <span className="block text-sm text-gray-300 capitalize mb-4 font-medium">
+          {produto.categoria}
+        </span>
+        <button
+          onClick={handleAddToCart}
+          className="w-full bg-gradient-to-r from-verde-neon to-verde-rua hover:from-verde-rua hover:to-verde-neon text-gray-900 font-bold py-3 px-4 rounded-2xl transition-all duration-500 transform hover:scale-105 hover:shadow-lg hover:shadow-verde-neon/25"
+        >
+          Adicionar ao Carrinho
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const Home = ({ addToCart, cart }) => {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [formData, setFormData] = useState({
@@ -211,7 +279,6 @@ const Settings = ({ user, setUser, cart }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    setUser(null);
     navigate("/");
   };
 

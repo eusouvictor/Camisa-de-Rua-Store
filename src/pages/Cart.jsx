@@ -81,6 +81,7 @@ const Cart = ({ cart, updateCart, removeFromCart }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("accessToken");
     navigate("/");
   };
 

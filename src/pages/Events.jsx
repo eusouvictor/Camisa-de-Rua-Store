@@ -11,7 +11,7 @@ import {
   Filter,
 } from "lucide-react";
 
-// Dados dos eventos
+// Dados dos eventos (Agora com IMAGENS!)
 const eventos = [
   {
     id: 1,
@@ -21,6 +21,7 @@ const eventos = [
     local: "Centro da Cidade",
     descricao: "O maior bloco de carnaval de rua da região!",
     categoria: "carnaval",
+    imagem: "https://images.unsplash.com/photo-1582716401301-b2407dc65613?auto=format&fit=crop&w=800&q=80"
   },
   {
     id: 2,
@@ -30,6 +31,7 @@ const eventos = [
     local: "Praça Central",
     descricao: "Noite de samba com as melhores bandas locais",
     categoria: "musica",
+    imagem: "https://images.unsplash.com/photo-1514525253440-b393452e8d2e?auto=format&fit=crop&w=800&q=80"
   },
   {
     id: 3,
@@ -39,6 +41,7 @@ const eventos = [
     local: "Rua da Festa, 123",
     descricao: "Traga sua latinha e venha curtir o melhor do carnaval",
     categoria: "carnaval",
+    imagem: "https://images.unsplash.com/photo-1545128485-c400e7702796?auto=format&fit=crop&w=800&q=80"
   },
   {
     id: 4,
@@ -48,6 +51,7 @@ const eventos = [
     local: "Teatro Municipal",
     descricao: "As raízes do samba com artistas consagrados",
     categoria: "musica",
+    imagem: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80"
   },
   {
     id: 5,
@@ -57,6 +61,7 @@ const eventos = [
     local: "Clube da Cidade",
     descricao: "Carnaval para toda a família, das 14h às 20h",
     categoria: "carnaval",
+    imagem: "https://images.unsplash.com/photo-1551972251-12070d63502a?auto=format&fit=crop&w=800&q=80"
   },
   {
     id: 6,
@@ -66,6 +71,7 @@ const eventos = [
     local: "Parque Central",
     descricao: "12 horas de música com diversos artistas urbanos",
     categoria: "musica",
+    imagem: "https://images.unsplash.com/photo-1533174072545-e8d4aa97d848?auto=format&fit=crop&w=800&q=80"
   },
 ];
 
@@ -86,6 +92,7 @@ const EventCard = ({ evento, onAddToCart }) => {
       data: evento.data,
       local: evento.local,
       descricao: evento.descricao,
+      imageUrl: evento.imagem // Passa a imagem para o carrinho
     });
   };
 
@@ -165,7 +172,7 @@ const Events = ({ addToCart, cart }) => {
 
   const handleAddToCart = (evento) => {
     addToCart(evento);
-    alert(`Ingresso para ${evento.name} adicionado ao carrinho!`);
+    alert(`Ingresso para ${evento.nome} adicionado ao carrinho!`);
   };
 
   const handleLogout = () => {
@@ -354,7 +361,6 @@ const Events = ({ addToCart, cart }) => {
                 </div>
               </div>
             </div>
-          </div>
 
           {/* GRID DE EVENTOS */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 max-w-7xl mx-auto">

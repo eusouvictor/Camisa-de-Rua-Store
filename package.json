@@ -7,13 +7,21 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "npx prisma generate --schema=server/prisma/schema.prisma"
   },
   "dependencies": {
-    "@prisma/client": "^6.16.3",
+    "@prisma/client": "^6.17.1",
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.544.0",
-    "mysql2": "^3.15.1",
-    "prisma": "^6.16.3",
+    "mysql2": "^3.4.0",
+    "node-fetch": "^3.3.2",
+    "prisma": "^6.17.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.3"
