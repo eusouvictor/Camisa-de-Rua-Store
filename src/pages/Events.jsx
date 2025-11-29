@@ -82,7 +82,7 @@ const EventCard = ({ evento, onAddToCart }) => {
       id: evento.id,
       name: evento.nome,
       price: evento.preco,
-      type: "evento",
+      type: "evento", // Tipo para diferenciar no carrinho
       data: evento.data,
       local: evento.local,
       descricao: evento.descricao,
@@ -173,6 +173,7 @@ const Events = ({ addToCart, cart }) => {
     navigate("/");
   };
 
+  // Contador de itens no carrinho
   const totalItemsNoCarrinho = cart.reduce((total, item) => {
     return total + (item.quantity || 1);
   }, 0);
@@ -197,7 +198,7 @@ const Events = ({ addToCart, cart }) => {
           <div className="hidden lg:flex items-center">
             <nav className="flex items-center space-x-8">
               <span className="text-verde-neon font-semibold text-lg">
-                Olá, {user.nome}
+                Olá, {user.nome || user.name}
               </span>
             </nav>
           </div>
@@ -227,7 +228,7 @@ const Events = ({ addToCart, cart }) => {
           <div className="sm:hidden bg-gray-800/95 backdrop-blur-lg border-t border-verde-neon/20 mt-4 py-4 rounded-b-2xl">
             <div className="flex flex-col space-y-4 px-4">
               <span className="text-verde-neon text-center font-semibold">
-                Olá, {user.nome}
+                Olá, {user.nome || user.name}
               </span>
               <button
                 onClick={handleLogout}
@@ -310,33 +311,32 @@ const Events = ({ addToCart, cart }) => {
         </nav>
 
         {/* CONTEÚDO PRINCIPAL */}
-<main className="flex-1 sm:ml-20 pb-20 sm:pb-0">
-  {/* TOPO COM FILTROS */}
-  <div className="bg-gray-800/50 backdrop-blur-lg border-b border-verde-neon/20 p-4 sm:p-6">
-    <div className="max-w-7xl mx-auto">
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-        
-        {/* Título e Ícone */}
-        <div className="flex items-center space-x-3">
-          <Filter className="text-verde-neon w-5 h-5 sm:w-6 sm:h-6" />
-          <h1 className="text-xl sm:text-2xl lg:text-3xl text-white font-bold tracking-tight">
-            Eventos e Festas
-          </h1>
-        </div>
+        <main className="flex-1 sm:ml-20 pb-20 sm:pb-0">
+          {/* TOPO COM FILTROS */}
+          <div className="bg-gray-800/50 backdrop-blur-lg border-b border-verde-neon/20 p-4 sm:p-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
+                {/* Título e Ícone */}
+                <div className="flex items-center space-x-3">
+                  <Filter className="text-verde-neon w-5 h-5 sm:w-6 sm:h-6" />
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl text-white font-bold tracking-tight">
+                    Eventos e Festas
+                  </h1>
+                </div>
 
-        {/* Filtros - Versão Responsiva */}
-        <div className="w-full lg:w-auto">
-          <div className="flex flex-wrap justify-start lg:justify-end gap-2 sm:gap-3">
-            {[
-              { key: "todos", label: "TODOS" },
-              { key: "preco", label: "PREÇO" },
-              { key: "carnaval", label: "CARNAVAL" },
-              { key: "musica", label: "MÚSICA" },
-            ].map((filtro) => (
-              <button
-                key={filtro.key}
-                onClick={() => aplicarFiltro(filtro.key)}
-                className={`
+                {/* Filtros */}
+                <div className="w-full lg:w-auto">
+                  <div className="flex flex-wrap justify-start lg:justify-end gap-2 sm:gap-3">
+                    {[
+                      { key: "todos", label: "TODOS" },
+                      { key: "preco", label: "PREÇO" },
+                      { key: "carnaval", label: "CARNAVAL" },
+                      { key: "musica", label: "MÚSICA" },
+                    ].map((filtro) => (
+                      <button
+                        key={filtro.key}
+                        onClick={() => aplicarFiltro(filtro.key)}
+                        className={`
                   px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 rounded-lg font-semibold 
                   transition-all duration-300 whitespace-nowrap border text-sm sm:text-base
                   transform hover:scale-105 active:scale-95
@@ -346,15 +346,15 @@ const Events = ({ addToCart, cart }) => {
                       : "bg-gray-700/50 text-gray-300 border-verde-neon/20 hover:border-verde-neon/40 hover:text-verde-neon hover:bg-gray-600/50"
                   }
                 `}
-              >
-                {filtro.label}
-              </button>
-            ))}
+                      >
+                        {filtro.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
           {/* GRID DE EVENTOS */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 max-w-7xl mx-auto">

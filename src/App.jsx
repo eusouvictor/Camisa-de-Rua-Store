@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import ModalAuth from "./components/ModalAuth";
 import Home from "./pages/Home";
@@ -15,6 +15,14 @@ function App() {
   const [user, setUser] = useState(null);
   const [cart, setCart] = useState([]);
   const navigate = useNavigate();
+
+  // Recupera o usuário ao carregar a página
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);
@@ -41,13 +49,15 @@ function App() {
     }
   };
 
-  // Funções do carrinho
+  // --- Lógica do Carrinho ---
   const addToCart = (product) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id);
+      const existingItem = prevCart.find(
+        (item) => item.id === product.id && item.type === product.type
+      );
       if (existingItem) {
         return prevCart.map((item) =>
-          item.id === product.id
+          item.id === product.id && item.type === product.type
             ? { ...item, quantity: (item.quantity || 1) + 1 }
             : item
         );
@@ -60,8 +70,10 @@ function App() {
     setCart(newCart);
   };
 
-  const removeFromCart = (productId) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
+  const removeFromCart = (productId, type) => {
+    setCart((prevCart) =>
+      prevCart.filter((item) => !(item.id === productId && item.type === type))
+    );
   };
 
   return (
@@ -120,12 +132,11 @@ function App() {
           }
         />
 
-        {/* NOVA ROTA DO CHECKOUT */}
         <Route
           path="/checkout"
           element={
             user ? (
-              <Checkout updateCart={updateCart} />
+              <Checkout updateCart={updateCart} cart={cart} />
             ) : (
               <Navigate to="/" replace />
             )
@@ -143,7 +154,7 @@ function App() {
           }
         />
 
-        {/* NOVA ROTA: Home do Admin */}
+        {/* NOVAS ROTAS: Admin */}
         <Route
           path="/admin-home"
           element={
@@ -155,7 +166,6 @@ function App() {
           }
         />
 
-        {/* Rota do AdminPanel (para outras funcionalidades) */}
         <Route
           path="/admin"
           element={

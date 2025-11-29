@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { X, Mail, Lock, User, Key } from "lucide-react";
 
+// URL da API
+const API_URL = "http://localhost:4000/api";
+
 const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
@@ -20,32 +23,56 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    setSuccessMessage("");
-
-    try {
-      if (isForgotPassword) {
-        if (!codigoEnviado) {
-          await handleSolicitarRecuperacao();
-        } else {
-          await handleRedefinirSenha();
-        }
-      } else if (isLogin) {
-        await handleLogin();
-      } else {
-        await handleCadastro();
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  // --- Funções Auxiliares de Estado ---
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+    if (error) setError("");
   };
 
-  // No ModalAuth.js, atualize o handleLogin:
+  const switchToCadastro = () => {
+    setIsLogin(false);
+    setIsForgotPassword(false);
+    setCodigoEnviado(false);
+    limparFormulario();
+  };
+
+  const switchToLogin = () => {
+    setIsLogin(true);
+    setIsForgotPassword(false);
+    setCodigoEnviado(false);
+    limparFormulario();
+  };
+
+  const switchToForgotPassword = () => {
+    setIsForgotPassword(true);
+    setCodigoEnviado(false);
+    limparFormulario();
+  };
+
+  const voltarParaLogin = () => {
+    setIsForgotPassword(false);
+    setCodigoEnviado(false);
+    limparFormulario();
+  };
+
+  const limparFormulario = () => {
+    setFormData((prev) => ({
+      ...prev,
+      senha: "",
+      confirmarSenha: "",
+      codigoRecuperacao: "",
+      novaSenha: "",
+      confirmarNovaSenha: "",
+    }));
+    setError("");
+    setSuccessMessage("");
+  };
+
+  // --- Lógica de Envio (Handlers) ---
+
   const handleLogin = async () => {
     const { email, senha } = formData;
 
@@ -79,24 +106,42 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
       return;
     }
 
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    const user = users.find((u) => u.email === email && u.senha === senha);
+    try {
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password: senha }),
+      });
 
-    if (!user) {
-      throw new Error("Email ou senha incorretos");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Erro ao tentar fazer login");
+      }
+
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("accessToken", data.accessToken);
+      onLoginSuccess(data.user);
+    } catch (err) {
+      // Fallback para localStorage se a API falhar
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const user = users.find((u) => u.email === email && u.senha === senha);
+
+      if (!user) {
+        throw new Error("Email ou senha incorretos");
+      }
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: user.id,
+          nome: user.nome,
+          email: user.email,
+          role: "user",
+        })
+      );
+      onLoginSuccess(user);
     }
-
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        id: user.id,
-        nome: user.nome,
-        email: user.email,
-        role: "user", // Usuários normais tem role "user"
-      })
-    );
-
-    onLoginSuccess(user);
   };
 
   const handleCadastro = async () => {
@@ -105,52 +150,84 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
     if (!nome || !email || !senha || !confirmarSenha) {
       throw new Error("Preencha todos os campos");
     }
-
     if (senha.length < 6) {
       throw new Error("A senha deve ter pelo menos 6 caracteres");
     }
-
     if (senha !== confirmarSenha) {
       throw new Error("As senhas não coincidem");
     }
 
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    const userExists = users.find((u) => u.email === email);
+    try {
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: nome, email, password: senha }),
+      });
 
-    if (userExists) {
-      throw new Error("Este email já está cadastrado");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Erro ao tentar cadastrar");
+      }
+
+      alert("Cadastro realizado com sucesso! Por favor, faça o login.");
+      switchToLogin();
+    } catch (err) {
+      // Fallback para localStorage se a API falhar
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const userExists = users.find((u) => u.email === email);
+
+      if (userExists) {
+        throw new Error("Este email já está cadastrado");
+      }
+
+      const newUser = {
+        id: Date.now().toString(),
+        nome,
+        email,
+        senha,
+        dataCadastro: new Date().toISOString(),
+      };
+
+      const updatedUsers = [...users, newUser];
+      localStorage.setItem("users", JSON.stringify(updatedUsers));
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: newUser.id,
+          nome: newUser.nome,
+          email: newUser.email,
+        })
+      );
+
+      onLoginSuccess(newUser);
     }
-
-    const newUser = {
-      id: Date.now().toString(),
-      nome,
-      email,
-      senha,
-      dataCadastro: new Date().toISOString(),
-    };
-
-    const updatedUsers = [...users, newUser];
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
-
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        id: newUser.id,
-        nome: newUser.nome,
-        email: newUser.email,
-      })
-    );
-
-    onLoginSuccess(newUser);
   };
 
   const handleSolicitarRecuperacao = async () => {
     const { email } = formData;
+    if (!email) throw new Error("Digite seu email para recuperar a senha");
 
-    if (!email) {
-      throw new Error("Digite seu email para recuperar a senha");
+    try {
+      // Tentar usar a API primeiro
+      const response = await fetch(`${API_URL}/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        setCodigoEnviado(true);
+        setSuccessMessage(`Código de recuperação enviado para ${email}`);
+        return;
+      }
+    } catch (err) {
+      // Fallback para localStorage se a API falhar
+      console.log("API falhou, usando fallback localStorage");
     }
 
+    // Fallback para localStorage
     const users = JSON.parse(localStorage.getItem("users") || "[]");
     const userExists = users.find((u) => u.email === email);
 
@@ -191,6 +268,40 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
       throw new Error("As senhas não coincidem");
     }
 
+    try {
+      // Tentar usar a API primeiro
+      const response = await fetch(`${API_URL}/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          code: codigoRecuperacao,
+          newPassword: novaSenha,
+        }),
+      });
+
+      if (response.ok) {
+        setSuccessMessage(
+          "Senha redefinida com sucesso! Faça login com sua nova senha."
+        );
+        setTimeout(() => {
+          setIsForgotPassword(false);
+          setCodigoEnviado(false);
+          setFormData({
+            ...formData,
+            codigoRecuperacao: "",
+            novaSenha: "",
+            confirmarNovaSenha: "",
+          });
+        }, 2000);
+        return;
+      }
+    } catch (err) {
+      // Fallback para localStorage se a API falhar
+      console.log("API falhou, usando fallback localStorage");
+    }
+
+    // Fallback para localStorage
     const recuperacoes = JSON.parse(
       localStorage.getItem("recuperacoes") || "{}"
     );
@@ -237,75 +348,32 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
     }, 2000);
   };
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-    if (error) setError("");
-  };
-
-  const switchToCadastro = () => {
-    setIsLogin(false);
-    setIsForgotPassword(false);
-    setCodigoEnviado(false);
-    setFormData({
-      nome: "",
-      email: formData.email,
-      senha: "",
-      confirmarSenha: "",
-      codigoRecuperacao: "",
-      novaSenha: "",
-      confirmarNovaSenha: "",
-    });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
     setError("");
     setSuccessMessage("");
+
+    try {
+      if (isForgotPassword) {
+        if (!codigoEnviado) {
+          await handleSolicitarRecuperacao();
+        } else {
+          await handleRedefinirSenha();
+        }
+      } else if (isLogin) {
+        await handleLogin();
+      } else {
+        await handleCadastro();
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const switchToLogin = () => {
-    setIsLogin(true);
-    setIsForgotPassword(false);
-    setCodigoEnviado(false);
-    setFormData({
-      nome: "",
-      email: formData.email,
-      senha: "",
-      confirmarSenha: "",
-      codigoRecuperacao: "",
-      novaSenha: "",
-      confirmarNovaSenha: "",
-    });
-    setError("");
-    setSuccessMessage("");
-  };
-
-  const switchToForgotPassword = () => {
-    setIsForgotPassword(true);
-    setCodigoEnviado(false);
-    setFormData({
-      ...formData,
-      senha: "",
-      confirmarSenha: "",
-      codigoRecuperacao: "",
-      novaSenha: "",
-      confirmarNovaSenha: "",
-    });
-    setError("");
-    setSuccessMessage("");
-  };
-
-  const voltarParaLogin = () => {
-    setIsForgotPassword(false);
-    setCodigoEnviado(false);
-    setFormData({
-      ...formData,
-      codigoRecuperacao: "",
-      novaSenha: "",
-      confirmarNovaSenha: "",
-    });
-    setError("");
-    setSuccessMessage("");
-  };
+  // --- Renderização dos Formulários ---
 
   const renderForgotPasswordForm = () => (
     <>
@@ -345,7 +413,7 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
           <>
             <div>
               <label className="block text-sm font-bold mb-2 text-verde-neon">
-                Código de Recuperação
+                Código
               </label>
               <div className="relative">
                 <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -362,7 +430,6 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
                 />
               </div>
             </div>
-
             <div>
               <label className="block text-sm font-bold mb-2 text-verde-neon">
                 Nova Senha
@@ -381,7 +448,6 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
                 />
               </div>
             </div>
-
             <div>
               <label className="block text-sm font-bold mb-2 text-verde-neon">
                 Confirmar Nova Senha
@@ -575,7 +641,7 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
             )}
 
             {isForgotPassword ? (
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <p className="text-gray-400 text-xs">
                   Lembrou sua senha?{" "}
                   <button

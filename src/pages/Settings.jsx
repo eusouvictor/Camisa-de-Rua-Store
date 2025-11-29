@@ -21,6 +21,7 @@ import {
   Trash2,
   AlertTriangle,
   CheckCircle2,
+  LogOut,
 } from "lucide-react";
 
 const Settings = ({ user, setUser, cart }) => {
@@ -43,6 +44,11 @@ const Settings = ({ user, setUser, cart }) => {
   const [activeTab, setActiveTab] = useState("perfil");
   const [showPassword, setShowPassword] = useState(false);
   const [menuMobileAberto, setMenuMobileAberto] = useState(false);
+
+  // Contador de itens no carrinho
+  const totalItemsNoCarrinho = cart.reduce((total, item) => {
+    return total + (item.quantity || 1);
+  }, 0);
 
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("user"));
@@ -225,10 +231,6 @@ const Settings = ({ user, setUser, cart }) => {
       navigate("/");
     }
   };
-
-  const totalItemsNoCarrinho = cart.reduce((total, item) => {
-    return total + (item.quantity || 1);
-  }, 0);
 
   if (!currentUser) {
     return null;
@@ -532,6 +534,7 @@ const Settings = ({ user, setUser, cart }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black font-advent">
+      {/* HEADER */}
       <header className="fixed top-0 left-0 right-0 bg-gray-900/95 backdrop-blur-lg border-b border-verde-neon/20 text-white py-4 px-4 w-full z-50">
         <div className="max-w-7xl mx-auto flex items-center justify-between w-full">
           <div className="flex items-center">
@@ -543,9 +546,11 @@ const Settings = ({ user, setUser, cart }) => {
           </div>
 
           <div className="hidden lg:flex items-center">
-            <span className="text-verde-neon font-semibold text-lg">
-              Olá, {currentUser.nome}
-            </span>
+            <nav className="flex items-center space-x-8">
+              <span className="text-verde-neon font-semibold text-lg">
+                Olá, {currentUser.nome}
+              </span>
+            </nav>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -587,6 +592,7 @@ const Settings = ({ user, setUser, cart }) => {
       </header>
 
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex flex-col sm:flex-row pt-20">
+        {/* MENU LATERAL - DESKTOP */}
         <aside className="hidden sm:flex ml-4 w-16 bg-gray-800/50 backdrop-blur-lg flex-col items-center py-6 fixed top-32 h-80 bottom-8 rounded-2xl z-40 border border-verde-neon/20">
           <Link
             to="/home"
@@ -606,7 +612,7 @@ const Settings = ({ user, setUser, cart }) => {
           >
             <ShoppingCart className="text-gray-300 group-hover:text-gray-900 w-6 h-6" />
             {totalItemsNoCarrinho > 0 && (
-              <span className="absolute -top-2 -right-2 bg-verde-rua text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg">
+              <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg">
                 {totalItemsNoCarrinho}
               </span>
             )}
@@ -619,6 +625,42 @@ const Settings = ({ user, setUser, cart }) => {
           </Link>
         </aside>
 
+        {/* MENU INFERIOR - MOBILE */}
+        <nav className="sm:hidden fixed bottom-4 left-4 right-4 bg-gray-800/90 backdrop-blur-lg border border-verde-neon/20 rounded-2xl z-40 shadow-2xl">
+          <div className="flex justify-around items-center py-3">
+            <Link
+              to="/home"
+              className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl transition-all duration-300 hover:scale-110 group border border-gray-600"
+            >
+              <House className="text-gray-300 group-hover:text-gray-900 w-5 h-5" />
+            </Link>
+            <Link
+              to="/events"
+              className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl transition-all duration-300 hover:scale-110 group border border-gray-600"
+            >
+              <Ticket className="text-gray-300 group-hover:text-gray-900 w-5 h-5" />
+            </Link>
+            <Link
+              to="/cart"
+              className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl transition-all duration-300 hover:scale-110 relative group border border-gray-600"
+            >
+              <ShoppingCart className="text-gray-300 group-hover:text-gray-900 w-5 h-5" />
+              {totalItemsNoCarrinho > 0 && (
+                <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg">
+                  {totalItemsNoCarrinho}
+                </span>
+              )}
+            </Link>
+            <Link
+              to="/settings"
+              className="p-3 bg-gradient-to-br from-verde-neon to-verde-rua rounded-xl transition-all duration-300 hover:scale-110"
+            >
+              <Bolt className="text-gray-900 w-5 h-5" />
+            </Link>
+          </div>
+        </nav>
+
+        {/* CONTEÚDO PRINCIPAL */}
         <main className="flex-1 sm:ml-20 pb-20 sm:pb-0 p-4 sm:p-6">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center space-x-4 mb-8">

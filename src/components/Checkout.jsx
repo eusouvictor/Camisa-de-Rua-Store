@@ -12,6 +12,7 @@ import {
   CreditCard,
   Barcode,
   QrCode,
+  ShieldCheck,
   Copy,
   CheckCircle2,
   MapPin,
@@ -28,7 +29,7 @@ const Checkout = ({ updateCart }) => {
   const [metodoPagamento, setMetodoPagamento] = useState("");
   const [etapa, setEtapa] = useState("selecionar");
 
-  // **NOVOS ESTADOS PARA FRETE E ENDEREÇO**
+  // Estados para frete e endereço
   const [enderecoEntrega, setEnderecoEntrega] = useState(null);
   const [freteCalculado, setFreteCalculado] = useState(false);
   const [valorFrete, setValorFrete] = useState(0);
@@ -37,7 +38,7 @@ const Checkout = ({ updateCart }) => {
   // Dados do carrinho vindos da navegação
   const { cartItems, total } = location.state || { cartItems: [], total: 0 };
 
-  // **EFFECT PARA CARREGAR USUÁRIO E ENDEREÇO SALVO**
+  // Effect para carregar usuário e endereço salvo
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("user"));
     if (!userData) {
@@ -46,7 +47,7 @@ const Checkout = ({ updateCart }) => {
     }
     setUser(userData);
 
-    // **CARREGAR ENDEREÇO SALVO DO USUÁRIO**
+    // Carregar endereço salvo do usuário
     if (userData.endereco && userData.cidade && userData.estado) {
       setEnderecoEntrega({
         endereco: userData.endereco,
@@ -57,7 +58,7 @@ const Checkout = ({ updateCart }) => {
     }
   }, [navigate]);
 
-  // **FUNÇÃO PARA CALCULAR FRETE**
+  // Função para calcular frete
   const calcularFrete = async () => {
     if (!enderecoEntrega) return;
 
@@ -75,7 +76,7 @@ const Checkout = ({ updateCart }) => {
     }, 1500);
   };
 
-  // **FUNÇÃO PARA SALVAR ENDEREÇO NO PERFIL**
+  // Função para salvar endereço no perfil
   const salvarEnderecoNoPerfil = () => {
     if (!enderecoEntrega || !user) return;
 
@@ -123,7 +124,7 @@ const Checkout = ({ updateCart }) => {
     return total + (item.quantity || 1);
   }, 0);
 
-  // **CALCULAR TOTAL COM FRETE**
+  // Calcular total com frete
   const totalComFrete = total + valorFrete;
 
   // Dados de pagamento
@@ -140,6 +141,11 @@ const Checkout = ({ updateCart }) => {
       valor: formatarPreco(totalComFrete),
       expiracao: "30 minutos",
     },
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/");
   };
 
   // Função para selecionar método de pagamento
@@ -166,7 +172,7 @@ const Checkout = ({ updateCart }) => {
     alert("Copiado para a área de transferência!");
   };
 
-  // **COMPONENTE DE CÁLCULO DE FRETE**
+  // Componente de cálculo de frete
   const renderCalculoFrete = () => (
     <div className="bg-gray-800/50 backdrop-blur-lg border border-verde-neon/20 rounded-2xl p-4 mb-6">
       <h2 className="text-lg font-black text-white mb-4 flex items-center">
@@ -261,7 +267,7 @@ const Checkout = ({ updateCart }) => {
     </div>
   );
 
-  // **COMPONENTE DE RESUMO DO PEDIDO ATUALIZADO**
+  // Componente de resumo do pedido atualizado
   const renderResumoPedido = () => (
     <div className="bg-gray-800/50 backdrop-blur-lg border border-verde-neon/20 rounded-2xl p-4 mb-6">
       <h2 className="text-lg font-black text-white mb-3">Resumo do Pedido</h2>
@@ -283,7 +289,7 @@ const Checkout = ({ updateCart }) => {
           </div>
         ))}
 
-        {/* **LINHA DO FRETE ADICIONADA** */}
+        {/* Linha do frete adicionada */}
         {freteCalculado && (
           <div className="flex justify-between items-center py-2 border-b border-gray-700/50">
             <div>
@@ -668,12 +674,6 @@ const Checkout = ({ updateCart }) => {
     return renderSelecionarMetodo();
   };
 
-  // Logout function
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    navigate("/");
-  };
-
   if (!user) {
     return null;
   }
@@ -694,7 +694,7 @@ const Checkout = ({ updateCart }) => {
           <div className="hidden lg:flex items-center">
             <nav className="flex items-center space-x-8">
               <span className="text-verde-neon font-semibold text-lg">
-                Olá, {user.nome}
+                Olá, {user.nome || user.name}
               </span>
             </nav>
           </div>
@@ -724,7 +724,7 @@ const Checkout = ({ updateCart }) => {
           <div className="sm:hidden bg-gray-800/95 backdrop-blur-lg border-t border-verde-neon/20 mt-4 py-4 rounded-b-2xl">
             <div className="flex flex-col space-y-4 px-4">
               <span className="text-verde-neon text-center font-semibold">
-                Olá, {user.nome}
+                Olá, {user.nome || user.name}
               </span>
               <button
                 onClick={handleLogout}
@@ -759,7 +759,7 @@ const Checkout = ({ updateCart }) => {
           >
             <ShoppingCart className="text-gray-300 group-hover:text-gray-900 w-6 h-6" />
             {totalItemsNoCarrinho > 0 && (
-              <span className="absolute -top-2 -right-2 bg-verde-rua text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg">
+              <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg">
                 {totalItemsNoCarrinho}
               </span>
             )}
@@ -793,7 +793,7 @@ const Checkout = ({ updateCart }) => {
             >
               <ShoppingCart className="text-gray-300 group-hover:text-gray-900 w-5 h-5" />
               {totalItemsNoCarrinho > 0 && (
-                <span className="absolute -top-2 -right-2 bg-verde-rua text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg">
+                <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg">
                   {totalItemsNoCarrinho}
                 </span>
               )}
@@ -820,10 +820,10 @@ const Checkout = ({ updateCart }) => {
               </button>
             )}
 
-            {/* **SEÇÃO DE CÁLCULO DE FRETE ADICIONADA** */}
+            {/* Seção de cálculo de frete adicionada */}
             {renderCalculoFrete()}
 
-            {/* **RESUMO DO PEDIDO ATUALIZADO** */}
+            {/* Resumo do pedido atualizado */}
             {renderResumoPedido()}
 
             {renderConteudo()}

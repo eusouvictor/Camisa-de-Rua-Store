@@ -13,7 +13,7 @@ import {
   X,
   CreditCard,
   Truck,
-  ShieldCheck
+  ShieldCheck,
 } from "lucide-react";
 
 const Cart = ({ cart, updateCart, removeFromCart }) => {
@@ -39,6 +39,7 @@ const Cart = ({ cart, updateCart, removeFromCart }) => {
     }).format(preco);
   };
 
+  // Contador de itens no carrinho
   const totalItemsNoCarrinho = cart.reduce((total, item) => {
     return total + (item.quantity || 1);
   }, 0);
@@ -69,13 +70,14 @@ const Cart = ({ cart, updateCart, removeFromCart }) => {
     }, 0);
   };
 
-const handleCheckout = () => {
-  if (cartItems.length === 0) {
-    alert("Seu carrinho está vazio!");
-    return;
-  }
-  navigate("/checkout", { state: { cartItems, total: calcularTotal() } });
-};
+  const handleCheckout = () => {
+    if (cartItems.length === 0) {
+      alert("Seu carrinho está vazio!");
+      return;
+    }
+    // Redireciona para a página de checkout com os dados
+    navigate("/checkout", { state: { cartItems, total: calcularTotal() } });
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -101,7 +103,9 @@ const handleCheckout = () => {
 
           <div className="hidden lg:flex items-center">
             <nav className="flex items-center space-x-8">
-              <span className="text-verde-neon font-semibold text-lg">Olá, {user.nome}</span>
+              <span className="text-verde-neon font-semibold text-lg">
+                Olá, {user.nome || user.name}
+              </span>
             </nav>
           </div>
 
@@ -129,7 +133,9 @@ const handleCheckout = () => {
         {menuMobileAberto && (
           <div className="sm:hidden bg-gray-800/95 backdrop-blur-lg border-t border-verde-neon/20 mt-4 py-4 rounded-b-2xl">
             <div className="flex flex-col space-y-4 px-4">
-              <span className="text-verde-neon text-center font-semibold">Olá, {user.nome}</span>
+              <span className="text-verde-neon text-center font-semibold">
+                Olá, {user.nome || user.name}
+              </span>
               <button
                 onClick={handleLogout}
                 className="bg-gradient-to-r from-verde-neon to-verde-rua text-gray-900 font-bold py-3 rounded-full transition-all duration-300"
@@ -144,31 +150,31 @@ const handleCheckout = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex flex-col sm:flex-row pt-20">
         {/* MENU LATERAL - DESKTOP */}
         <aside className="hidden sm:flex ml-4 w-16 bg-gray-800/50 backdrop-blur-lg flex-col items-center py-6 fixed top-32 h-80 bottom-8 rounded-2xl z-40 border border-verde-neon/20">
-          <Link 
-            to="/home" 
+          <Link
+            to="/home"
             className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl mb-8 transition-all duration-300 hover:scale-110 group border border-gray-600"
           >
             <House className="text-gray-300 group-hover:text-gray-900 w-6 h-6" />
           </Link>
-          <Link 
-            to="/events" 
+          <Link
+            to="/events"
             className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl mb-8 transition-all duration-300 hover:scale-110 group border border-gray-600"
           >
             <Ticket className="text-gray-300 group-hover:text-gray-900 w-6 h-6" />
           </Link>
-          <Link 
-            to="/cart" 
+          <Link
+            to="/cart"
             className="p-3 bg-gradient-to-br from-verde-neon to-verde-rua rounded-xl mb-8 transition-all duration-300 hover:scale-110 hover:shadow-lg relative"
           >
             <ShoppingCart className="text-gray-900 w-6 h-6" />
             {totalItemsNoCarrinho > 0 && (
-              <span className="absolute -top-2 -right-2 bg-verde-rua text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg">
+              <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg">
                 {totalItemsNoCarrinho}
               </span>
             )}
           </Link>
-          <Link 
-            to="/settings" 
+          <Link
+            to="/settings"
             className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl mt-auto transition-all duration-300 hover:scale-110 group border border-gray-600"
           >
             <Bolt className="text-gray-300 group-hover:text-gray-900 w-6 h-6" />
@@ -178,31 +184,31 @@ const handleCheckout = () => {
         {/* MENU INFERIOR - MOBILE */}
         <nav className="sm:hidden fixed bottom-4 left-4 right-4 bg-gray-800/90 backdrop-blur-lg border border-verde-neon/20 rounded-2xl z-40 shadow-2xl">
           <div className="flex justify-around items-center py-3">
-            <Link 
-              to="/home" 
+            <Link
+              to="/home"
               className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl transition-all duration-300 hover:scale-110 group border border-gray-600"
             >
               <House className="text-gray-300 group-hover:text-gray-900 w-5 h-5" />
             </Link>
-            <Link 
-              to="/events" 
+            <Link
+              to="/events"
               className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl transition-all duration-300 hover:scale-110 group border border-gray-600"
             >
               <Ticket className="text-gray-300 group-hover:text-gray-900 w-5 h-5" />
             </Link>
-            <Link 
-              to="/cart" 
+            <Link
+              to="/cart"
               className="p-3 bg-gradient-to-br from-verde-neon to-verde-rua rounded-xl transition-all duration-300 hover:scale-110 relative"
             >
               <ShoppingCart className="text-gray-900 w-5 h-5" />
               {totalItemsNoCarrinho > 0 && (
-                <span className="absolute -top-2 -right-2 bg-verde-rua text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg">
+                <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg">
                   {totalItemsNoCarrinho}
                 </span>
               )}
             </Link>
-            <Link 
-              to="/settings" 
+            <Link
+              to="/settings"
               className="p-3 bg-gray-700/50 hover:bg-verde-neon rounded-xl transition-all duration-300 hover:scale-110 group border border-gray-600"
             >
               <Bolt className="text-gray-300 group-hover:text-gray-900 w-5 h-5" />
@@ -224,8 +230,12 @@ const handleCheckout = () => {
                   <div className="w-20 h-20 bg-gradient-to-br from-verde-neon to-verde-rua rounded-2xl flex items-center justify-center mx-auto mb-6">
                     <ShoppingCart className="text-gray-900 w-10 h-10" />
                   </div>
-                  <p className="text-2xl font-bold text-verde-neon mb-4">Seu carrinho está vazio</p>
-                  <p className="text-gray-300 mb-8">Adicione alguns produtos ou eventos para continuar</p>
+                  <p className="text-2xl font-bold text-verde-neon mb-4">
+                    Seu carrinho está vazio
+                  </p>
+                  <p className="text-gray-300 mb-8">
+                    Adicione alguns produtos ou eventos para continuar
+                  </p>
                   <Link
                     to="/home"
                     className="bg-gradient-to-r from-verde-neon to-verde-rua hover:from-verde-rua hover:to-verde-neon text-gray-900 font-bold py-4 px-8 rounded-2xl transition-all duration-500 transform hover:scale-105 hover:shadow-lg hover:shadow-verde-neon/25 inline-block"
@@ -251,7 +261,9 @@ const handleCheckout = () => {
                             </span>
                           </div>
                           <div className="flex-1">
-                            <h3 className="font-bold text-white text-lg mb-2">{item.name}</h3>
+                            <h3 className="font-bold text-white text-lg mb-2">
+                              {item.name}
+                            </h3>
                             {item.type === "evento" ? (
                               <div className="space-y-1">
                                 <p className="text-gray-300 text-sm flex items-center space-x-2">
@@ -260,9 +272,13 @@ const handleCheckout = () => {
                                 </p>
                                 <p className="text-gray-300 text-sm flex items-center space-x-2">
                                   <span>📍</span>
-                                  <span className="line-clamp-1">{item.local}</span>
+                                  <span className="line-clamp-1">
+                                    {item.local}
+                                  </span>
                                 </p>
-                                <p className="text-verde-neon font-semibold text-sm">INGRESSO</p>
+                                <p className="text-verde-neon font-semibold text-sm">
+                                  INGRESSO
+                                </p>
                               </div>
                             ) : (
                               <p className="text-gray-300 text-sm capitalize">
@@ -338,18 +354,26 @@ const handleCheckout = () => {
                     <div className="space-y-4 mb-6">
                       <div className="flex justify-between items-center py-3 border-b border-gray-700/50">
                         <span className="text-gray-300">Subtotal</span>
-                        <span className="text-white font-bold">{formatarPreco(calcularTotal())}</span>
+                        <span className="text-white font-bold">
+                          {formatarPreco(calcularTotal())}
+                        </span>
                       </div>
                       <div className="flex justify-between items-center py-3 border-b border-gray-700/50">
                         <span className="text-gray-300 flex items-center space-x-2">
                           <Truck className="w-4 h-4" />
                           <span>Frete</span>
                         </span>
-                        <span className="text-verde-neon font-bold">Grátis</span>
+                        <span className="text-verde-neon font-bold">
+                          Grátis
+                        </span>
                       </div>
                       <div className="flex justify-between items-center py-4 border-t border-verde-neon/30">
-                        <span className="text-xl font-black text-white">Total</span>
-                        <span className="text-2xl font-black text-verde-neon">{formatarPreco(calcularTotal())}</span>
+                        <span className="text-xl font-black text-white">
+                          Total
+                        </span>
+                        <span className="text-2xl font-black text-verde-neon">
+                          {formatarPreco(calcularTotal())}
+                        </span>
                       </div>
                     </div>
 
