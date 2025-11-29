@@ -45,6 +45,7 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
     }
   };
 
+  // No ModalAuth.js, atualize o handleLogin:
   const handleLogin = async () => {
     const { email, senha } = formData;
 
@@ -52,8 +53,27 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
       throw new Error("Preencha todos os campos");
     }
 
+    // USUÁRIO ADMIN - REDIRECIONA PARA HOME DO ADMIN
+    if (email === "admin@camisaderua.com" && senha === "admin123") {
+      const user = {
+        id: "admin",
+        nome: "Administrador",
+        email: "admin@camisaderua.com",
+        role: "admin",
+      };
+      localStorage.setItem("user", JSON.stringify(user));
+      onLoginSuccess(user);
+      return;
+    }
+
+    // Usuário teste normal
     if (email === "teste@teste.com" && senha === "123456") {
-      const user = { id: "1", nome: "Usuário Teste", email: "teste@teste.com" };
+      const user = {
+        id: "1",
+        nome: "Usuário Teste",
+        email: "teste@teste.com",
+        role: "user",
+      };
       localStorage.setItem("user", JSON.stringify(user));
       onLoginSuccess(user);
       return;
@@ -72,6 +92,7 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
         id: user.id,
         nome: user.nome,
         email: user.email,
+        role: "user", // Usuários normais tem role "user"
       })
     );
 

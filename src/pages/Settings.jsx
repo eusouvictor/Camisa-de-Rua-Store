@@ -21,7 +21,6 @@ import {
   Trash2,
   AlertTriangle,
   CheckCircle2,
-  Shield,
 } from "lucide-react";
 
 const Settings = ({ user, setUser, cart }) => {
@@ -124,9 +123,10 @@ const Settings = ({ user, setUser, cart }) => {
       setUser(updatedUser);
       setCurrentUser(updatedUser);
 
+      // **MELHOR FEEDBACK SOBRE ENDEREÇO SALVO**
       setMessage({
         type: "success",
-        text: "Perfil atualizado com sucesso!",
+        text: "Perfil e endereço atualizados com sucesso! Agora você pode usar no checkout.",
       });
     } catch (error) {
       setMessage({

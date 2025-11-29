@@ -7,6 +7,8 @@ import Events from "./pages/Events";
 import Settings from "./pages/Settings";
 import LandingPage from "./pages/Landing";
 import Checkout from "./components/Checkout";
+import AdminHome from "./pages/AdminHome";
+import AdminPanel from "./components/AdminPanel";
 
 function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -17,7 +19,13 @@ function App() {
   const handleLoginSuccess = (userData) => {
     setUser(userData);
     setIsAuthOpen(false);
-    navigate("/home");
+
+    // Redirecionar para home diferente se for admin
+    if (userData.role === "admin") {
+      navigate("/admin-home");
+    } else {
+      navigate("/home");
+    }
   };
 
   const handleSubmit = (e) => {
@@ -131,6 +139,30 @@ function App() {
               <Settings user={user} setUser={setUser} cart={cart} />
             ) : (
               <Navigate to="/" replace />
+            )
+          }
+        />
+
+        {/* NOVA ROTA: Home do Admin */}
+        <Route
+          path="/admin-home"
+          element={
+            user && user.role === "admin" ? (
+              <AdminHome user={user} setUser={setUser} />
+            ) : (
+              <Navigate to="/home" replace />
+            )
+          }
+        />
+
+        {/* Rota do AdminPanel (para outras funcionalidades) */}
+        <Route
+          path="/admin"
+          element={
+            user && user.role === "admin" ? (
+              <AdminPanel user={user} setUser={setUser} />
+            ) : (
+              <Navigate to="/home" replace />
             )
           }
         />
