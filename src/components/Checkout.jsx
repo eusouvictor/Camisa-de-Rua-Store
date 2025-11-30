@@ -160,23 +160,16 @@ const Checkout = ({ updateCart }) => {
     setEtapa("processando");
   };
 
-// Adicione isso no topo se não tiver
+// Adicione esta constante no topo do arquivo Checkout.jsx
 const API_URL = import.meta.env.PROD ? "/api" : "http://localhost:4000/api";
 
 const handleFinalizarPagamento = async () => {
     try {
       const token = localStorage.getItem("accessToken");
-      if (!token) {
-        addToast("Você precisa estar logado!", "error");
-        return;
-      }
-
-      if (!cartItems || cartItems.length === 0) {
-        addToast("Seu carrinho está vazio!", "error");
-        return;
-      }
-
-      console.log("Iniciando pagamento com itens:", cartItems);
+      
+      // Feedback visual simples
+      const btn = document.querySelector('button[type="submit"]') || document.activeElement;
+      if(btn) btn.innerText = "Processando...";
 
       const response = await fetch(`${API_URL}/pagamento/criar`, {
         method: "POST",
@@ -189,26 +182,17 @@ const handleFinalizarPagamento = async () => {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        console.error("Erro da API:", data);
-        addToast(`Erro ao gerar pagamento: ${data.error || "Erro desconhecido"}`, "error");
-        return;
-      }
-
       if (data.init_point) {
-        console.log("Redirecionando para Mercado Pago:", data.init_point);
-        addToast("Redirecionando para pagamento...", "success");
-        // Redireciona o usuário para o Mercado Pago
-        setTimeout(() => {
-          window.location.href = data.init_point;
-        }, 1000);
+        // REDIRECIONA PARA O MERCADO PAGO
+        window.location.href = data.init_point;
       } else {
-        addToast("Erro ao gerar pagamento. Por favor, tente novamente.", "error");
+        alert("Erro ao conectar com o Mercado Pago. Tente novamente.");
+        if(btn) btn.innerText = "Finalizar Pagamento";
       }
 
     } catch (error) {
-      console.error("Erro ao finalizar pagamento:", error);
-      addToast("Erro ao conectar com o serviço de pagamento. Por favor, tente novamente.", "error");
+      console.error("Erro checkout:", error);
+      alert("Erro de conexão.");
     }
   };
 
