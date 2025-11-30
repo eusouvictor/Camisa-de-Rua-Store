@@ -9,4 +9,23 @@ body {
   font-family: "Advent Pro", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #111827; /* Garante o fundo escuro */
+}
+
+/* Adiciona barras de rolagem personalizadas se desejar, baseado no estilo */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D0C81C; /* verde-neon */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1A3627; /* verde-rua */
 }

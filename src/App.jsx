@@ -7,6 +7,8 @@ import Events from "./pages/Events";
 import Settings from "./pages/Settings";
 import LandingPage from "./pages/Landing";
 import Checkout from "./components/Checkout";
+import AdminHome from "./pages/AdminHome";
+import AdminPanel from "./components/AdminPanel";
 
 function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -17,7 +19,11 @@ function App() {
   const handleLoginSuccess = (userData) => {
     setUser(userData);
     setIsAuthOpen(false);
-    navigate("/home");
+    if (userData.role === "admin") {
+      navigate("/admin");
+    } else {
+      navigate("/home");
+    }
   };
 
   const handleSubmit = (e) => {
@@ -36,7 +42,9 @@ function App() {
   // --- Lógica do Carrinho ---
   const addToCart = (product) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id && item.type === product.type);
+      const existingItem = prevCart.find(
+        (item) => item.id === product.id && item.type === product.type
+      );
       if (existingItem) {
         return prevCart.map((item) =>
           item.id === product.id
@@ -53,7 +61,9 @@ function App() {
   };
 
   const removeFromCart = (productId, type) => {
-    setCart((prevCart) => prevCart.filter((item) => !(item.id === productId && item.type === type)));
+    setCart((prevCart) =>
+      prevCart.filter((item) => !(item.id === productId && item.type === type))
+    );
   };
 
   return (
@@ -78,11 +88,7 @@ function App() {
         <Route
           path="/home"
           element={
-            user ? (
-              <Home addToCart={addToCart} cart={cart} />
-            ) : (
-              <Navigate to="/" replace />
-            )
+            user ? <Home addToCart={addToCart} cart={cart} /> : <Navigate to="/" replace />
           }
         />
 
@@ -112,15 +118,10 @@ function App() {
           }
         />
 
-        {/* NOVA ROTA DO CHECKOUT */}
         <Route
           path="/checkout"
           element={
-            user ? (
-              <Checkout updateCart={updateCart} />
-            ) : (
-              <Navigate to="/" replace />
-            )
+            user ? <Checkout updateCart={updateCart} /> : <Navigate to="/" replace />
           }
         />
 
@@ -134,6 +135,30 @@ function App() {
             )
           }
         />
+
+        {/* Rotas de Admin */}
+        <Route
+          path="/admin"
+          element={
+            user && user.role === "admin" ? (
+              <AdminPanel user={user} setUser={setUser} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+
+         <Route
+          path="/admin/home"
+          element={
+            user && user.role === "admin" ? (
+              <AdminHome user={user} setUser={setUser} />
+            ) : (
+               <Navigate to="/" replace />
+            )
+          }
+        />
+
 
         {/* Redirecionamento para raiz */}
         <Route path="*" element={<Navigate to="/" replace />} />

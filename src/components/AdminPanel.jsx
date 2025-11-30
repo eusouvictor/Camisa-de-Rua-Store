@@ -1,82 +1,56 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
-  Settings, Users, Package, BarChart3, LogOut, Menu, X, ShoppingCart, DollarSign, TrendingUp, Plus
+  Settings,
+  Users,
+  Package,
+  BarChart3,
+  LogOut,
+  Menu,
+  X,
+  ShoppingCart,
+  DollarSign,
+  TrendingUp,
 } from "lucide-react";
-
-// URL da API (Local ou Produção)
-const API_URL = import.meta.env.PROD ? "/api" : "http://localhost:4000/api";
 
 const AdminPanel = ({ user, setUser }) => {
   const location = useLocation();
-  const [activeSection, setActiveSection] = useState(location.state?.section || "dashboard");
+  const [activeSection, setActiveSection] = useState(
+    location.state?.section || "products"
+  );
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    // Proteção de rota: Se não for admin, manda embora
-    if (user && user.role !== "admin") {
-       alert("Acesso negado. Área restrita para administradores.");
-       navigate("/home");
-       return;
+    // Verificar se o usuário é admin
+    if (!user || user.role !== "admin") {
+      navigate("/home");
+      return;
     }
+
+    // Carregar dados do localStorage
     loadData();
   }, [user, navigate]);
 
-  const loadData = async () => {
-    try {
-      // 1. Buscar Produtos do Banco
-      const resProd = await fetch(`${API_URL}/produtos`);
-      const dataProd = await resProd.json();
-      if (resProd.ok) setProducts(dataProd.produtos || []);
+  const loadData = () => {
+    // Carregar produtos
+    const storedProducts = JSON.parse(localStorage.getItem("products") || "[]");
+    setProducts(storedProducts);
 
-      // 2. Buscar Usuários (precisa de token)
-      const token = localStorage.getItem("accessToken");
-      if (token) {
-        const resUser = await fetch(`${API_URL}/auth`, {
-           headers: { Authorization: `Bearer ${token}` }
-        });
-        const dataUser = await resUser.json();
-        if (resUser.ok) setUsers(dataUser.users || []);
-      }
-      
-      // 3. Pedidos (Do localStorage por enquanto, até a Missão 2)
-      const storedOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-      setOrders(storedOrders);
+    // Carregar usuários
+    const storedUsers = JSON.parse(localStorage.getItem("users") || "[]");
+    setUsers(storedUsers);
 
-    } catch (error) {
-      console.error("Erro ao carregar dados:", error);
-    }
-  };
-
-  const handleDeleteProduct = async (id) => {
-    if (!window.confirm("Tem certeza que deseja excluir este produto?")) return;
-
-    try {
-      const token = localStorage.getItem("accessToken");
-      const response = await fetch(`${API_URL}/produtos/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (response.ok) {
-        alert("Produto excluído!");
-        loadData(); // Atualiza a lista
-      } else {
-        alert("Erro ao excluir.");
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    // Carregar pedidos
+    const storedOrders = JSON.parse(localStorage.getItem("orders") || "[]");
+    setOrders(storedOrders);
   };
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    localStorage.removeItem("accessToken");
     setUser(null);
     navigate("/");
   };
@@ -86,46 +60,85 @@ const AdminPanel = ({ user, setUser }) => {
     { id: "products", label: "Produtos", icon: Package },
     { id: "users", label: "Usuários", icon: Users },
     { id: "orders", label: "Pedidos", icon: ShoppingCart },
+    { id: "analytics", label: "Analytics", icon: TrendingUp },
   ];
 
-  // --- Renderizações ---
   const renderDashboard = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div className="bg-blue-600 rounded-2xl p-6 text-white">
-        <p className="text-blue-100">Total Produtos</p>
-        <p className="text-3xl font-bold">{products.length}</p>
+      <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-blue-100">Total de Produtos</p>
+            <p className="text-3xl font-bold">{products.length}</p>
+          </div>
+          <Package className="w-8 h-8" />
+        </div>
       </div>
-      <div className="bg-green-600 rounded-2xl p-6 text-white">
-        <p className="text-green-100">Usuários</p>
-        <p className="text-3xl font-bold">{users.length}</p>
+
+      <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-green-100">Total de Usuários</p>
+            <p className="text-3xl font-bold">{users.length}</p>
+          </div>
+          <Users className="w-8 h-8" />
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-purple-100">Pedidos Hoje</p>
+            <p className="text-3xl font-bold">{orders.length}</p>
+          </div>
+          <ShoppingCart className="w-8 h-8" />
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-orange-100">Receita Total</p>
+            <p className="text-3xl font-bold">
+              R${" "}
+              {orders
+                .reduce((total, order) => total + order.total, 0)
+                .toFixed(2)}
+            </p>
+          </div>
+          <DollarSign className="w-8 h-8" />
+        </div>
       </div>
     </div>
   );
 
   const renderProducts = () => (
-    <div className="bg-gray-800/50 rounded-2xl p-6 border border-verde-neon/20">
+    <div className="bg-gray-800/50 rounded-2xl p-6">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-xl font-bold text-white">Gerenciar Produtos</h3>
-        <button className="bg-verde-neon text-gray-900 px-4 py-2 rounded-xl font-bold hover:bg-verde-rua transition-all flex items-center gap-2">
-          <Plus size={18}/> Novo Produto
+        <button className="bg-verde-neon text-gray-900 px-4 py-2 rounded-xl font-bold hover:bg-verde-rua transition-all">
+          Adicionar Produto
         </button>
       </div>
+
       <div className="space-y-4">
         {products.map((product) => (
-          <div key={product.id} className="bg-gray-700/50 rounded-xl p-4 flex justify-between items-center border border-gray-600">
-            <div className="flex items-center gap-4">
-                {product.imageUrl && <img src={product.imageUrl} alt={product.nome} className="w-12 h-12 rounded object-cover" />}
-                <div>
-                  <h4 className="font-bold text-white">{product.nome}</h4>
-                  <p className="text-verde-neon text-sm">R$ {Number(product.preco).toFixed(2)}</p>
-                </div>
+          <div
+            key={product.id}
+            className="bg-gray-700/50 rounded-xl p-4 flex justify-between items-center"
+          >
+            <div>
+              <h4 className="font-bold text-white">{product.name}</h4>
+              <p className="text-gray-300">R$ {product.price}</p>
             </div>
-            <button 
-              onClick={() => handleDeleteProduct(product.id)}
-              className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 text-sm"
-            >
-              Excluir
-            </button>
+            <div className="flex space-x-2">
+              <button className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600">
+                Editar
+              </button>
+              <button className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600">
+                Excluir
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -134,37 +147,140 @@ const AdminPanel = ({ user, setUser }) => {
 
   const renderUsers = () => (
     <div className="bg-gray-800/50 rounded-2xl p-6">
-      <h3 className="text-white text-xl font-bold mb-4">Usuários</h3>
-      {users.map(u => (
-        <div key={u.id} className="p-4 border-b border-gray-700 text-gray-300">
-          {u.email} <span className="text-xs bg-gray-600 px-2 py-1 rounded ml-2">{u.role || "CUSTOMER"}</span>
-        </div>
-      ))}
+      <h3 className="text-xl font-bold text-white mb-6">Gerenciar Usuários</h3>
+      <div className="space-y-4">
+        {users.map((user) => (
+          <div
+            key={user.id}
+            className="bg-gray-700/50 rounded-xl p-4 flex justify-between items-center"
+          >
+            <div>
+              <h4 className="font-bold text-white">{user.nome}</h4>
+              <p className="text-gray-300">{user.email}</p>
+            </div>
+            <span className="bg-verde-neon text-gray-900 px-2 py-1 rounded text-sm font-bold">
+              Usuário
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 
+  const renderOrders = () => (
+    <div className="bg-gray-800/50 rounded-2xl p-6">
+      <h3 className="text-xl font-bold text-white mb-6">Gerenciar Pedidos</h3>
+      <div className="space-y-4">
+        {orders.map((order) => (
+          <div key={order.id} className="bg-gray-700/50 rounded-xl p-4">
+            <div className="flex justify-between items-center mb-2">
+              <h4 className="font-bold text-white">Pedido #{order.id}</h4>
+              <span className="bg-yellow-500 text-gray-900 px-2 py-1 rounded text-sm font-bold">
+                Pendente
+              </span>
+            </div>
+            <p className="text-gray-300">Cliente: {order.customerName}</p>
+            <p className="text-verde-neon font-bold">Total: R$ {order.total}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderContent = () => {
+    switch (activeSection) {
+      case "dashboard":
+        return renderDashboard();
+      case "products":
+        return renderProducts();
+      case "users":
+        return renderUsers();
+      case "orders":
+        return renderOrders();
+      case "analytics":
+        return (
+          <div className="bg-gray-800/50 rounded-2xl p-6">
+            <h3 className="text-xl font-bold text-white">Analytics</h3>
+            <p className="text-gray-300 mt-2">
+              Relatórios e análises em desenvolvimento...
+            </p>
+          </div>
+        );
+      default:
+        return renderDashboard();
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-900 flex text-white">
-      {sidebarOpen && (
-        <aside className="w-64 bg-gray-800 p-4 flex flex-col border-r border-gray-700">
-          <div className="mb-8 text-center font-bold text-verde-neon">ADMIN PAINEL</div>
-          <nav className="flex-1 space-y-2">
-            {menuItems.map(item => (
-              <button key={item.id} onClick={() => setActiveSection(item.id)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${activeSection === item.id ? "bg-verde-neon text-gray-900" : "hover:bg-gray-700"}`}>
-                <item.icon size={20} /> {item.label}
-              </button>
-            ))}
-          </nav>
-          <button onClick={handleLogout} className="flex items-center gap-2 text-red-400 hover:text-red-300 mt-auto px-4 py-3"><LogOut size={20}/> Sair</button>
-        </aside>
-      )}
-      <main className="flex-1 p-6 overflow-auto">
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="mb-6"><Menu /></button>
-        {activeSection === "dashboard" && renderDashboard()}
-        {activeSection === "products" && renderProducts()}
-        {activeSection === "users" && renderUsers()}
-        {activeSection === "orders" && <div>Em breve: Pedidos</div>}
-      </main>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black">
+      {/* Header */}
+      <header className="bg-gray-900/95 backdrop-blur-lg border-b border-verde-neon/20 text-white py-4 px-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 hover:bg-gray-700 rounded-lg transition-all"
+            >
+              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+            <img
+              src="/images/cdrlogo.svg"
+              alt="Camisa de Rua Logo"
+              className="h-10 w-auto"
+            />
+            <span className="text-xl font-black">Admin Panel</span>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <span className="text-verde-neon font-semibold">{user?.nome}</span>
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl transition-all"
+            >
+              <LogOut size={18} />
+              <span>Sair</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex">
+        {/* Sidebar */}
+        {sidebarOpen && (
+          <aside className="w-64 bg-gray-800/50 backdrop-blur-lg border-r border-verde-neon/20 min-h-screen p-4">
+            <nav className="space-y-2">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveSection(item.id)}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
+                      activeSection === item.id
+                        ? "bg-verde-neon text-gray-900 font-bold"
+                        : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
+                    }`}
+                  >
+                    <Icon size={20} />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+          </aside>
+        )}
+
+        {/* Main Content */}
+        <main className={`flex-1 p-6 ${sidebarOpen ? "" : "ml-0"}`}>
+          <div className="max-w-7xl mx-auto">
+            <h1 className="text-3xl font-black text-white mb-8">
+              {menuItems.find((item) => item.id === activeSection)?.label ||
+                "Dashboard"}
+            </h1>
+            {renderContent()}
+          </div>
+        </main>
+      </div>
     </div>
   );
 };
