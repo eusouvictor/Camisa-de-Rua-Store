@@ -25,10 +25,14 @@ export async function obter(req, res) {
   }
 }
 
-// 3. Criar produto
+// 3. Criar produto (CORRIGIDO!)
 export async function criar(req, res) {
   try {
     const { nome, preco, categoria, imageUrl, description } = req.body;
+    
+    // Pega o ID do usuário que está logado (vem do Token JWT)
+    const usuarioId = req.user?.sub;
+
     if (!nome || !preco) {
       return res.status(400).json({ error: "Nome e preço são obrigatórios" });
     }
@@ -39,18 +43,21 @@ export async function criar(req, res) {
         preco: Number(preco),
         categoria: categoria || "geral",
         imageUrl: imageUrl || "",
-        description: description || ""
+        description: description || "",
+        // AQUI ESTÁ A CORREÇÃO: Vincula o produto ao usuário Admin
+        ownerId: Number(usuarioId) 
       }
     });
 
     return res.status(201).json({ produto: novo });
   } catch (err) {
     console.error("Erro ao criar:", err);
-    res.status(500).json({ error: "Erro ao criar produto" });
+    // Retorna o erro detalhado para facilitar o debug se acontecer de novo
+    res.status(500).json({ error: `Erro ao criar: ${err.message}` });
   }
 }
 
-// 4. Atualizar produto (NOVO)
+// 4. Atualizar produto
 export async function atualizar(req, res) {
   try {
     const id = Number(req.params.id);
@@ -74,7 +81,7 @@ export async function atualizar(req, res) {
   }
 }
 
-// 5. Deletar produto (NOVO)
+// 5. Deletar produto
 export async function deletar(req, res) {
   try {
     const id = Number(req.params.id);
