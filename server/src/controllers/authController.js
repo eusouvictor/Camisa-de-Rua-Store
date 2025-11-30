@@ -153,3 +153,15 @@ export async function listUsers(req, res) {
   });
   res.json({ users });
 }
+
+export async function listarUsuarios(req, res) {
+  try {
+    const users = await prisma.user.findMany({
+      select: { id: true, email: true, name: true, role: true, createdAt: true }
+    });
+    res.json({ users });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erro ao listar usuários" });
+  }
+}
