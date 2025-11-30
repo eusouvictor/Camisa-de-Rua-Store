@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import ModalAuth from "./components/ModalAuth";
 import Home from "./pages/Home";
@@ -16,21 +16,12 @@ function App() {
   const [cart, setCart] = useState([]);
   const navigate = useNavigate();
 
-  // Recupera o usuário ao carregar a página
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
-
   const handleLoginSuccess = (userData) => {
     setUser(userData);
     setIsAuthOpen(false);
-
-    // Redirecionar para home diferente se for admin
+    // Redirecionamento inteligente baseado no cargo
     if (userData.role === "admin") {
-      navigate("/admin-home");
+      navigate("/admin");
     } else {
       navigate("/home");
     }
@@ -57,7 +48,7 @@ function App() {
       );
       if (existingItem) {
         return prevCart.map((item) =>
-          item.id === product.id && item.type === product.type
+          item.id === product.id
             ? { ...item, quantity: (item.quantity || 1) + 1 }
             : item
         );
@@ -94,15 +85,11 @@ function App() {
           }
         />
 
-        {/* Rotas protegidas */}
+        {/* Rotas protegidas (Cliente) */}
         <Route
           path="/home"
           element={
-            user ? (
-              <Home addToCart={addToCart} cart={cart} />
-            ) : (
-              <Navigate to="/" replace />
-            )
+            user ? <Home addToCart={addToCart} cart={cart} /> : <Navigate to="/" replace />
           }
         />
 
@@ -135,11 +122,7 @@ function App() {
         <Route
           path="/checkout"
           element={
-            user ? (
-              <Checkout updateCart={updateCart} cart={cart} />
-            ) : (
-              <Navigate to="/" replace />
-            )
+            user ? <Checkout updateCart={updateCart} /> : <Navigate to="/" replace />
           }
         />
 
@@ -154,30 +137,30 @@ function App() {
           }
         />
 
-        {/* NOVAS ROTAS: Admin */}
-        <Route
-          path="/admin-home"
-          element={
-            user && user.role === "admin" ? (
-              <AdminHome user={user} setUser={setUser} />
-            ) : (
-              <Navigate to="/home" replace />
-            )
-          }
-        />
-
+        {/* Rotas de Admin (Protegidas por Role) */}
         <Route
           path="/admin"
           element={
             user && user.role === "admin" ? (
               <AdminPanel user={user} setUser={setUser} />
             ) : (
-              <Navigate to="/home" replace />
+              <Navigate to="/" replace />
             )
           }
         />
 
-        {/* Redirecionamento para raiz */}
+         <Route
+          path="/admin/home"
+          element={
+            user && user.role === "admin" ? (
+              <AdminHome user={user} setUser={setUser} />
+            ) : (
+               <Navigate to="/" replace />
+            )
+          }
+        />
+
+        {/* Redirecionamento para raiz se a rota não existir */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
