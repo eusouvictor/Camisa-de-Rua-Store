@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import produtosRoutes from "./routes/produtosRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js"; // <--- NOVO
 import cookieParser from "cookie-parser";
 
 const app = express();

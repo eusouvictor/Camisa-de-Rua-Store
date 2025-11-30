@@ -158,12 +158,36 @@ const Checkout = ({ updateCart }) => {
     setEtapa("processando");
   };
 
-  // Função para finalizar pagamento
-  const handleFinalizarPagamento = () => {
-    setTimeout(() => {
-      setEtapa("finalizado");
-      updateCart([]);
-    }, 2000);
+// Adicione isso no topo se não tiver
+const API_URL = import.meta.env.PROD ? "/api" : "http://localhost:4000/api";
+
+const handleFinalizarPagamento = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) return alert("Você precisa estar logado!");
+
+      const response = await fetch(`${API_URL}/pagamento/criar`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ items: cartItems }) // Enviamos os itens do carrinho
+      });
+
+      const data = await response.json();
+
+      if (data.init_point) {
+        // Redireciona o usuário para o Mercado Pago
+        window.location.href = data.init_point;
+      } else {
+        alert("Erro ao gerar pagamento.");
+      }
+
+    } catch (error) {
+      console.error("Erro checkout:", error);
+      alert("Erro ao conectar com o pagamento.");
+    }
   };
 
   // Função para copiar texto
