@@ -167,9 +167,12 @@ const handleFinalizarPagamento = async () => {
     try {
       const token = localStorage.getItem("accessToken");
       
-      // Feedback visual simples
+      // Muda texto do botão para feedback visual
       const btn = document.querySelector('button[type="submit"]') || document.activeElement;
-      if(btn) btn.innerText = "Processando...";
+      if(btn) {
+         btn.innerText = "Carregando Mercado Pago...";
+         btn.disabled = true;
+      }
 
       const response = await fetch(`${API_URL}/pagamento/criar`, {
         method: "POST",
@@ -183,16 +186,19 @@ const handleFinalizarPagamento = async () => {
       const data = await response.json();
 
       if (data.init_point) {
-        // REDIRECIONA PARA O MERCADO PAGO
+        // Redireciona silenciosamente para o pagamento real
         window.location.href = data.init_point;
       } else {
-        alert("Erro ao conectar com o Mercado Pago. Tente novamente.");
-        if(btn) btn.innerText = "Finalizar Pagamento";
+        alert("Ops! Não foi possível iniciar o pagamento. Tente novamente.");
+        if(btn) {
+            btn.innerText = "Finalizar Pagamento";
+            btn.disabled = false;
+        }
       }
 
     } catch (error) {
-      console.error("Erro checkout:", error);
-      alert("Erro de conexão.");
+      console.error("Erro checkout:", error); // Log apenas no console (F12)
+      alert("Erro de conexão. Verifique sua internet.");
     }
   };
 

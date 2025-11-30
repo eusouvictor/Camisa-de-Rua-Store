@@ -1,20 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  House,
-  ShoppingCart,
-  Ticket,
-  Bolt,
-  Menu,
-  X,
-  Filter,
-  Calendar,
-  MapPin,
-  Music
-} from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { House, ShoppingCart, Ticket, Bolt, Menu, Calendar, MapPin, Music } from "lucide-react";
 
-// DADOS FIXOS E SEGUROS PARA A APRESENTAÇÃO
+// DADOS COM IMAGENS REAIS E CORRIGIDAS
 const eventosDados = [
   {
     id: 101,
@@ -25,39 +13,40 @@ const eventosDados = [
     descricao: "O maior bloco de carnaval de rua da região! Prepare sua fantasia.",
     categoria: "carnaval",
     imageUrl: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=800&q=80",
-    type: "evento" // Importante para o carrinho saber que é ingresso
+    type: "evento"
   },
   {
     id: 102,
-    nome: "SAMBA NA PRAÇA",
+    nome: "RODA DE SAMBA RAIZ",
     preco: 45.00,
     data: "15/03/2025",
     local: "Praça Central",
-    descricao: "Roda de samba tradicional com feijoada e muita música boa.",
+    descricao: "Samba de verdade, feijoada e gente bonita.",
     categoria: "musica",
     imageUrl: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80",
     type: "evento"
   },
   {
     id: 103,
-    nome: "FESTIVAL URBAN BEATS",
+    nome: "FESTIVAL DE MÚSICA URBANA", // Nome atualizado
     preco: 120.00,
     data: "20/04/2025",
     local: "Arena Parque",
-    descricao: "12 horas de música com os maiores nomes do Rap e Trap nacional.",
+    descricao: "O melhor do Rap, Trap e Funk em 12 horas de música.",
     categoria: "festival",
-    imageUrl: "https://images.unsplash.com/photo-1459749411177-0473ef71607b?auto=format&fit=crop&w=800&q=80",
+    // NOVA FOTO DE SHOW/MULTIDÃO QUE FUNCIONA:
+    imageUrl: "https://images.unsplash.com/photo-1533174072545-e8d4aa97d848?auto=format&fit=crop&w=800&q=80",
     type: "evento"
   },
   {
     id: 104,
-    nome: "OFICINA DE GRAFFITI",
-    preco: 30.00,
+    nome: "BATALHA DE RIMA",
+    preco: 20.00,
     data: "10/05/2025",
-    local: "Centro Cultural",
-    descricao: "Aprenda a arte de rua com mestres locais. Material incluso.",
-    categoria: "workshop",
-    imageUrl: "https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?auto=format&fit=crop&w=800&q=80",
+    local: "Pista de Skate",
+    descricao: "Os melhores MCs da região disputando o título.",
+    categoria: "batalha",
+    imageUrl: "https://images.unsplash.com/photo-1525362081669-2b476bb628c3?auto=format&fit=crop&w=800&q=80",
     type: "evento"
   }
 ];
@@ -114,14 +103,13 @@ const Events = ({ addToCart, cart }) => {
   const [user, setUser] = useState(null);
   const [menuMobileAberto, setMenuMobileAberto] = useState(false);
 
-  // Recupera o usuário
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("user"));
-    if (!userData) {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
       navigate("/");
       return;
     }
-    setUser(userData);
+    setUser(JSON.parse(storedUser));
   }, [navigate]);
 
   const handleLogout = () => {
