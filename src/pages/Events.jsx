@@ -12,62 +12,29 @@ import {
 } from "lucide-react";
 
 // Dados dos eventos
-const eventos = [
-  {
-    id: 1,
-    nome: "CARNAVAL DA RUA 2025",
-    preco: 89.9,
-    data: "25/02/2025",
-    local: "Centro da Cidade",
-    descricao: "O maior bloco de carnaval de rua da região!",
-    categoria: "carnaval",
-  },
-  {
-    id: 2,
-    nome: "SAMBA NA PRAÇA",
-    preco: 45.0,
-    data: "15/03/2025",
-    local: "Praça Central",
-    descricao: "Noite de samba com as melhores bandas locais",
-    categoria: "musica",
-  },
-  {
-    id: 3,
-    nome: "FESTA DO BLOCO DA LATINHA",
-    preco: 65.0,
-    data: "28/02/2025",
-    local: "Rua da Festa, 123",
-    descricao: "Traga sua latinha e venha curtir o melhor do carnaval",
-    categoria: "carnaval",
-  },
-  {
-    id: 4,
-    nome: "SHOW DE SAMBA TRADICIONAL",
-    preco: 75.0,
-    data: "10/03/2025",
-    local: "Teatro Municipal",
-    descricao: "As raízes do samba com artistas consagrados",
-    categoria: "musica",
-  },
-  {
-    id: 5,
-    nome: "BAILE DE CARNAVAL FAMÍLIA",
-    preco: 35.0,
-    data: "01/03/2025",
-    local: "Clube da Cidade",
-    descricao: "Carnaval para toda a família, das 14h às 20h",
-    categoria: "carnaval",
-  },
-  {
-    id: 6,
-    nome: "FESTIVAL DE MÚSICA URBANA",
-    preco: 120.0,
-    data: "20/04/2025",
-    local: "Parque Central",
-    descricao: "12 horas de música com diversos artistas urbanos",
-    categoria: "musica",
-  },
-];
+const events = [
+    {
+      id: 1,
+      title: "Festival de Verão",
+      date: "15 Jan 2024",
+      image: "https://images.unsplash.com/photo-1533174072545-e8d4aa97edf9?auto=format&fit=crop&w=800&q=80",
+      description: "O maior festival de música da cidade com a presença da Camisa de Rua.",
+    },
+    {
+      id: 2,
+      title: "Feira de Moda Urbana",
+      date: "20 Fev 2024",
+      image: "https://images.unsplash.com/photo-1558470598-a5dda9640f6b?auto=format&fit=crop&w=800&q=80",
+      description: "Lançamento da nova coleção Outono/Inverno.",
+    },
+    {
+      id: 3,
+      title: "Skate Championship",
+      date: "10 Mar 2024",
+      image: "https://images.unsplash.com/photo-1520045864981-8a4a232b6d00?auto=format&fit=crop&w=800&q=80",
+      description: "Apoio oficial ao campeonato regional de skate.",
+    },
+  ];
 
 const EventCard = ({ evento, onAddToCart }) => {
   const formatarPreco = (preco) => {
