@@ -4,8 +4,6 @@ import crypto from "crypto";
 import prisma from "../libs/prisma.js";
 import * as tokenStore from "../libs/tokenStore.js";
 
-// Verifica se o prisma está disponível.
-// Se o prisma não conectou, usamos o tokenStore em arquivo.
 const usePrisma = !!prisma;
 
 export async function register(req, res) {
@@ -13,13 +11,11 @@ export async function register(req, res) {
     const { email, password, name } = req.body;
     if (!email || !password) return res.status(400).json({ error: "email e password são obrigatórios" });
 
-    // 2. PROCURA O USUÁRIO NO BANCO DE DADOS (PRISMA)
     const exists = await prisma.user.findUnique({ where: { email } });
     if (exists) return res.status(409).json({ error: "Usuário já existe" });
 
     const hashed = bcrypt.hashSync(password, 8);
 
-    // 3. CRIA O USUÁRIO NO BANCO DE DADOS (PRISMA)
     const newUser = await prisma.user.create({
       data: {
         email,
@@ -28,15 +24,17 @@ export async function register(req, res) {
       },
     });
 
-    // --- AUDITORIA: Regista que o utilizador foi criado ---
-    // Mantivemos este bloco porque é a sua funcionalidade nova!
-    await prisma.userAudit.create({
-      data: {
-        action: "USER_CREATED",
-        details: `Registo inicial via app. Nome: ${name || "Sem nome"}`,
-        userId: newUser.id, // Ligamos este evento ao ID do utilizador acabado de criar
-      },
-    });
+    try {
+      await prisma.userAudit.create({
+        data: {
+          action: "USER_CREATED",
+          details: `Registo inicial via app. Nome: ${name || "Sem nome"}`,
+          userId: newUser.id,
+        },
+      });
+    } catch (auditErr) {
+      console.error("Erro auditoria:", auditErr);
+    }
 
     const { password: _p, ...safe } = newUser;
     return res.status(201).json({ user: safe });
@@ -52,31 +50,23 @@ export async function login(req, res) {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: "email e password são obrigatórios" });
 
-    // 4. PROCURA O USUÁRIO NO BANCO (PRISMA)
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(401).json({ error: "Credenciais inválidas" });
 
     const ok = bcrypt.compareSync(password, user.password);
     if (!ok) return res.status(401).json({ error: "Credenciais inválidas" });
 
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role }; // Incluído role no token
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET || "change_me", { expiresIn: "15m" });
 
     const refreshToken = crypto.randomBytes(40).toString("hex");
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); 
 
-    // 5. SALVA O REFRESH TOKEN NO BANCO (PRISMA)
     if (usePrisma) {
-      // O schema.prisma está correto para isso
       await prisma.refreshToken.create({
-        data: {
-          token: refreshToken,
-          userId: user.id,
-          expiresAt
-        }
+        data: { token: refreshToken, userId: user.id, expiresAt }
       });
     } else {
-      // Fallback se o prisma não conectou
       await tokenStore.create({ token: refreshToken, userId: user.id, expiresAt: expiresAt.toISOString(), revoked: false });
     }
 
@@ -100,7 +90,6 @@ export async function refresh(req, res) {
     const token = req.cookies?.refreshToken;
     if (!token) return res.status(401).json({ error: "Refresh token ausente" });
 
-    // 6. PROCURA O REFRESH TOKEN NO BANCO (PRISMA)
     const record = usePrisma
       ? await prisma.refreshToken.findUnique({ where: { token } })
       : await tokenStore.find(token);
@@ -109,11 +98,10 @@ export async function refresh(req, res) {
     const expiresAt = usePrisma ? record.expiresAt : new Date(record.expiresAt);
     if (new Date(expiresAt) < new Date()) return res.status(401).json({ error: "Refresh token expirado" });
 
-    // 7. PROCURA O DONO DO TOKEN NO BANCO (PRISMA)
     const user = await prisma.user.findUnique({ where: { id: record.userId } });
     if (!user) return res.status(401).json({ error: "Usuário não encontrado" });
 
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role };
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET || "change_me", { expiresIn: "15m" });
     return res.json({ accessToken });
   } catch (err) {
@@ -126,7 +114,6 @@ export async function logout(req, res) {
   try {
     const token = req.cookies?.refreshToken;
     if (token) {
-      // 8. REVOGA O TOKEN NO BANCO (PRISMA)
       if (usePrisma) {
         await prisma.refreshToken.updateMany({ where: { token }, data: { revoked: true } });
       } else {
@@ -141,27 +128,39 @@ export async function logout(req, res) {
   }
 }
 
-export async function listUsers(req, res) {
-  // 9. LISTA USUÁRIOS DO BANCO (PRISMA)
-  const users = await prisma.user.findMany({
-    select: { // Seleciona apenas campos seguros (sem a senha)
-      id: true,
-      email: true,
-      name: true,
-      createdAt: true
-    }
-  });
-  res.json({ users });
+// --- FUNÇÃO QUE FALTAVA (ME) ---
+export async function me(req, res) {
+  try {
+    // O ID vem do middleware de autenticação (req.user.sub)
+    const userId = req.user.sub;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, name: true, role: true, createdAt: true }
+    });
+    
+    if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
+    res.json(user);
+  } catch (err) {
+    console.error("Erro no me:", err);
+    res.status(500).json({ error: "Erro ao buscar perfil" });
+  }
 }
 
+// --- RENOMEADO DE listUsers PARA listarUsuarios ---
 export async function listarUsuarios(req, res) {
   try {
     const users = await prisma.user.findMany({
-      select: { id: true, email: true, name: true, role: true, createdAt: true }
+      select: { 
+        id: true, 
+        email: true, 
+        name: true, 
+        role: true, 
+        createdAt: true 
+      }
     });
     res.json({ users });
   } catch (error) {
-    console.error(error);
+    console.error("Erro listarUsuarios:", error);
     res.status(500).json({ error: "Erro ao listar usuários" });
   }
 }
