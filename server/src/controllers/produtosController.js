@@ -8,8 +8,8 @@ export async function listar(req, res) {
     });
     res.json({ produtos });
   } catch (err) {
-    console.error("Erro ao listar:", err);
-    res.status(500).json({ error: "Erro interno" });
+    console.error("Erro interno (Listar):", err); // Log apenas no terminal
+    res.status(500).json({ error: "Erro ao buscar produtos." }); // Mensagem limpa
   }
 }
 
@@ -21,16 +21,17 @@ export async function obter(req, res) {
     if (!p) return res.status(404).json({ error: "Produto não encontrado" });
     return res.json({ produto: p });
   } catch (err) {
-    return res.status(500).json({ error: "Erro interno" });
+    console.error("Erro interno (Obter):", err);
+    return res.status(500).json({ error: "Erro ao buscar detalhes do produto." });
   }
 }
 
-// 3. Criar produto (CORRIGIDO!)
+// 3. Criar produto (CORRIGIDO E LIMPO)
 export async function criar(req, res) {
   try {
     const { nome, preco, categoria, imageUrl, description } = req.body;
     
-    // Pega o ID do usuário que está logado (vem do Token JWT)
+    // Pega o ID do usuário logado (token)
     const usuarioId = req.user?.sub;
 
     if (!nome || !preco) {
@@ -44,16 +45,16 @@ export async function criar(req, res) {
         categoria: categoria || "geral",
         imageUrl: imageUrl || "",
         description: description || "",
-        // AQUI ESTÁ A CORREÇÃO: Vincula o produto ao usuário Admin
+        // CORREÇÃO DO ERRO DE OWNERID
         ownerId: Number(usuarioId) 
       }
     });
 
     return res.status(201).json({ produto: novo });
   } catch (err) {
-    console.error("Erro ao criar:", err);
-    // Retorna o erro detalhado para facilitar o debug se acontecer de novo
-    res.status(500).json({ error: `Erro ao criar: ${err.message}` });
+    console.error("Erro interno (Criar):", err); // O erro técnico fica aqui
+    // O usuário vê apenas isso:
+    res.status(500).json({ error: "Não foi possível salvar o produto. Tente novamente." });
   }
 }
 
@@ -76,8 +77,8 @@ export async function atualizar(req, res) {
 
     return res.json({ produto: atualizado });
   } catch (err) {
-    console.error("Erro ao atualizar:", err);
-    res.status(500).json({ error: "Erro ao atualizar produto" });
+    console.error("Erro interno (Atualizar):", err);
+    res.status(500).json({ error: "Erro ao atualizar produto." });
   }
 }
 
@@ -88,7 +89,7 @@ export async function deletar(req, res) {
     await prisma.product.delete({ where: { id } });
     return res.json({ message: "Produto deletado com sucesso" });
   } catch (err) {
-    console.error("Erro ao deletar:", err);
-    res.status(500).json({ error: "Erro ao deletar produto" });
+    console.error("Erro interno (Deletar):", err);
+    res.status(500).json({ error: "Erro ao deletar produto." });
   }
 }
