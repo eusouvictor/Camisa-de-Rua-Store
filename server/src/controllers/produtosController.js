@@ -1,50 +1,88 @@
-import prisma from "../libs/prisma.js"; // O "Chefe de Estoque"
+import prisma from "../libs/prisma.js";
 
-// Lista os produtos DO BANCO
+// 1. Listar produtos
 export async function listar(req, res) {
   try {
-    // 1. Pedindo os produtos REAIS ao Prisma
-    const produtos = await prisma.product.findMany(); 
+    const produtos = await prisma.product.findMany({
+      orderBy: { id: 'desc' } // Mostra os mais novos primeiro
+    });
     res.json({ produtos });
   } catch (err) {
-    console.error("Erro ao listar produtos:", err.message);
-    res.status(500).json({ error: "Erro interno ao buscar produtos" });
-  }
-}
-
-// Obtém um produto DO BANCO
-export async function obter(req, res) {
-  try {
-    const id = Number(req.params.id);
-    // 2. Pedindo UM produto REAL ao Prisma
-    const p = await prisma.product.findUnique({ where: { id } });
-
-    if (!p) return res.status(404).json({ error: "Produto não encontrado" });
-    return res.json({ produto: p });
-  } catch (err) {
-    console.error("Erro ao obter produto:", err.message);
+    console.error("Erro ao listar:", err);
     res.status(500).json({ error: "Erro interno" });
   }
 }
 
-// Cria um produto NO BANCO
+// 2. Obter um produto
+export async function obter(req, res) {
+  try {
+    const id = Number(req.params.id);
+    const p = await prisma.product.findUnique({ where: { id } });
+    if (!p) return res.status(404).json({ error: "Produto não encontrado" });
+    return res.json({ produto: p });
+  } catch (err) {
+    return res.status(500).json({ error: "Erro interno" });
+  }
+}
+
+// 3. Criar produto
 export async function criar(req, res) {
   try {
-    const { nome, preco, categoria } = req.body;
-    if (!nome || preco == null) return res.status(400).json({ error: "nome e preco são obrigatórios" });
+    const { nome, preco, categoria, imageUrl, description } = req.body;
+    
+    if (!nome || !preco) {
+      return res.status(400).json({ error: "Nome e preço são obrigatórios" });
+    }
 
-    // 3. Mandando o Prisma criar um produto REAL
     const novo = await prisma.product.create({
       data: {
         nome,
         preco: Number(preco),
-        categoria: categoria || ""
+        categoria: categoria || "geral",
+        imageUrl: imageUrl || "",
+        description: description || ""
       }
     });
 
     return res.status(201).json({ produto: novo });
   } catch (err) {
-    console.error("Erro ao criar produto:", err.message);
-    res.status(500).json({ error: "Erro interno" });
+    console.error("Erro ao criar:", err);
+    res.status(500).json({ error: "Erro ao criar produto" });
+  }
+}
+
+// 4. Atualizar produto (NOVO)
+export async function atualizar(req, res) {
+  try {
+    const id = Number(req.params.id);
+    const { nome, preco, categoria, imageUrl, description } = req.body;
+
+    const atualizado = await prisma.product.update({
+      where: { id },
+      data: {
+        nome,
+        preco: Number(preco),
+        categoria,
+        imageUrl,
+        description
+      }
+    });
+
+    return res.json({ produto: atualizado });
+  } catch (err) {
+    console.error("Erro ao atualizar:", err);
+    res.status(500).json({ error: "Erro ao atualizar produto" });
+  }
+}
+
+// 5. Deletar produto (NOVO)
+export async function deletar(req, res) {
+  try {
+    const id = Number(req.params.id);
+    await prisma.product.delete({ where: { id } });
+    return res.json({ message: "Produto deletado com sucesso" });
+  } catch (err) {
+    console.error("Erro ao deletar:", err);
+    res.status(500).json({ error: "Erro ao deletar produto" });
   }
 }
