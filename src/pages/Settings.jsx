@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
   House,
@@ -22,7 +23,6 @@ import {
   CheckCircle2,
   LogOut,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 
 const Settings = ({ user, setUser, cart }) => {
   const navigate = useNavigate();
@@ -92,7 +92,7 @@ const Settings = ({ user, setUser, cart }) => {
         (u) => u.email === formData.email && u.id !== currentUser.id
       );
       if (emailExists) {
-        throw new Error("Este email já está em uso por outro utilizador");
+        throw new Error("Este email já está em uso por outro usuário");
       }
 
       const updatedUsers = users.map((u) => {
@@ -129,9 +129,10 @@ const Settings = ({ user, setUser, cart }) => {
       setUser(updatedUser);
       setCurrentUser(updatedUser);
 
+      // **MELHOR FEEDBACK SOBRE ENDEREÇO SALVO**
       setMessage({
         type: "success",
-        text: "Perfil atualizado com sucesso!",
+        text: "Perfil e endereço atualizados com sucesso! Agora você pode usar no checkout.",
       });
     } catch (error) {
       setMessage({
@@ -169,7 +170,7 @@ const Settings = ({ user, setUser, cart }) => {
       const currentUserData = users.find((u) => u.id === currentUser.id);
 
       if (!currentUserData) {
-        throw new Error("Utilizador não encontrado");
+        throw new Error("Usuário não encontrado");
       }
 
       if (currentUserData.senha !== formData.senhaAtual) {
@@ -218,7 +219,7 @@ const Settings = ({ user, setUser, cart }) => {
   const handleDeleteAccount = () => {
     if (
       window.confirm(
-        "Tem a certeza que deseja excluir a sua conta? Todos os seus dados serão permanentemente removidos."
+        "Tem certeza que deseja excluir sua conta? Todos os seus dados serão permanentemente removidos."
       )
     ) {
       const users = JSON.parse(localStorage.getItem("users") || "[]");
@@ -377,7 +378,7 @@ const Settings = ({ user, setUser, cart }) => {
               className="bg-gradient-to-r from-verde-neon to-verde-rua hover:from-verde-rua hover:to-verde-neon text-gray-900 font-bold py-3 px-8 rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-lg hover:shadow-verde-neon/25 disabled:opacity-50 flex items-center"
             >
               <Save size={20} className="mr-2" />
-              {loading ? "A guardar..." : "Atualizar Perfil"}
+              {loading ? "Salvando..." : "Atualizar Perfil"}
             </button>
           </div>
         </form>
@@ -460,7 +461,7 @@ const Settings = ({ user, setUser, cart }) => {
               className="bg-gradient-to-r from-verde-neon to-verde-rua hover:from-verde-rua hover:to-verde-neon text-gray-900 font-bold py-3 px-8 rounded-xl transition-all duration-500 transform hover:scale-105 hover:shadow-lg hover:shadow-verde-neon/25 disabled:opacity-50 flex items-center"
             >
               <Lock size={20} className="mr-2" />
-              {loading ? "A alterar..." : "Alterar Senha"}
+              {loading ? "Alterando..." : "Alterar Senha"}
             </button>
           </div>
         </form>
@@ -533,6 +534,7 @@ const Settings = ({ user, setUser, cart }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black font-advent">
+      {/* HEADER */}
       <header className="fixed top-0 left-0 right-0 bg-gray-900/95 backdrop-blur-lg border-b border-verde-neon/20 text-white py-4 px-4 w-full z-50">
         <div className="max-w-7xl mx-auto flex items-center justify-between w-full">
           <div className="flex items-center">
@@ -590,6 +592,7 @@ const Settings = ({ user, setUser, cart }) => {
       </header>
 
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex flex-col sm:flex-row pt-20">
+        {/* MENU LATERAL - DESKTOP */}
         <aside className="hidden sm:flex ml-4 w-16 bg-gray-800/50 backdrop-blur-lg flex-col items-center py-6 fixed top-32 h-80 bottom-8 rounded-2xl z-40 border border-verde-neon/20">
           <Link
             to="/home"
@@ -609,7 +612,7 @@ const Settings = ({ user, setUser, cart }) => {
           >
             <ShoppingCart className="text-gray-300 group-hover:text-gray-900 w-6 h-6" />
             {totalItemsNoCarrinho > 0 && (
-              <span className="absolute -top-2 -right-2 bg-verde-rua text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg">
+              <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg">
                 {totalItemsNoCarrinho}
               </span>
             )}
@@ -669,7 +672,7 @@ const Settings = ({ user, setUser, cart }) => {
                   Configurações
                 </h1>
                 <p className="text-gray-300">
-                  Gerencie a sua conta e preferências
+                  Gerencie sua conta e preferências
                 </p>
               </div>
             </div>
@@ -726,8 +729,8 @@ const Settings = ({ user, setUser, cart }) => {
                 </h3>
               </div>
               <p className="text-red-300 mb-4">
-                Ações nesta secção são irreversíveis. Tenha certeza absoluta do
-                que está a fazer.
+                Ações nesta seção são irreversíveis. Tenha certeza absoluta do
+                que está fazendo.
               </p>
               <button
                 onClick={handleDeleteAccount}

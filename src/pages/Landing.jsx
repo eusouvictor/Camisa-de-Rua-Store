@@ -9,6 +9,9 @@ import {
   Mail,
   MapPin,
   Phone,
+  Globe,
+  Megaphone,
+  Heart,
 } from "lucide-react";
 
 const Landing = ({
@@ -173,7 +176,7 @@ const Landing = ({
             <div className="group bg-gray-800/50 backdrop-blur-lg border border-verde-neon/20 rounded-3xl p-8 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-verde-neon/20 hover:border-verde-neon/40">
               <div className="text-center mb-6">
                 <div className="w-20 h-20 bg-gradient-to-br from-verde-neon to-verde-rua rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <i className="bi bi-pencil-square text-3xl text-white"></i>
+                  <Globe className="text-white" size={32} />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2">CONEXÃO</h3>
                 <div className="w-12 h-0.5 bg-verde-neon mx-auto"></div>
@@ -187,7 +190,7 @@ const Landing = ({
             <div className="group bg-gray-800/50 backdrop-blur-lg border border-verde-neon/20 rounded-3xl p-8 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-verde-neon/20 hover:border-verde-neon/40">
               <div className="text-center mb-6">
                 <div className="w-20 h-20 bg-gradient-to-br from-verde-neon to-verde-rua rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <i className="bi bi-megaphone text-3xl text-white"></i>
+                  <Megaphone className="text-white" size={32} />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2">
                   VISIBILIDADE
@@ -203,7 +206,7 @@ const Landing = ({
             <div className="group bg-gray-800/50 backdrop-blur-lg border border-verde-neon/20 rounded-3xl p-8 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-verde-neon/20 hover:border-verde-neon/40">
               <div className="text-center mb-6">
                 <div className="w-20 h-20 bg-gradient-to-br from-verde-neon to-verde-rua rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <i className="bi bi-heart text-3xl text-white"></i>
+                  <Heart className="text-white" size={32} />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2">CULTURA</h3>
                 <div className="w-12 h-0.5 bg-verde-neon mx-auto"></div>
@@ -251,7 +254,7 @@ const Landing = ({
                     </div>
                     <div>
                       <p className="text-white font-semibold">Email</p>
-                      <p className="text-gray-300">contato@camisaderua.com</p>
+                      <p className="text-gray-300">camisaderua@gmail.com</p>
                     </div>
                   </div>
 
@@ -261,7 +264,7 @@ const Landing = ({
                     </div>
                     <div>
                       <p className="text-white font-semibold">Telefone</p>
-                      <p className="text-gray-300">(11) 99999-9999</p>
+                      <p className="text-gray-300">(81) 99999-9999</p>
                     </div>
                   </div>
 
@@ -271,7 +274,7 @@ const Landing = ({
                     </div>
                     <div>
                       <p className="text-white font-semibold">Endereço</p>
-                      <p className="text-gray-300">São Paulo, SP - Brasil</p>
+                      <p className="text-gray-300">Paulista, PE - Brasil</p>
                     </div>
                   </div>
                 </div>

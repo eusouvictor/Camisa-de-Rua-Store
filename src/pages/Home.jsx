@@ -11,58 +11,6 @@ import {
   Filter,
 } from "lucide-react";
 
-// Dados dos produtos diretamente no arquivo (temporariamente)
-const produtos = [
-  {
-    id: 1,
-    nome: "CAMISA BLOCO DA LATINHA",
-    preco: 49.1,
-    categoria: "camisas",
-  },
-  {
-    id: 2,
-    nome: "CAMISA SAMBA TRADICIONAL",
-    preco: 59.9,
-    categoria: "camisas",
-  },
-  {
-    id: 3,
-    nome: "BONÉ ESTILO RUA",
-    preco: 35.0,
-    categoria: "acessorios",
-  },
-  {
-    id: 4,
-    nome: "CAMISA NOITE CARIOCA",
-    preco: 65.0,
-    categoria: "camisas",
-  },
-  {
-    id: 5,
-    nome: "COPO CONFORTO",
-    preco: 89.9,
-    categoria: "acessorios",
-  },
-  {
-    id: 6,
-    nome: "CAMISA URBANA",
-    preco: 120.0,
-    categoria: "camisas",
-  },
-  {
-    id: 7,
-    nome: "CAMISETA BÁSICA",
-    preco: 29.9,
-    categoria: "camisetas",
-  },
-  {
-    id: 8,
-    nome: "JAQUETA COURO",
-    preco: 199.9,
-    categoria: "jaquetas",
-  },
-];
-
 const ProductCard = ({ produto, onAddToCart }) => {
   const formatarPreco = (preco) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -77,7 +25,8 @@ const ProductCard = ({ produto, onAddToCart }) => {
       name: produto.nome,
       price: produto.preco,
       category: produto.categoria,
-      imageUrl: produto.imageUrl, // Passa a imagem para o carrinho também
+      imageUrl: produto.imageUrl,
+      type: "produto" // Adiciona type para diferenciar de eventos
     });
   };
 
@@ -101,6 +50,7 @@ const ProductCard = ({ produto, onAddToCart }) => {
         {/* Overlay escuro ao passar o mouse */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
       </div>
+
       <div className="p-6">
         <p className="font-bold mb-3 text-white text-sm sm:text-base line-clamp-2">
           {produto.nome}
@@ -133,7 +83,8 @@ const ProductCard = ({ produto, onAddToCart }) => {
 const Home = ({ addToCart, cart }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [produtosFiltrados, setProdutosFiltrados] = useState(produtos);
+  const [allProdutos, setAllProdutos] = useState([]);
+  const [produtosFiltrados, setProdutosFiltrados] = useState([]);
   const [filtroAtivo, setFiltroAtivo] = useState("todos");
   const [menuMobileAberto, setMenuMobileAberto] = useState(false);
 
@@ -148,8 +99,7 @@ const Home = ({ addToCart, cart }) => {
     // Lógica de buscar produtos do Backend
     const fetchProdutos = async () => {
       try {
-        // IMPORTANTE: Usa /api/produtos para funcionar no Vercel e Localmente
-        const response = await fetch("/api/produtos");
+        const response = await fetch("http://localhost:4000/api/produtos");
         const data = await response.json();
         if (response.ok) {
           setAllProdutos(data.produtos || []);
@@ -158,9 +108,15 @@ const Home = ({ addToCart, cart }) => {
           setFiltroAtivo("todos");
         } else {
           console.error("Erro ao buscar produtos:", data.error);
+          // Fallback para produtos locais se a API falhar
+          setAllProdutos([]);
+          setProdutosFiltrados([]);
         }
       } catch (err) {
         console.error("Falha na rede ao buscar produtos:", err);
+        // Fallback para produtos locais se a API falhar
+        setAllProdutos([]);
+        setProdutosFiltrados([]);
       }
     };
 
@@ -171,20 +127,16 @@ const Home = ({ addToCart, cart }) => {
     setFiltroAtivo(categoria);
 
     if (categoria === "todos") {
-      setProdutosFiltrados(produtos);
+      setProdutosFiltrados(allProdutos);
     } else if (categoria === "preco") {
-      const ordenados = [...produtos].sort((a, b) => a.preco - b.preco);
+      const ordenados = [...allProdutos].sort((a, b) => a.preco - b.preco);
       setProdutosFiltrados(ordenados);
     } else {
-      const filtrados = produtos.filter(
+      const filtrados = allProdutos.filter(
         (produto) => produto.categoria === categoria
       );
       setProdutosFiltrados(filtrados);
     }
-  };
-
-  const handleAddToCart = (produto) => {
-    addToCart(produto);
   };
 
   const handleLogout = () => {
@@ -192,6 +144,7 @@ const Home = ({ addToCart, cart }) => {
     navigate("/");
   };
 
+  // Contador de itens no carrinho
   const totalItemsNoCarrinho = cart.reduce((total, item) => {
     return total + (item.quantity || 1);
   }, 0);
@@ -216,7 +169,7 @@ const Home = ({ addToCart, cart }) => {
           <div className="hidden lg:flex items-center">
             <nav className="flex items-center space-x-8">
               <span className="text-verde-neon font-semibold text-lg">
-                Olá, {user.nome}
+                Olá, {user.nome || user.name}
               </span>
             </nav>
           </div>
@@ -246,7 +199,7 @@ const Home = ({ addToCart, cart }) => {
           <div className="sm:hidden bg-gray-800/95 backdrop-blur-lg border-t border-verde-neon/20 mt-4 py-4 rounded-b-2xl">
             <div className="flex flex-col space-y-4 px-4">
               <span className="text-verde-neon text-center font-semibold">
-                Olá, {user.nome}
+                Olá, {user.nome || user.name}
               </span>
               <button
                 onClick={handleLogout}
@@ -280,7 +233,7 @@ const Home = ({ addToCart, cart }) => {
           >
             <ShoppingCart className="text-gray-300 group-hover:text-gray-900 w-6 h-6" />
             {totalItemsNoCarrinho > 0 && (
-              <span className="absolute -top-2 -right-2  bg-white text-black text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg">
+              <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg">
                 {totalItemsNoCarrinho}
               </span>
             )}
@@ -382,11 +335,12 @@ const Home = ({ addToCart, cart }) => {
               <ProductCard
                 key={produto.id}
                 produto={produto}
-                onAddToCart={handleAddToCart}
+                onAddToCart={addToCart}
               />
             ))}
           </section>
 
+          {/* Feedback Vazio */}
           {produtosFiltrados.length === 0 && (
             <div className="text-center py-16">
               <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-8 max-w-md mx-auto border border-verde-neon/20">
@@ -394,7 +348,7 @@ const Home = ({ addToCart, cart }) => {
                   Nenhum produto encontrado
                 </p>
                 <p className="text-gray-300">
-                  Tente alterar os filtros para ver mais produtos.
+                  Tente alterar os filtros ou verificar sua conexão com o backend.
                 </p>
               </div>
             </div>

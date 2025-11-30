@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import ModalAuth from "./components/ModalAuth";
 import Home from "./pages/Home";
@@ -7,6 +7,8 @@ import Events from "./pages/Events";
 import Settings from "./pages/Settings";
 import LandingPage from "./pages/Landing";
 import Checkout from "./components/Checkout";
+import AdminHome from "./pages/AdminHome";
+import AdminPanel from "./components/AdminPanel";
 
 function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -14,10 +16,24 @@ function App() {
   const [cart, setCart] = useState([]);
   const navigate = useNavigate();
 
+  // Recupera o usuário ao carregar a página
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
   const handleLoginSuccess = (userData) => {
     setUser(userData);
     setIsAuthOpen(false);
-    navigate("/home");
+
+    // Redirecionar para home diferente se for admin
+    if (userData.role === "admin") {
+      navigate("/admin-home");
+    } else {
+      navigate("/home");
+    }
   };
 
   const handleSubmit = (e) => {
@@ -36,10 +52,12 @@ function App() {
   // --- Lógica do Carrinho ---
   const addToCart = (product) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id && item.type === product.type);
+      const existingItem = prevCart.find(
+        (item) => item.id === product.id && item.type === product.type
+      );
       if (existingItem) {
         return prevCart.map((item) =>
-          item.id === product.id
+          item.id === product.id && item.type === product.type
             ? { ...item, quantity: (item.quantity || 1) + 1 }
             : item
         );
@@ -53,7 +71,9 @@ function App() {
   };
 
   const removeFromCart = (productId, type) => {
-    setCart((prevCart) => prevCart.filter((item) => !(item.id === productId && item.type === type)));
+    setCart((prevCart) =>
+      prevCart.filter((item) => !(item.id === productId && item.type === type))
+    );
   };
 
   return (
@@ -112,12 +132,11 @@ function App() {
           }
         />
 
-        {/* NOVA ROTA DO CHECKOUT */}
         <Route
           path="/checkout"
           element={
             user ? (
-              <Checkout updateCart={updateCart} />
+              <Checkout updateCart={updateCart} cart={cart} />
             ) : (
               <Navigate to="/" replace />
             )
@@ -131,6 +150,29 @@ function App() {
               <Settings user={user} setUser={setUser} cart={cart} />
             ) : (
               <Navigate to="/" replace />
+            )
+          }
+        />
+
+        {/* NOVAS ROTAS: Admin */}
+        <Route
+          path="/admin-home"
+          element={
+            user && user.role === "admin" ? (
+              <AdminHome user={user} setUser={setUser} />
+            ) : (
+              <Navigate to="/home" replace />
+            )
+          }
+        />
+
+        <Route
+          path="/admin"
+          element={
+            user && user.role === "admin" ? (
+              <AdminPanel user={user} setUser={setUser} />
+            ) : (
+              <Navigate to="/home" replace />
             )
           }
         />

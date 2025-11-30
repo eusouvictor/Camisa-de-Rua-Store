@@ -13,11 +13,13 @@ export async function register(req, res) {
     const { email, password, name } = req.body;
     if (!email || !password) return res.status(400).json({ error: "email e password são obrigatórios" });
 
+    // 2. PROCURA O USUÁRIO NO BANCO DE DADOS (PRISMA)
     const exists = await prisma.user.findUnique({ where: { email } });
     if (exists) return res.status(409).json({ error: "Usuário já existe" });
 
     const hashed = bcrypt.hashSync(password, 8);
 
+    // 3. CRIA O USUÁRIO NO BANCO DE DADOS (PRISMA)
     const newUser = await prisma.user.create({
       data: {
         email,
@@ -50,27 +52,12 @@ export async function login(req, res) {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: "email e password são obrigatórios" });
 
+    // 4. PROCURA O USUÁRIO NO BANCO (PRISMA)
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(401).json({ error: "Credenciais inválidas" });
 
     const ok = bcrypt.compareSync(password, user.password);
     if (!ok) return res.status(401).json({ error: "Credenciais inválidas" });
-
-    // --- AUDITORIA: Login ---
-    try {
-      if (usePrisma) {
-        await prisma.userAudit.create({
-          data: {
-            action: "USER_LOGIN",
-            details: "Login realizado com sucesso",
-            userId: user.id,
-          },
-        });
-      }
-    } catch (auditErr) {
-      console.error("Erro ao registrar auditoria de login:", auditErr);
-    }
-    // -----------------------
 
     const payload = { sub: user.id, email: user.email };
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET || "change_me", { expiresIn: "15m" });
@@ -78,6 +65,7 @@ export async function login(req, res) {
     const refreshToken = crypto.randomBytes(40).toString("hex");
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
 
+    // 5. SALVA O REFRESH TOKEN NO BANCO (PRISMA)
     if (usePrisma) {
       // O schema.prisma está correto para isso
       await prisma.refreshToken.create({
@@ -88,6 +76,7 @@ export async function login(req, res) {
         }
       });
     } else {
+      // Fallback se o prisma não conectou
       await tokenStore.create({ token: refreshToken, userId: user.id, expiresAt: expiresAt.toISOString(), revoked: false });
     }
 
@@ -117,10 +106,10 @@ export async function refresh(req, res) {
       : await tokenStore.find(token);
 
     if (!record || record.revoked) return res.status(401).json({ error: "Refresh token inválido" });
-    
     const expiresAt = usePrisma ? record.expiresAt : new Date(record.expiresAt);
     if (new Date(expiresAt) < new Date()) return res.status(401).json({ error: "Refresh token expirado" });
 
+    // 7. PROCURA O DONO DO TOKEN NO BANCO (PRISMA)
     const user = await prisma.user.findUnique({ where: { id: record.userId } });
     if (!user) return res.status(401).json({ error: "Usuário não encontrado" });
 
@@ -137,6 +126,7 @@ export async function logout(req, res) {
   try {
     const token = req.cookies?.refreshToken;
     if (token) {
+      // 8. REVOGA O TOKEN NO BANCO (PRISMA)
       if (usePrisma) {
         await prisma.refreshToken.updateMany({ where: { token }, data: { revoked: true } });
       } else {
@@ -152,8 +142,9 @@ export async function logout(req, res) {
 }
 
 export async function listUsers(req, res) {
+  // 9. LISTA USUÁRIOS DO BANCO (PRISMA)
   const users = await prisma.user.findMany({
-    select: {
+    select: { // Seleciona apenas campos seguros (sem a senha)
       id: true,
       email: true,
       name: true,
@@ -161,54 +152,4 @@ export async function listUsers(req, res) {
     }
   });
   res.json({ users });
-}
-
-// --- NOVA FUNÇÃO: Deletar Conta ---
-export async function deleteAccount(req, res) {
-  try {
-    const userId = req.user.sub; // ID vem do token de autenticação
-
-    if (usePrisma) {
-      // 1. Auditar antes de excluir
-      await prisma.userAudit.create({
-        data: {
-          action: "USER_DELETED",
-          details: "Usuário solicitou exclusão permanente da conta",
-          // Como vamos deletar o usuário, o ideal seria deixar o userId como NULL ou 
-          // manter o log sem vínculo forte, mas o Prisma exige o vínculo se estiver configurado.
-          // Truque: Vamos criar o log, mas sabendo que se deletarmos o User, 
-          // o Prisma pode reclamar dependendo da configuração de "Cascata".
-          // Para simplificar agora, vamos primeiro deletar os dados dependentes ou usar deleteCascade no schema.
-          // Mas vamos tentar deletar direto.
-          userId: userId, 
-        },
-      });
-
-      // 2. Deletar dependências (Refresh Tokens, etc) para evitar erro de chave estrangeira
-      await prisma.refreshToken.deleteMany({ where: { userId } });
-      
-      // Nota: Se tiver "Orders", elas podem impedir a deleção.
-      // O ideal em produção é apenas "desativar" o usuário. 
-      // Mas como pediu para excluir:
-      
-      // Deletar os logs de auditoria desse usuário antes de deletar o usuário
-      // (Triste ironia: apagar o histórico para apagar a pessoa)
-      await prisma.userAudit.deleteMany({ where: { userId } });
-
-      // Finalmente deletar o usuário
-      await prisma.user.delete({ where: { id: userId } });
-    }
-
-    // Limpar cookie
-    res.clearCookie("refreshToken");
-    
-    return res.json({ message: "Conta excluída com sucesso" });
-  } catch (err) {
-    console.error("Erro ao excluir conta:", err.message);
-    // Se der erro de constraint (ex: tem pedidos), avisamos
-    if (err.code === 'P2003') {
-       return res.status(400).json({ error: "Não é possível excluir conta com pedidos ativos." });
-    }
-    return res.status(500).json({ error: "Erro ao excluir conta" });
-  }
 }
