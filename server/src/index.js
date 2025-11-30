@@ -3,7 +3,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
 import produtosRoutes from "./routes/produtosRoutes.js";
-import paymentRoutes from "./routes/paymentRoutes.js"; // <--- Importou
+import paymentRoutes from "./routes/paymentRoutes.js";
+import ordersRoutes from "./routes/ordersRoutes.js"; // <--- Importou
 
 const app = express();
 
@@ -13,7 +14,8 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/produtos", produtosRoutes);
-app.use("/api/pagamento", paymentRoutes); // <--- Usou
+app.use("/api/pagamento", paymentRoutes);
+app.use("/api/pedidos", ordersRoutes); // <--- Usou
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

@@ -47,8 +47,27 @@ const AdminPanel = ({ user, setUser }) => {
         if (resUser.ok) setUsers(dataUser.users || []);
       }
       
-      const storedOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-      setOrders(storedOrders);
+// C) Carregar Pedidos do Banco
+if (token) {
+  const resOrders = await fetch(`${API_URL}/pedidos`, {
+      headers: { Authorization: `Bearer ${token}` }
+  });
+  const dataOrders = await resOrders.json();
+  if (resOrders.ok) {
+    // Formata os dados para o Admin Panel entender
+    const formattedOrders = dataOrders.orders.map(o => ({
+      id: o.id,
+      orderNumber: `#${o.id}`,
+      customer: o.user?.name || "Desconhecido",
+      email: o.user?.email,
+      total: o.total,
+      status: o.status,
+      date: new Date(o.createdAt).toLocaleDateString(),
+      items: o.items.length
+    }));
+    setOrders(formattedOrders);
+  }
+}
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
     }
