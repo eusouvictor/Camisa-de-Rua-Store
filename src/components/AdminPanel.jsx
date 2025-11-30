@@ -55,7 +55,7 @@ const AdminPanel = ({ user, setUser }) => {
   };
 
   // --- FUNÇÕES DO PRODUTO (CRUD) ---
-
+  console.log("Cliquei!")
   const handleSaveProduct = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("accessToken");
