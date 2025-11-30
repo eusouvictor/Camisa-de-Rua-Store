@@ -6,123 +6,80 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Começando a semeadura...');
 
-  // Limpar banco
-  await prisma.orderItem.deleteMany();
-  await prisma.order.deleteMany();
-  await prisma.product.deleteMany();
-  await prisma.refreshToken.deleteMany();
-  await prisma.userAudit.deleteMany();
-  await prisma.user.deleteMany();
+  // Limpar banco (deletar na ordem certa para não quebrar relações)
+  try {
+    await prisma.orderItem.deleteMany();
+    await prisma.order.deleteMany();
+    await prisma.stock.deleteMany(); // Adicionei Stock se tiver
+    await prisma.product.deleteMany();
+    await prisma.refreshToken.deleteMany();
+    await prisma.userAudit.deleteMany();
+    await prisma.user.deleteMany();
+  } catch (e) {
+    console.log("Banco já estava limpo ou tabela não existia.");
+  }
 
-  // 1. Criar Usuários
+  // 1. Criar Senha
   const password = await bcrypt.hash('123456', 8);
   
+  // 2. Criar Usuários
   const admin = await prisma.user.create({
-    data: {
-      email: 'admin@camisaderua.com',
-      password,
-      name: 'Admin Chefe',
-      role: 'admin'
-    }
+    data: { email: 'admin@camisaderua.com', password, name: 'Admin Chefe', role: 'admin' }
   });
 
   const cliente1 = await prisma.user.create({
     data: { email: 'joao@cliente.com', password, name: 'João Silva', role: 'CUSTOMER' }
   });
 
-  const cliente2 = await prisma.user.create({
-    data: { email: 'maria@cliente.com', password, name: 'Maria Souza', role: 'CUSTOMER' }
-  });
-
   console.log('✅ Usuários criados');
 
-  // Array com vários produtos para popular a loja
-  const produtosParaCriar = [
-    {
+  // 3. Criar Produtos (Guardando em variáveis para usar depois)
+  const p1 = await prisma.product.create({
+    data: {
       nome: "CAMISA BLOCO DA LATINHA",
       preco: 49.90,
       categoria: "camisas",
       imageUrl: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=800&q=80",
+      description: "Camisa leve para o carnaval.",
       ownerId: admin.id
-    },
-    {
+    }
+  });
+
+  const p2 = await prisma.product.create({
+    data: {
       nome: "CAMISA RUA 80",
       preco: 59.90,
       categoria: "camisas",
       imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80",
-      ownerId: admin.id
-    },
-    {
-      nome: "CAMISETA OVERSIZED PRETA",
-      preco: 79.90,
-      categoria: "camisetas",
-      imageUrl: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80",
-      ownerId: admin.id
-    },
-    {
-      nome: "BONÉ ESTILO RUA",
-      preco: 35.00,
-      categoria: "acessorios",
-      imageUrl: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=800&q=80",
-      ownerId: admin.id
-    },
-    {
-      nome: "JAQUETA CORTA VENTO",
-      preco: 129.90,
-      categoria: "jaquetas",
-      imageUrl: "https://images.unsplash.com/photo-1551028919-ac7fa7d4d4aa?auto=format&fit=crop&w=800&q=80",
-      ownerId: admin.id
-    },
-     {
-      nome: "CAMISA FLORAL VIBES",
-      preco: 65.00,
-      categoria: "camisas",
-      imageUrl: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80",
+      description: "Estilo retrô anos 80.",
       ownerId: admin.id
     }
-  ];
+  });
 
-  for (const prod of produtosParaCriar) {
-    await prisma.product.create({ data: prod });
-  }
-
-  const p2 = await prisma.product.create({
+  const p3 = await prisma.product.create({
     data: {
       nome: "BONÉ ESTILO RUA",
       preco: 35.00,
       categoria: "acessorios",
       imageUrl: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=800&q=80",
+      description: "Boné aba reta clássico.",
       ownerId: admin.id
     }
   });
 
   console.log('✅ Produtos criados');
 
-  // 3. Criar Pedidos (Fakes para o Admin)
+  // 4. Criar Pedidos (Usando os produtos p1 e p2 que acabamos de criar)
   await prisma.order.create({
     data: {
       userId: cliente1.id,
-      status: "completed",
-      total: 84.90,
+      status: "COMPLETED",
+      total: p1.preco + p3.preco,
       payment_method: "pix",
       items: {
         create: [
           { productId: p1.id, product_name: p1.nome, unit_price: p1.preco, quantity: 1, subtotal: p1.preco },
-          { productId: p2.id, product_name: p2.nome, unit_price: p2.preco, quantity: 1, subtotal: p2.preco }
-        ]
-      }
-    }
-  });
-
-  await prisma.order.create({
-    data: {
-      userId: cliente2.id,
-      status: "pending",
-      total: 49.90,
-      payment_method: "credit_card",
-      items: {
-        create: [
-          { productId: p1.id, product_name: p1.nome, unit_price: p1.preco, quantity: 1, subtotal: p1.preco }
+          { productId: p3.id, product_name: p3.nome, unit_price: p3.preco, quantity: 1, subtotal: p3.preco }
         ]
       }
     }
