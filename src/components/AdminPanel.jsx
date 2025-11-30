@@ -4,12 +4,14 @@ import {
   Settings, Users, Package, BarChart3, LogOut, Menu, X, ShoppingCart, DollarSign, TrendingUp,
   Plus, Search, Filter, Edit, Trash2, Eye, Download, Save, XCircle
 } from "lucide-react";
+import { useToast, ToastContainer } from "./Toast";
 
 const API_URL = import.meta.env.PROD ? "/api" : "http://localhost:4000/api";
 
 const AdminPanel = ({ user, setUser }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { toasts, addToast, removeToast } = useToast();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
   const [products, setProducts] = useState([]);
@@ -36,40 +38,65 @@ const AdminPanel = ({ user, setUser }) => {
 
   const loadData = async () => {
     try {
+      // Carregar Produtos (sem autenticação)
       const resProd = await fetch(`${API_URL}/produtos`);
       const dataProd = await resProd.json();
       if (resProd.ok) setProducts(dataProd.produtos || []);
 
+      // Carregar Usuários e Pedidos (COM AUTENTICAÇÃO)
       const token = localStorage.getItem("accessToken");
-      if (token) {
-        const resUser = await fetch(`${API_URL}/auth/`, { headers: { Authorization: `Bearer ${token}` } });
-        const dataUser = await resUser.json();
-        if (resUser.ok) setUsers(dataUser.users || []);
+      if (!token) {
+        addToast("Token não encontrado. Faça login novamente.", "error");
+        navigate("/");
+        return;
       }
+
+      // Carregar Usuários
+      const resUser = await fetch(`${API_URL}/auth/`, { 
+        headers: { 
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        } 
+      });
       
-// C) Carregar Pedidos do Banco
-if (token) {
-  const resOrders = await fetch(`${API_URL}/pedidos`, {
-      headers: { Authorization: `Bearer ${token}` }
-  });
-  const dataOrders = await resOrders.json();
-  if (resOrders.ok) {
-    // Formata os dados para o Admin Panel entender
-    const formattedOrders = dataOrders.orders.map(o => ({
-      id: o.id,
-      orderNumber: `#${o.id}`,
-      customer: o.user?.name || "Desconhecido",
-      email: o.user?.email,
-      total: o.total,
-      status: o.status,
-      date: new Date(o.createdAt).toLocaleDateString(),
-      items: o.items.length
-    }));
-    setOrders(formattedOrders);
-  }
-}
+      if (!resUser.ok) {
+        if (resUser.status === 401) {
+          addToast("Token inválido. Faça login novamente.", "error");
+          localStorage.removeItem("accessToken");
+          navigate("/");
+        } else {
+          addToast("Erro ao carregar usuários", "error");
+        }
+      } else {
+        const dataUser = await resUser.json();
+        setUsers(dataUser.users || []);
+      }
+
+      // Carregar Pedidos
+      const resOrders = await fetch(`${API_URL}/pedidos`, {
+        headers: { 
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (resOrders.ok) {
+        const dataOrders = await resOrders.json();
+        const formattedOrders = dataOrders.orders?.map(o => ({
+          id: o.id,
+          orderNumber: `#${o.id}`,
+          customer: o.user?.name || "Desconhecido",
+          email: o.user?.email,
+          total: o.total,
+          status: o.status,
+          date: new Date(o.createdAt).toLocaleDateString(),
+          items: o.items?.length || 0
+        })) || [];
+        setOrders(formattedOrders);
+      }
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
+      addToast("Erro ao carregar dados do servidor", "error");
     }
   };
 
@@ -77,6 +104,13 @@ if (token) {
   const handleSaveProduct = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("accessToken");
+    
+    if (!token) {
+      addToast("Token inválido. Faça login novamente.", "error");
+      navigate("/");
+      return;
+    }
+
     const method = productForm.id ? "PUT" : "POST";
     const url = productForm.id ? `${API_URL}/produtos/${productForm.id}` : `${API_URL}/produtos`;
 
@@ -85,23 +119,33 @@ if (token) {
         method: method,
         headers: { 
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}` 
+          "Authorization": `Bearer ${token}` 
         },
         body: JSON.stringify(productForm),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        alert(productForm.id ? "Produto atualizado!" : "Produto criado!");
+        addToast(
+          productForm.id ? "Produto atualizado com sucesso!" : "Produto criado com sucesso!", 
+          "success"
+        );
         setIsEditing(false);
-        setProductForm({ id: null, nome: "", preco: "", categoria: "camisas", imageUrl: "" }); // Limpa form
-        loadData(); // Recarrega lista
+        setProductForm({ id: null, nome: "", preco: "", categoria: "camisas", imageUrl: "" });
+        loadData();
       } else {
-        const data = await response.json();
-        alert(`Erro: ${data.error || "Falha ao salvar"}`);
+        if (response.status === 401) {
+          addToast("Token inválido. Faça login novamente.", "error");
+          localStorage.removeItem("accessToken");
+          navigate("/");
+        } else {
+          addToast(data.error || "Erro ao salvar produto", "error");
+        }
       }
     } catch (error) {
       console.error(error);
-      alert("Erro de conexão.");
+      addToast("Erro de conexão com o servidor", "error");
     }
   };
 
@@ -112,20 +156,31 @@ if (token) {
   };
 
   const handleDeleteProduct = async (id) => {
-    if (!window.confirm("Tem certeza que deseja excluir?")) return;
+    if (!window.confirm("Tem certeza que deseja excluir este produto?")) return;
     try {
       const token = localStorage.getItem("accessToken");
       const response = await fetch(`${API_URL}/produtos/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { 
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
       });
       if (response.ok) {
+        addToast("Produto excluído com sucesso!", "success");
         loadData();
       } else {
-        alert("Erro ao excluir.");
+        if (response.status === 401) {
+          addToast("Token inválido. Faça login novamente.", "error");
+          localStorage.removeItem("accessToken");
+          navigate("/");
+        } else {
+          addToast("Erro ao excluir produto", "error");
+        }
       }
     } catch (error) {
       console.error(error);
+      addToast("Erro de conexão", "error");
     }
   };
 
@@ -391,6 +446,7 @@ if (token) {
          {activeSection === "users" && renderUsers()}
          {activeSection === "orders" && renderOrders()}
       </main>
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
   );
 };

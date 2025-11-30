@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { X, Mail, Lock, User, Key } from "lucide-react";
+import { useToast, ToastContainer } from "./Toast";
 
 // URL da API
 const API_URL = "http://localhost:4000/api";
 
 const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
+  const { toasts, addToast, removeToast } = useToast();
   const [isLogin, setIsLogin] = useState(true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -170,7 +172,7 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
         throw new Error(data.error || "Erro ao tentar cadastrar");
       }
 
-      alert("Cadastro realizado com sucesso! Por favor, faça o login.");
+      addToast("Cadastro realizado com sucesso! Por favor, faça o login.", "success");
       switchToLogin();
     } catch (err) {
       // Fallback para localStorage se a API falhar
@@ -679,6 +681,7 @@ const ModalAuth = ({ isOpen, onClose, onLoginSuccess }) => {
           </div>
         </form>
       </div>
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
   );
 };

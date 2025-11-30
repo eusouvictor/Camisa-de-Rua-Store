@@ -18,10 +18,12 @@ import {
   MapPin,
   Truck,
 } from "lucide-react";
+import { useToast, ToastContainer } from "./Toast";
 
 const Checkout = ({ updateCart }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { toasts, addToast, removeToast } = useToast();
 
   // Estados do componente
   const [user, setUser] = useState(null);
@@ -108,7 +110,7 @@ const Checkout = ({ updateCart }) => {
     localStorage.setItem("user", JSON.stringify(updatedUser));
     setUser(updatedUser);
 
-    alert("Endereço salvo com sucesso no seu perfil!");
+    addToast("Endereço salvo com sucesso no seu perfil!", "success");
   };
 
   // Função para formatar preços em Real
@@ -151,7 +153,7 @@ const Checkout = ({ updateCart }) => {
   // Função para selecionar método de pagamento
   const handleSelecionarMetodo = (metodo) => {
     if (!freteCalculado) {
-      alert("Por favor, calcule o frete primeiro!");
+      addToast("Por favor, calcule o frete primeiro!", "info");
       return;
     }
     setMetodoPagamento(metodo);
@@ -165,12 +167,12 @@ const handleFinalizarPagamento = async () => {
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        alert("Você precisa estar logado!");
+        addToast("Você precisa estar logado!", "error");
         return;
       }
 
       if (!cartItems || cartItems.length === 0) {
-        alert("Seu carrinho está vazio!");
+        addToast("Seu carrinho está vazio!", "error");
         return;
       }
 
@@ -189,28 +191,31 @@ const handleFinalizarPagamento = async () => {
 
       if (!response.ok) {
         console.error("Erro da API:", data);
-        alert(`Erro ao gerar pagamento: ${data.error || "Erro desconhecido"}`);
+        addToast(`Erro ao gerar pagamento: ${data.error || "Erro desconhecido"}`, "error");
         return;
       }
 
       if (data.init_point) {
         console.log("Redirecionando para Mercado Pago:", data.init_point);
+        addToast("Redirecionando para pagamento...", "success");
         // Redireciona o usuário para o Mercado Pago
-        window.location.href = data.init_point;
+        setTimeout(() => {
+          window.location.href = data.init_point;
+        }, 1000);
       } else {
-        alert("Erro ao gerar pagamento. Por favor, tente novamente.");
+        addToast("Erro ao gerar pagamento. Por favor, tente novamente.", "error");
       }
 
     } catch (error) {
       console.error("Erro ao finalizar pagamento:", error);
-      alert("Erro ao conectar com o serviço de pagamento. Por favor, tente novamente.");
+      addToast("Erro ao conectar com o serviço de pagamento. Por favor, tente novamente.", "error");
     }
   };
 
   // Função para copiar texto
   const copiarParaAreaTransferencia = (texto) => {
     navigator.clipboard.writeText(texto);
-    alert("Copiado para a área de transferência!");
+    addToast("Copiado para a área de transferência!", "success");
   };
 
   // Componente de cálculo de frete
@@ -871,6 +876,7 @@ const handleFinalizarPagamento = async () => {
           </div>
         </main>
       </div>
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
   );
 };
