@@ -4,12 +4,13 @@ import authMiddleware from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
+// Públicas
 router.get("/", listar);
 router.get("/:id", obter);
 
-// Rotas protegidas (precisa estar logado)
+// Protegidas (Só Admin/Logado)
 router.post("/", authMiddleware, criar);
-router.put("/:id", authMiddleware, atualizar);   // Rota de Edição
-router.delete("/:id", authMiddleware, deletar);  // Rota de Deleção
+router.put("/:id", authMiddleware, atualizar);   // <-- Novo
+router.delete("/:id", authMiddleware, deletar);  // <-- Novo
 
 export default router;

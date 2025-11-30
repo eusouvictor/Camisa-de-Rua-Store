@@ -4,7 +4,7 @@ import prisma from "../libs/prisma.js";
 export async function listar(req, res) {
   try {
     const produtos = await prisma.product.findMany({
-      orderBy: { id: 'desc' } // Mostra os mais novos primeiro
+      orderBy: { id: 'desc' }
     });
     res.json({ produtos });
   } catch (err) {
@@ -29,7 +29,6 @@ export async function obter(req, res) {
 export async function criar(req, res) {
   try {
     const { nome, preco, categoria, imageUrl, description } = req.body;
-    
     if (!nome || !preco) {
       return res.status(400).json({ error: "Nome e preço são obrigatórios" });
     }
