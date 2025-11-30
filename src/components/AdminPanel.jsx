@@ -42,7 +42,7 @@ const AdminPanel = ({ user, setUser }) => {
 
       const token = localStorage.getItem("accessToken");
       if (token) {
-        const resUser = await fetch(`${API_URL}/auth`, { headers: { Authorization: `Bearer ${token}` } });
+        const resUser = await fetch(`${API_URL}/auth/`, { headers: { Authorization: `Bearer ${token}` } });
         const dataUser = await resUser.json();
         if (resUser.ok) setUsers(dataUser.users || []);
       }
@@ -74,7 +74,6 @@ if (token) {
   };
 
   // --- FUNÇÕES DO PRODUTO (CRUD) ---
-  console.log("Cliquei!")
   const handleSaveProduct = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("accessToken");
@@ -256,6 +255,115 @@ if (token) {
     { id: "orders", label: "Pedidos", icon: ShoppingCart },
   ];
 
+  // --- RENDERIZAÇÃO DE USUÁRIOS ---
+  const renderUsers = () => (
+    <div className="space-y-6">
+      <div className="bg-gray-800/50 rounded-2xl p-6 border border-verde-neon/20">
+        <div className="flex items-center gap-3 mb-6">
+          <Users className="text-verde-neon w-6 h-6" />
+          <h2 className="text-2xl font-bold text-white">Usuários Cadastrados</h2>
+          <span className="ml-auto bg-verde-neon/20 text-verde-neon px-3 py-1 rounded-full text-sm font-bold">{users.length}</span>
+        </div>
+        
+        {users.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-400">Nenhum usuário cadastrado ainda.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {users.map(u => (
+              <div key={u.id} className="bg-gray-700/50 rounded-xl p-4 border border-gray-600 hover:border-verde-neon/50 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-verde-neon/20 rounded-full flex items-center justify-center">
+                      <Users className="text-verde-neon w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-bold">{u.name || "Sem nome"}</h4>
+                      <p className="text-gray-400 text-sm">{u.email}</p>
+                    </div>
+                  </div>
+                  <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                    u.role === "admin" 
+                      ? "bg-red-500/20 text-red-400" 
+                      : "bg-blue-500/20 text-blue-400"
+                  }`}>
+                    {u.role.toUpperCase()}
+                  </span>
+                </div>
+                {u.createdAt && (
+                  <p className="text-gray-500 text-xs mt-2">
+                    Cadastrado em: {new Date(u.createdAt).toLocaleDateString('pt-BR')}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  // --- RENDERIZAÇÃO DE PEDIDOS ---
+  const renderOrders = () => (
+    <div className="space-y-6">
+      <div className="bg-gray-800/50 rounded-2xl p-6 border border-verde-neon/20">
+        <div className="flex items-center gap-3 mb-6">
+          <ShoppingCart className="text-verde-neon w-6 h-6" />
+          <h2 className="text-2xl font-bold text-white">Pedidos</h2>
+          <span className="ml-auto bg-verde-neon/20 text-verde-neon px-3 py-1 rounded-full text-sm font-bold">{orders.length}</span>
+        </div>
+        
+        {orders.length === 0 ? (
+          <div className="text-center py-8">
+            <ShoppingCart className="mx-auto text-gray-500 w-12 h-12 mb-3" />
+            <p className="text-gray-400">Nenhum pedido registrado ainda.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {orders.map(order => (
+              <div key={order.id} className="bg-gray-700/50 rounded-xl p-4 border border-gray-600 hover:border-verde-neon/50 transition-colors">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h4 className="text-white font-bold text-lg">{order.orderNumber}</h4>
+                    <p className="text-gray-400 text-sm">{order.customer}</p>
+                  </div>
+                  <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                    order.status === "completed"
+                      ? "bg-green-500/20 text-green-400"
+                      : order.status === "pending"
+                      ? "bg-yellow-500/20 text-yellow-400"
+                      : "bg-gray-500/20 text-gray-400"
+                  }`}>
+                    {order.status.toUpperCase()}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                  <div>
+                    <p className="text-gray-400">Email</p>
+                    <p className="text-white font-semibold text-xs truncate">{order.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Itens</p>
+                    <p className="text-verde-neon font-bold">{order.items}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Total</p>
+                    <p className="text-verde-neon font-bold">R$ {Number(order.total).toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Data</p>
+                    <p className="text-white font-semibold">{order.date}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gray-900 flex text-white font-sans">
       {sidebarOpen && (
@@ -280,18 +388,8 @@ if (token) {
          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="mb-6 p-2 bg-gray-800 rounded-lg hover:bg-gray-700"><Menu size={24} /></button>
          
          {activeSection === "products" && renderProducts()}
-         {activeSection === "users" && (
-            <div className="bg-gray-800 p-6 rounded-xl">
-              <h2 className="text-xl font-bold mb-4">Usuários Cadastrados</h2>
-              {users.map(u => (
-                <div key={u.id} className="p-3 border-b border-gray-700 text-gray-300 flex justify-between">
-                  <span>{u.name || u.email}</span>
-                  <span className="text-xs bg-gray-700 px-2 py-1 rounded">{u.role}</span>
-                </div>
-              ))}
-            </div>
-         )}
-         {activeSection === "orders" && <div className="text-center text-gray-400 mt-10">Integração de Pedidos em Breve! 🛒</div>}
+         {activeSection === "users" && renderUsers()}
+         {activeSection === "orders" && renderOrders()}
       </main>
     </div>
   );

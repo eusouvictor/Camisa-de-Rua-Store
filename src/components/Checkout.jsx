@@ -164,7 +164,17 @@ const API_URL = import.meta.env.PROD ? "/api" : "http://localhost:4000/api";
 const handleFinalizarPagamento = async () => {
     try {
       const token = localStorage.getItem("accessToken");
-      if (!token) return alert("Você precisa estar logado!");
+      if (!token) {
+        alert("Você precisa estar logado!");
+        return;
+      }
+
+      if (!cartItems || cartItems.length === 0) {
+        alert("Seu carrinho está vazio!");
+        return;
+      }
+
+      console.log("Iniciando pagamento com itens:", cartItems);
 
       const response = await fetch(`${API_URL}/pagamento/criar`, {
         method: "POST",
@@ -172,21 +182,28 @@ const handleFinalizarPagamento = async () => {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ items: cartItems }) // Enviamos os itens do carrinho
+        body: JSON.stringify({ items: cartItems })
       });
 
       const data = await response.json();
 
+      if (!response.ok) {
+        console.error("Erro da API:", data);
+        alert(`Erro ao gerar pagamento: ${data.error || "Erro desconhecido"}`);
+        return;
+      }
+
       if (data.init_point) {
+        console.log("Redirecionando para Mercado Pago:", data.init_point);
         // Redireciona o usuário para o Mercado Pago
         window.location.href = data.init_point;
       } else {
-        alert("Erro ao gerar pagamento.");
+        alert("Erro ao gerar pagamento. Por favor, tente novamente.");
       }
 
     } catch (error) {
-      console.error("Erro checkout:", error);
-      alert("Erro ao conectar com o pagamento.");
+      console.error("Erro ao finalizar pagamento:", error);
+      alert("Erro ao conectar com o serviço de pagamento. Por favor, tente novamente.");
     }
   };
 

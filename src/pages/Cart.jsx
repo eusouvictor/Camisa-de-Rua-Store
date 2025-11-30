@@ -95,9 +95,9 @@ const Cart = ({ cart, updateCart, removeFromCart }) => {
         <div className="max-w-7xl mx-auto flex items-center justify-between w-full">
           <div className="flex items-center">
             <img
-              src={item.imageUrl || item.image || "https://placehold.co/100"}
-              alt={item.nome || item.name}
-              className="w-24 h-24 object-cover rounded-md"
+              src="/images/cdrlogo.svg"
+              alt="Camisa de Rua Logo"
+              className="h-12 w-auto object-contain transition-transform duration-300 hover:scale-105"
             />
           </div>
 

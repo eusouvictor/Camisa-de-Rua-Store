@@ -36,16 +36,55 @@ async function main() {
 
   console.log('✅ Usuários criados');
 
-  // 2. Criar Produtos
-  const p1 = await prisma.product.create({
-    data: {
+  // Array com vários produtos para popular a loja
+  const produtosParaCriar = [
+    {
       nome: "CAMISA BLOCO DA LATINHA",
       preco: 49.90,
       categoria: "camisas",
       imageUrl: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=800&q=80",
       ownerId: admin.id
+    },
+    {
+      nome: "CAMISA RUA 80",
+      preco: 59.90,
+      categoria: "camisas",
+      imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80",
+      ownerId: admin.id
+    },
+    {
+      nome: "CAMISETA OVERSIZED PRETA",
+      preco: 79.90,
+      categoria: "camisetas",
+      imageUrl: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80",
+      ownerId: admin.id
+    },
+    {
+      nome: "BONÉ ESTILO RUA",
+      preco: 35.00,
+      categoria: "acessorios",
+      imageUrl: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=800&q=80",
+      ownerId: admin.id
+    },
+    {
+      nome: "JAQUETA CORTA VENTO",
+      preco: 129.90,
+      categoria: "jaquetas",
+      imageUrl: "https://images.unsplash.com/photo-1551028919-ac7fa7d4d4aa?auto=format&fit=crop&w=800&q=80",
+      ownerId: admin.id
+    },
+     {
+      nome: "CAMISA FLORAL VIBES",
+      preco: 65.00,
+      categoria: "camisas",
+      imageUrl: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80",
+      ownerId: admin.id
     }
-  });
+  ];
+
+  for (const prod of produtosParaCriar) {
+    await prisma.product.create({ data: prod });
+  }
 
   const p2 = await prisma.product.create({
     data: {

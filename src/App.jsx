@@ -16,6 +16,15 @@ function App() {
   const [cart, setCart] = useState([]);
   const navigate = useNavigate();
 
+  // Adicione isso dentro do componente App, logo no começo (antes do return)
+  React.useEffect(() => {
+    // Tenta recuperar o usuário do localStorage ao abrir o site
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
   const handleLoginSuccess = (userData) => {
     setUser(userData);
     setIsAuthOpen(false);
