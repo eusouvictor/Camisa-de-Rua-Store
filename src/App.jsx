@@ -9,6 +9,7 @@ import LandingPage from "./pages/Landing";
 import Checkout from "./components/Checkout";
 import AdminHome from "./pages/AdminHome";
 import AdminPanel from "./components/AdminPanel";
+import { addItemToCart } from "./utils/cart";
 
 function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -52,17 +53,7 @@ function App() {
   // --- Lógica do Carrinho ---
   const addToCart = (product) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find(
-        (item) => item.id === product.id && item.type === product.type
-      );
-      if (existingItem) {
-        return prevCart.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: (item.quantity || 1) + 1 }
-            : item
-        );
-      }
-      return [...prevCart, { ...product, quantity: 1 }];
+      return addItemToCart(prevCart, product);
     });
   };
 

@@ -31,7 +31,7 @@ Fluxo de autenticação (Opção B - recomendado para produção):
 - POST /api/auth/logout -> revoga refresh token e remove cookie.
 
 Observações de segurança:
-- Nunca commite `DATABASE_URL` ou `JWT_SECRET` no repositório.
+- Nunca commita `DATABASE_URL` ou `JWT_SECRET` no repositório.
 - Em produção use HTTPS e cookies `Secure` + `SameSite=Strict` (ou Lax dependendo do caso).
 - Implemente rotacionamento e revogação de refresh tokens (usar DB/Redis para armazená-los).
 

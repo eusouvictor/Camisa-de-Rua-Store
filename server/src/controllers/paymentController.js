@@ -1,7 +1,7 @@
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 import prisma from "../libs/prisma.js";
 
-// Token de Teste Público (Sandbox)
+// Access token de teste (Sandbox)
 const client = new MercadoPagoConfig({ accessToken: 'TEST-8260823872260237-112916-29e2f6966624e73f4439c2f623635706-253366373' });
 
 export async function criarPreferencia(req, res) {
